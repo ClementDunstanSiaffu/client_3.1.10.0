@@ -1,5 +1,68 @@
 
+
+import { JimuMapView } from "jimu-arcgis";
+import { appActions } from "jimu-core";
+import Widget from "../runtime/widget";
+import { stateValueType } from "../types/type";
+
+type createTableType = {
+    activeView:JimuMapView,
+    allLayers:any,
+    jimuLayerView:any,
+    checkedLayers:string[]
+}
+
 class Helper {
+
+    checkingAllRequiredProps = (props:stateValueType):boolean=>{
+        let callTable = false;
+        if (
+            props.hasOwnProperty("stateValue") &&
+            props.stateValue?.value?.layerOpen &&
+            props.stateValue?.value?.getAllLayers &&
+            props.stateValue?.value?.getActiveView &&
+            props.stateValue?.value?.checkedLayers &&
+            props.stateValue?.value?.numberOfAttribute&&
+            props.stateValue?.value?.createTable
+        ){
+            callTable = true;
+        }
+        return callTable;
+    }
+
+
+    checkTableRequiredProps = (val:createTableType):boolean=>{
+        let createTable = false;
+        const {activeView,allLayers,jimuLayerView,checkedLayers} = val;
+        if (activeView && allLayers?.length > 0 && Object.keys(jimuLayerView).length > 0 && checkedLayers.length > 0)createTable = true; 
+        return createTable;
+    }
+
+    startCreatingTable = (props:stateValueType,self:Widget)=>{
+
+        const activeView = props.stateValue?.value?.getActiveView();
+        const allLayers = props.stateValue?.value?.getAllLayers();
+        const jimuLayerView = activeView?.jimuLayerViews
+        const checkedLayers = props.stateValue?.value?.checkedLayers??[];
+        const numberOfAttribute = props.stateValue?.value?.numberOfAttribute??{};
+        const val = {activeView,allLayers,jimuLayerView,checkedLayers};
+        const createTable = this.checkTableRequiredProps(val);
+
+        if (createTable)self.createListTable();
+        if (checkedLayers.length <= 0)self.setState({tabs:[]});
+        this.openSideBar(checkedLayers,numberOfAttribute);
+        self.props.dispatch(appActions.widgetStatePropChange("value","createTable",false));
+
+        // if (
+        //     activeView && 
+        //     allLayers?.length > 0 && 
+        //     Object.keys(jimuLayerView).length > 0 && 
+        //     checkedLayers.length > 0 
+        // ){
+        //    createTable = true; 
+        // }
+        // return createTable;
+    }
 
     openSideBar(checkedLayers:string[],numberOfAttributes:{[id:string]:number}){
         const currentCheckedLayer = checkedLayers ??[];

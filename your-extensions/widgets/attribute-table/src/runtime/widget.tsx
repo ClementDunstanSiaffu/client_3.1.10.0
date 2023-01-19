@@ -49,33 +49,29 @@ export default class Widget extends React.PureComponent<AllWidgetProps<any>&stat
     }
 
     componentDidUpdate(prevProps: Readonly<AllWidgetProps<any>>, prevState: Readonly<any>, snapshot?: any) {
-        if(
-                this.props.hasOwnProperty("stateValue") &&
-                this.props.stateValue?.value?.layerOpen &&
-                this.props.stateValue?.value?.getAllLayers &&
-                this.props.stateValue?.value?.getActiveView &&
-                this.props.stateValue?.value?.checkedLayers &&
-                this.props.stateValue?.value?.numberOfAttribute&&
-                this.props.stateValue?.value?.createTable
-        ){
-            const activeView = this.props.stateValue?.value?.getActiveView();
-            const allLayers = this.props.stateValue?.value?.getAllLayers();
-            const jimuLayerView = activeView?.jimuLayerViews
-            const checkedLayers = this.props.stateValue?.value?.checkedLayers??[];
-            const numberOfAttribute = this.props.stateValue?.value?.numberOfAttribute??{};
-            if (
-                activeView && 
-                allLayers?.length > 0 && 
-                Object.keys(jimuLayerView).length > 0 && 
-                checkedLayers.length > 0 
-            ){
-                this.createListTable();
-            }
-            if (checkedLayers.length <= 0){
-                this.setState({tabs:[]});
-            }
-            helper.openSideBar(checkedLayers,numberOfAttribute);
-            this.props.dispatch(appActions.widgetStatePropChange("value","createTable",false));
+        const callTable = helper.checkingAllRequiredProps(this.props)
+        if(callTable){
+            helper.startCreatingTable(this.props,this)
+
+            // const activeView = this.props.stateValue?.value?.getActiveView();
+            // const allLayers = this.props.stateValue?.value?.getAllLayers();
+            // const jimuLayerView = activeView?.jimuLayerViews
+            // const checkedLayers = this.props.stateValue?.value?.checkedLayers??[];
+            // const numberOfAttribute = this.props.stateValue?.value?.numberOfAttribute??{};
+            // // const createTable = helper.startCreatingTable(this.props);
+            // if (
+            //     activeView && 
+            //     allLayers?.length > 0 && 
+            //     Object.keys(jimuLayerView).length > 0 && 
+            //     checkedLayers.length > 0 
+            // ){
+            //     this.createListTable();
+            // }
+            // if (checkedLayers.length <= 0){
+            //     this.setState({tabs:[]});
+            // }
+            // helper.openSideBar(checkedLayers,numberOfAttribute);
+            // this.props.dispatch(appActions.widgetStatePropChange("value","createTable",false));
         }
     }
 
@@ -201,22 +197,28 @@ export default class Widget extends React.PureComponent<AllWidgetProps<any>&stat
             ){
                 filterByExtention = false;
             }
-            if (view.extent && filterByExtention){
-                this.setState({viewExtent:view.extent});
-            }
+            if (view.extent && filterByExtention)this.setState({viewExtent:view.extent});
         },{initial:true})
+
         this.arrayTable.push(featureTable);
         let colorButtonGroupStatus = true;
-        if (!highlightIds.length){
-            colorButtonGroupStatus = false;
-        }
-        if (this.state.showColorButtonGroup !== colorButtonGroupStatus){
-            this.setState({showColorButtonGroup:colorButtonGroupStatus});
-        }
+        if (!highlightIds.length)colorButtonGroupStatus = false;
+        if (this.state.showColorButtonGroup !== colorButtonGroupStatus)this.setState({showColorButtonGroup:colorButtonGroupStatus});
+        
         return featureTable;
     }
 
-    async createTable(layer,pass:{geometry:any,typeSelected:spatialRelationshipType,where?:string,graphicsFound?:any,valueBuffer?:any}) {
+    async createTable(
+        layer,
+        pass:{
+            geometry:any,
+            typeSelected:spatialRelationshipType,
+            where?:string,
+            graphicsFound?:any,
+            valueBuffer?:any
+        }
+    ) {
+        
         const activeView = this.props.stateValue.value.getActiveView();
         const checkedLayers = this.props.stateValue?.value?.checkedLayers??[];
         const filterValue = this.props.stateValue?.value?.filterValue??1;
@@ -226,6 +228,7 @@ export default class Widget extends React.PureComponent<AllWidgetProps<any>&stat
         const highlightIds = [];
         const arrayGeometry = [];
         let geometry = null;
+
         if(pass.graphicsFound && typeof pass.valueBuffer === "number"){
             const graphicsFound =  pass.graphicsFound();
             graphicsFound?.graphics.forEach(g=>{
@@ -236,13 +239,11 @@ export default class Widget extends React.PureComponent<AllWidgetProps<any>&stat
             if(arrayGeometry.length) { // @ts-ignore
                 geometry = geometryEngine.union(arrayGeometry);
             }
-            if (geometry){
-                query.geometry = new Polygon(geometry);
-            }
+            if (geometry)query.geometry = new Polygon(geometry);
             query.spatialRelationship = pass.typeSelected;
-            query.outFields = ["*"];
             query.returnGeometry = true;
         }
+
         let layerView = layer;
         try{
             const currentLayerView = await activeView.view.whenLayerView(layer);
@@ -251,11 +252,23 @@ export default class Widget extends React.PureComponent<AllWidgetProps<any>&stat
                     highlightIds.push(key);
                 }  
             }
-            layerView = currentLayerView;
-        }catch(err){
+            if (currentLayerView?.queryFeatures){
+                layerView = currentLayerView;
+                if (query.geometry)currentLayerView.filter = {geometry: query.geometry,spatialRelationship: pass.typeSelected};
+                if(pass.where){
+                    query.where = pass.where;
+                    currentLayerView.filter = {where: query.where,}
+                }
+                if(!pass.geometry && !pass.where){
+                    query.where = "1=1";
+                    currentLayerView.filter = {where: query.where}
+                }
+           
+            }
+            query.outFields = ["*"];
+        }catch(err){}
 
-        }
-        const results = await layer.queryFeatures(query);
+        const results = await layerView.queryFeatures(query);
         const features = results?.features??[];
         if(layer && features.length ){
             this.setState({features:features})
@@ -280,7 +293,7 @@ export default class Widget extends React.PureComponent<AllWidgetProps<any>&stat
                 this.props.dispatch(appActions.widgetStatePropChange("value","showAlert",true));
             } 
         }
-       
+
         return featureTable;
     }
 
