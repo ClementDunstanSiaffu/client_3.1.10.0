@@ -1,5 +1,6 @@
 
 
+import FeatureTable from "esri/widgets/FeatureTable";
 import { JimuMapView } from "jimu-arcgis";
 import { appActions } from "jimu-core";
 import Widget from "../runtime/widget";
@@ -52,7 +53,11 @@ class Helper {
         if (checkedLayers.length <= 0)self.setState({tabs:[]});
         this.openSideBar(checkedLayers,numberOfAttribute);
         self.props.dispatch(appActions.widgetStatePropChange("value","createTable",false));
-
+        if (self.arrayTable.length && checkedLayers.length <= 0){
+            const copiedArrayTable = [...self.arrayTable];
+            this.removeAllTableHighlight(copiedArrayTable);
+        }
+        
         // if (
         //     activeView && 
         //     allLayers?.length > 0 && 
@@ -68,6 +73,7 @@ class Helper {
         const currentCheckedLayer = checkedLayers ??[];
         const sidebar = document.querySelector(".sidebar-controller");
         if (currentCheckedLayer.length > 0 && Object.keys(numberOfAttributes).length > 0){
+            console.log("testing 1")
              //@ts-ignore
             if(sidebar?.getAttribute("aria-expanded") === "false"){
                 //@ts-ignore
@@ -76,6 +82,7 @@ class Helper {
         }
        
         if (currentCheckedLayer.length <= 0){
+            console.log("testing 2")
             if (sidebar){
                 if (sidebar.getAttribute("aria-expanded") === "true"){
                     //@ts-ignore
@@ -152,6 +159,15 @@ class Helper {
                 
             })
         } 
+    }
+
+    removeAllTableHighlight = (arrayTable:FeatureTable[])=>{
+        if (arrayTable.length){
+            for (let i =0;i< arrayTable.length;i++){
+                const currentTable = arrayTable[i];
+                if(currentTable.highlightIds)currentTable.highlightIds.removeAll();
+            }
+        }
     }
 }
 

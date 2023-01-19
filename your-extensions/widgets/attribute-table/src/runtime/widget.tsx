@@ -340,6 +340,7 @@ export default class Widget extends React.PureComponent<AllWidgetProps<any>&stat
                 if (newCheckedLayers.length <= 0){
                     helper.openSideBar(newCheckedLayers,newNumberOfAttribute);
                 }
+                if(table.highlightIds)table.highlightIds.removeAll();
             }
             if (tableIndex !== -1){
                 arrayTable.splice(tableIndex,1);
@@ -371,16 +372,15 @@ export default class Widget extends React.PureComponent<AllWidgetProps<any>&stat
     optionCloseAllTabs(){
         const activeView = this.props.stateValue?.value?.getActiveView();
         const tabs = this.state.tabs;
+        const copiedArrayTable = [...this.arrayTable];
         this.arrayTable = [];
-        this.setState({
-            tabsLength: tabs.length,
-            tabs:[]
-        });
+        this.setState({tabsLength: tabs.length,tabs:[]});
         this.props.dispatch(appActions.widgetStatePropChange("value","numberOfAttribute",{}));
         this.props.dispatch(appActions.widgetStatePropChange("value","checkedLayers",[]));
         const jimuLayerViews = activeView?.jimuLayerViews;
         helper.unhighlightAllLayer(jimuLayerViews);
-        helper.deactivateAllLayer(jimuLayerViews)
+        helper.deactivateAllLayer(jimuLayerViews);
+        helper.removeAllTableHighlight(copiedArrayTable)
         //TODO MIGLIORARE
         //chiudi sidebar
         const sidebar = document.querySelector(".sidebar-controller");
