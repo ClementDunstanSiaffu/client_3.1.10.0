@@ -197,6 +197,7 @@ export default class Widget extends React.PureComponent<AllWidgetProps<IMConfig>
           const polygonGraphic = new Graphic({geometry: event.graphic.geometry,symbol: this.symbolFound});
           this.graphicLayerFound.add(polygonGraphic);
           this.selectFeatureLayer(event.graphic);
+          this.setState({searchByAddress:false})
         }
       });
 
@@ -212,7 +213,7 @@ export default class Widget extends React.PureComponent<AllWidgetProps<IMConfig>
           
   
           //@ts-ignore
-          const geometryBuffer: Polygon = geometryEngine.buffer( event.result.feature.geometry, 100, "meters");
+          const geometryBuffer: Polygon = geometryEngine.buffer( event.result.feature.geometry, 1000, "meters");
           const polygonGraphic = new Graphic({geometry: geometryBuffer,symbol: this.symbolFound});
           this.selectFeatureLayer(polygonGraphic);
           this.graphicLayerFound.add(polygonGraphic);
@@ -247,7 +248,8 @@ export default class Widget extends React.PureComponent<AllWidgetProps<IMConfig>
       listAmbiti: [],
       listSTO: [],
       urlFetched:{"comuni":false,"sito":false,"ambito":false},
-      locatingPosition:{"status":false,"error":false}
+      locatingPosition:{"status":false,"error":false},
+      searchByAddress:false
     },()=>{
       this.populateComuni();
       this.populateSTO();
