@@ -35,7 +35,9 @@ class Helper {
     checkTableRequiredProps = (val:createTableType):boolean=>{
         let createTable = false;
         const {activeView,allLayers,jimuLayerView,checkedLayers} = val;
-        if (activeView && allLayers?.length > 0 && Object.keys(jimuLayerView).length > 0 && checkedLayers.length > 0)createTable = true; 
+        if (activeView && allLayers?.length > 0 && Object.keys(jimuLayerView).length > 0 && checkedLayers.length > 0){
+            createTable = true; 
+        }
         return createTable;
     }
 
@@ -56,24 +58,14 @@ class Helper {
         if (self.arrayTable.length && checkedLayers.length <= 0){
             const copiedArrayTable = [...self.arrayTable];
             this.removeAllTableHighlight(copiedArrayTable);
+            self.props.dispatch(appActions.widgetStatePropChange("value","numberOfAttributes",{}))
         }
-        
-        // if (
-        //     activeView && 
-        //     allLayers?.length > 0 && 
-        //     Object.keys(jimuLayerView).length > 0 && 
-        //     checkedLayers.length > 0 
-        // ){
-        //    createTable = true; 
-        // }
-        // return createTable;
     }
 
     openSideBar(checkedLayers:string[],numberOfAttributes:{[id:string]:number}){
         const currentCheckedLayer = checkedLayers ??[];
         const sidebar = document.querySelector(".sidebar-controller");
         if (currentCheckedLayer.length > 0 && Object.keys(numberOfAttributes).length > 0){
-            console.log("testing 1")
              //@ts-ignore
             if(sidebar?.getAttribute("aria-expanded") === "false"){
                 //@ts-ignore
@@ -82,7 +74,6 @@ class Helper {
         }
        
         if (currentCheckedLayer.length <= 0){
-            console.log("testing 2")
             if (sidebar){
                 if (sidebar.getAttribute("aria-expanded") === "true"){
                     //@ts-ignore
@@ -97,16 +88,10 @@ class Helper {
         if (keys.length > 0){
             keys.forEach((key)=>{
                 if (id === jimuLayerViews[key]?.layer?.id){
-                    if (jimuLayerViews[key].hasOwnProperty("highLightHandle")){
-                        jimuLayerViews[key]?.highLightHandle?.remove()
-                    }
-                    if(jimuLayerViews[key].layer?.hasOwnProperty("visible")){
-                        jimuLayerViews[key].layer.visible = false;
-                    }
+                    if (jimuLayerViews[key].hasOwnProperty("highLightHandle"))jimuLayerViews[key]?.highLightHandle?.remove()
+                    if(jimuLayerViews[key].layer?.hasOwnProperty("visible"))jimuLayerViews[key].layer.visible = false;
                     if (jimuLayerViews[key].hasOwnProperty("view")){
-                        if (jimuLayerViews[key].view?.hasOwnProperty("visible")){
-                            jimuLayerViews[key].view.visible = false;
-                        }
+                        if (jimuLayerViews[key].view?.hasOwnProperty("visible"))jimuLayerViews[key].view.visible = false;
                     }
                 }
             })
@@ -115,9 +100,7 @@ class Helper {
 
     getNewNumberOfAttributes = (currentNumberOfAttribute:{[id:string]:number},id:string)=>{
         let copiedNumberOfAttribute = {...currentNumberOfAttribute};
-        if (Object.keys(copiedNumberOfAttribute).length > 0 && copiedNumberOfAttribute[id]){
-            delete copiedNumberOfAttribute[id];
-        }
+        if (Object.keys(copiedNumberOfAttribute).length > 0 && copiedNumberOfAttribute[id])delete copiedNumberOfAttribute[id];
         return copiedNumberOfAttribute;
     }
 
@@ -126,30 +109,21 @@ class Helper {
         let index = -1;
         if (newCheckedLayer?.length > 0){
             index = newCheckedLayer.indexOf(id);
-            if (index != -1){
-                newCheckedLayer.splice(index,1);
-            }
+            if (index != -1)newCheckedLayer.splice(index,1);
         }
         return newCheckedLayer;
     }
 
     unhighlightAllLayer = (jimuLayerViews)=>{
         const keys = Object.keys(jimuLayerViews);
-        if (keys.length > 0){
-            keys.forEach((key)=>{
-                jimuLayerViews[key]?.highLightHandle?.remove()
-            })
-        } 
+        if (keys.length > 0)keys.forEach((key)=>jimuLayerViews[key]?.highLightHandle?.remove())
     }
 
     deactivateAllLayer = (jimuLayerViews)=>{
         const keys = Object.keys(jimuLayerViews);
         if (keys.length > 0){
             keys.forEach((key)=>{
-                    if(jimuLayerViews[key].layer?.hasOwnProperty("visible")){
-                        jimuLayerViews[key].layer.visible = false;
-                        
-                    }
+                    if(jimuLayerViews[key].layer?.hasOwnProperty("visible"))jimuLayerViews[key].layer.visible = false;
                     if (jimuLayerViews[key].hasOwnProperty("view")){
                         if (jimuLayerViews[key].view?.hasOwnProperty("visible")){
                             jimuLayerViews[key].view.visible = false;

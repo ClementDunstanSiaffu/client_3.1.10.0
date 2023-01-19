@@ -50,29 +50,7 @@ export default class Widget extends React.PureComponent<AllWidgetProps<any>&stat
 
     componentDidUpdate(prevProps: Readonly<AllWidgetProps<any>>, prevState: Readonly<any>, snapshot?: any) {
         const callTable = helper.checkingAllRequiredProps(this.props)
-        if(callTable){
-            helper.startCreatingTable(this.props,this)
-
-            // const activeView = this.props.stateValue?.value?.getActiveView();
-            // const allLayers = this.props.stateValue?.value?.getAllLayers();
-            // const jimuLayerView = activeView?.jimuLayerViews
-            // const checkedLayers = this.props.stateValue?.value?.checkedLayers??[];
-            // const numberOfAttribute = this.props.stateValue?.value?.numberOfAttribute??{};
-            // // const createTable = helper.startCreatingTable(this.props);
-            // if (
-            //     activeView && 
-            //     allLayers?.length > 0 && 
-            //     Object.keys(jimuLayerView).length > 0 && 
-            //     checkedLayers.length > 0 
-            // ){
-            //     this.createListTable();
-            // }
-            // if (checkedLayers.length <= 0){
-            //     this.setState({tabs:[]});
-            // }
-            // helper.openSideBar(checkedLayers,numberOfAttribute);
-            // this.props.dispatch(appActions.widgetStatePropChange("value","createTable",false));
-        }
+        if(callTable)helper.startCreatingTable(this.props,this)
     }
 
     nls = (id: string) => {
@@ -120,7 +98,6 @@ export default class Widget extends React.PureComponent<AllWidgetProps<any>&stat
                             }
                         });
                     }
-                  
                 }
             }
         }
@@ -142,9 +119,7 @@ export default class Widget extends React.PureComponent<AllWidgetProps<any>&stat
         }, 100);
 
         let view = null;
-        if (activeView){
-            view = activeView?.view;
-        }
+        if (activeView)view = activeView?.view;
 
         const featureTable = new FeatureTable({
             id:layer.id,
@@ -203,8 +178,9 @@ export default class Widget extends React.PureComponent<AllWidgetProps<any>&stat
         this.arrayTable.push(featureTable);
         let colorButtonGroupStatus = true;
         if (!highlightIds.length)colorButtonGroupStatus = false;
-        if (this.state.showColorButtonGroup !== colorButtonGroupStatus)this.setState({showColorButtonGroup:colorButtonGroupStatus});
-        
+        if (this.state.showColorButtonGroup !== colorButtonGroupStatus){
+            this.setState({showColorButtonGroup:colorButtonGroupStatus});
+        }
         return featureTable;
     }
 
@@ -254,7 +230,9 @@ export default class Widget extends React.PureComponent<AllWidgetProps<any>&stat
             }
             if (currentLayerView?.queryFeatures){
                 layerView = currentLayerView;
-                if (query.geometry)currentLayerView.filter = {geometry: query.geometry,spatialRelationship: pass.typeSelected};
+                if (query.geometry){
+                    currentLayerView.filter = {geometry: query.geometry,spatialRelationship: pass.typeSelected};
+                }
                 if(pass.where){
                     query.where = pass.where;
                     currentLayerView.filter = {where: query.where,}
@@ -286,7 +264,6 @@ export default class Widget extends React.PureComponent<AllWidgetProps<any>&stat
                 helper.openSideBar([],{});
                 this.props.dispatch(appActions.widgetStatePropChange("value","numberOfAttribute",{}));
                 this.props.dispatch(appActions.widgetStatePropChange("value","checkedLayers",[]));
-                // const jimuLayerViews = this.props.stateValue.value.getAllJimuLayerViews();
                 const jimuLayerViews = activeView?.jimuLayerViews;
                 helper.unhighlightAllLayer(jimuLayerViews);
             }else{
@@ -326,7 +303,6 @@ export default class Widget extends React.PureComponent<AllWidgetProps<any>&stat
                     table = arrayTable[tableIndex];
                 }
             }
-            // const jimuLayerViews = this.props.stateValue?.value?.getAllJimuLayerViews();
             const jimuLayerViews = activeView?.jimuLayerViews 
             const numberOfAttribute = this.props.stateValue?.value?.numberOfAttribute??{};
             const checkedLayers = this.props.stateValue?.value?.checkedLayers??[];
@@ -412,7 +388,6 @@ export default class Widget extends React.PureComponent<AllWidgetProps<any>&stat
         const activeTable = this.getActiveTable();
         const uniqueValuesInfosSave = this.uniqueValuesInfosSave;
         const saveOldRenderer = this.saveOldRenderer;
-        // const jimuLayerViews = this.props.stateValue.value.getAllJimuLayerViews();
         const jimuLayerViews = activeView?.jimuLayerViews;
         if(activeTable && jimuLayerViews){
             let arrayItemSelected = activeTable.highlightIds
@@ -443,7 +418,11 @@ export default class Widget extends React.PureComponent<AllWidgetProps<any>&stat
                         let objectid = items[i];
                         let color = event;
                         if (!color){
-                            color = [Math.floor(Math.random() * 256),Math.floor(Math.random() * 256),Math.floor(Math.random() * 256)]
+                            color = [
+                                Math.floor(Math.random() * 256),
+                                Math.floor(Math.random() * 256),
+                                Math.floor(Math.random() * 256)
+                            ]
                         }
                         const uniqueColor = {
                             label: objectid,

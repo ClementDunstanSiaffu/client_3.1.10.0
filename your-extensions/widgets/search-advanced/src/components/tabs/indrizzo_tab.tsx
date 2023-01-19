@@ -28,6 +28,8 @@ export default class IndrizzoTab extends React.PureComponent<any,any>{
     const searchWidget = this.context?.parent;
     const checkedLayers = this.context?.checkedLayers??[];;
     const jimuLayerViews = Widget.jimuLayerViews;
+    const numberOfAttributes = this.context?.numberOfAttributes??{};
+    const keys = Object.keys(numberOfAttributes);
     let copiedCheckedLayers = [];
     if (checkedLayers.length ){
       copiedCheckedLayers = [...checkedLayers]
@@ -42,7 +44,9 @@ export default class IndrizzoTab extends React.PureComponent<any,any>{
     }
     helper.activateLayerOnTheMap(jimuLayerViews,n,e.target.checked);
     searchWidget.props.dispatch(appActions.widgetStatePropChange("value","checkedLayers",copiedCheckedLayers));
-    searchWidget.props.dispatch(appActions.widgetStatePropChange("value","createTable",true));
+    if (keys.length){
+      searchWidget.props.dispatch(appActions.widgetStatePropChange("value","createTable",true));
+    }
   }
 
   onChangeSlider(e){
