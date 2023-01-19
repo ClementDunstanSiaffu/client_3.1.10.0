@@ -255,12 +255,6 @@ export default class Widget extends React.PureComponent<AllWidgetProps<any>&stat
         }catch(err){
 
         }
-        // const layerView = await activeView.view.whenLayerView(layer);
-        // if (layerView?._highlightIds){
-        //     for (const key of layerView._highlightIds.keys()){
-        //         highlightIds.push(key);
-        //     }  
-        // }
         const results = await layer.queryFeatures(query);
         const features = results?.features??[];
         if(layer && features.length ){
