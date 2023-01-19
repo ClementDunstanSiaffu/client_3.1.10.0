@@ -46,12 +46,12 @@ export default class IndrizzoTab extends React.PureComponent<any,any>{
         }else{
           copiedCheckedLayers.push(n);
         }
-        if (searchByAddress){
-          const activeView = Widget.activeView;
-          const extent = Widget.currentMapExtent;
-          activeView.view.goTo(extent);
-          searchWidget.setState({searchByAddress:false})
-        }
+        // if (searchByAddress){
+        //   const activeView = Widget.activeView;
+        //   const extent = Widget.currentMapExtent;
+        //   activeView.view.goTo(extent);
+        //   searchWidget.setState({searchByAddress:false})
+        // }
         helper.activateLayerOnTheMap(jimuLayerViews,n,e.target.checked);
         searchWidget.props.dispatch(appActions.widgetStatePropChange("value","checkedLayers",copiedCheckedLayers));
         searchWidget.props.dispatch(appActions.widgetStatePropChange("value","createTable",true));
@@ -86,17 +86,19 @@ export default class IndrizzoTab extends React.PureComponent<any,any>{
         const idWidgetTable = this.context?.idWidgetTable;
         const searchByAddress = this.context?.searchByAddress;
         const searchedLayerIds = this.context?.searchedLayerIds;
+        let errorMessage = null;
+        let disableButtton = false;
 
         jimuMapView.view.map.tables.removeAll();
         let arrayErrors = [];
         if(!checkedLayers.length) arrayErrors.push("Seleziona almeno un servizio");
         if(!typeSelected) arrayErrors.push("Seleziona una tipologia di selezione");
-        searchWidget.setState({
-          errorMessage:arrayErrors.join(),
-          disableButton:true
-        });
+        // searchWidget.setState({
+        //   errorMessage:arrayErrors.join(),
+        //   disableButton:true
+        // });
         
-        if(arrayErrors.length === 0){
+      if(arrayErrors.length === 0){
           const foundInSearchAdress = [];
           for (let i = 0;i < checkedLayers.length;i++){
             const currentChechedId = checkedLayers[i];
@@ -105,12 +107,16 @@ export default class IndrizzoTab extends React.PureComponent<any,any>{
           if (!foundInSearchAdress.length){
             arrayErrors.push("Checked layers was no found on searched address")
           }
-        }
+      }
 
-        Widget.foundGeometry = searchWidget.graphicLayerFound;
+      Widget.foundGeometry = searchWidget.graphicLayerFound;
+
+      if (arrayErrors.length){
+        errorMessage = arrayErrors.join();
+      }
     
-        if(arrayErrors.length === 0 && idWidgetTable !== ""){
-    
+      if(arrayErrors.length === 0 && idWidgetTable !== ""){
+          disableButtton = true;
           jimuMapView.view.map.allLayers.items.forEach((f, index) =>{
             if(f && f.type==="feature" && checkedLayers.indexOf(f.id) !== -1){
               if(f.labelingInfo?.length){
@@ -168,7 +174,8 @@ export default class IndrizzoTab extends React.PureComponent<any,any>{
             }
           }
           
-        }
+      }
+      searchWidget.setState({errorMessage:errorMessage,disableButton:disableButtton});
     }
 
     render(): React.ReactNode {

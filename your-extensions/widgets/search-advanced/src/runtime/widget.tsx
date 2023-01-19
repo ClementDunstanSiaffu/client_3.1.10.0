@@ -220,7 +220,13 @@ export default class Widget extends React.PureComponent<AllWidgetProps<IMConfig>
         }
       });
   
-      searchWidget.on("search-clear", (event)=>{this.graphicLayerFound.removeAll();});
+      searchWidget.on("search-clear", (event)=>{
+        this.graphicLayerFound.removeAll();
+        const activeView = jmv;
+        const extent = Widget.currentMapExtent;
+        activeView.view.goTo(extent);
+      });
+    
       this.setState({
         arrayLayer: arraySup,
         jimuMapView: jmv,
