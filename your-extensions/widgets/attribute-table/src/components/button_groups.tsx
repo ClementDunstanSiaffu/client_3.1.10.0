@@ -33,6 +33,11 @@ export default class ButtonGroupComponent extends React.PureComponent<PropsType,
         this.optionColorRandom = this.optionColorRandom.bind(this);
     }
 
+    nls = (id: string) => {
+        const self = this.props.parent;
+        return self.nls(id);
+    }
+
     async getKmzFile(layer,found){
         const objIds = found.map(f=>f.OBJECTID);
         const formData = new FormData();
@@ -145,19 +150,19 @@ export default class ButtonGroupComponent extends React.PureComponent<PropsType,
         if(this.state.geometryFilter){
             buttonFilter = <div>
                 <Button onClick={this.optionFilterRemove} size="default">
-                    <WidgetFilterOutlined/> Cancella filtro
+                    <WidgetFilterOutlined/>{this.nls("clearFilter")}
                 </Button>
             </div>;
         }else{
             buttonFilter = <div>
                 {this.props.filterValue === 1 && <Button onClick={self?.optionFilterExtentions} size="default">
-                    <WidgetFilterOutlined/> Filtra per estenzione mappa
+                    <WidgetFilterOutlined/>{this.nls("filterByExtention")}
                 </Button>}
                 {self?.props.config.buttonFilter && (<Button onClick={self?.optionOpenFilter} size="default">
-                    <WidgetFilterOutlined/> Filtra
+                    <WidgetFilterOutlined/>{this.nls("filter")}
                 </Button>)}
                 <Button onClick={self?.optionCloseAllTabs} size="default">
-                    <CloseOutlined/> Chiudi tutti i tab
+                    <CloseOutlined/>{this.nls("closeAllTab")}
                 </Button>
                 <SelectFilterType parent={self} filterValue = {filterValue}/>
             </div>;
@@ -178,41 +183,41 @@ export default class ButtonGroupComponent extends React.PureComponent<PropsType,
                     <ButtonGroup className="w-100">
                         <Dropdown direction="down">
                             <DropdownButton>
-                                <ExportOutlined className="mr-2"/> Download
+                                <ExportOutlined className="mr-2"/>{this.nls("download")}
                             </DropdownButton>
                             <DropdownMenu>
                                 {self?.props.config.downloadKMZ && (<DropdownItem onClick={()=>{this.optionClickDownload("KMZ")}}>
-                                    <ExportOutlined className="mr-2"/> Esporta Selezione in KMZ
+                                    <ExportOutlined className="mr-2"/>{this.nls("exportKMZ")}
                                 </DropdownItem>)}
 
                                 {self?.props.config.downloadECGI && (<DropdownItem onClick={()=>{this.optionClickDownload("eCGI_CSV")}}>
-                                    <ExportOutlined className="mr-2"/> Esporta Colonna eCGI in CSV
+                                    <ExportOutlined className="mr-2"/>{this.nls("exportEcgiToCsv")}
                                 </DropdownItem>)}
                                 {self?.props.config.downloadCGI && (<DropdownItem onClick={()=>{this.optionClickDownload("CGI_CSV")}}>
-                                    <ExportOutlined className="mr-2"/> Esporta Colonna CGI in CSV
+                                    <ExportOutlined className="mr-2"/>{this.nls("exportCgiToCsv")}
                                 </DropdownItem>)}
                                 <DropdownItem onClick={()=>{this.optionClickDownload("CSV_TABLE")}}>
-                                    <ExportOutlined className="mr-2"/> Esporta CSV tabella selezionata
+                                    <ExportOutlined className="mr-2"/>{this.nls("exportCsvSelectedTable")}
                                 </DropdownItem>
                                 <DropdownItem onClick={()=>{this.optionClickDownload("ALL_TABLE")}}>
-                                    <ExportOutlined className="mr-2"/> Esporta CSV tutte le tabelle
+                                    <ExportOutlined className="mr-2"/>{this.nls("exportAllTable")}
                                 </DropdownItem>
                             </DropdownMenu>
                         </Dropdown>
 
                         {showColorButtonGroup && <Dropdown direction="down">
                             <DropdownButton>
-                                <ColorsOutlined className="mr-2"/> Colore evidenziazione
+                                <ColorsOutlined className="mr-2"/>{this.nls("highlightColor")}
                             </DropdownButton>
                             <DropdownMenu>
                                 <DropdownItem onClick={()=>{this.optionColorRandom()}}>
-                                    <ClearSelectionOutlined className="mr-2"/> Colore casuale
+                                    <ClearSelectionOutlined className="mr-2"/>{this.nls("randomColor")}
                                 </DropdownItem>
                                 <button className="jimu-dropdown-item app-root-emotion-cache-ltr-1vl5tzn dropdown-item">
-                                    <BrushOutlined className="mr-2"/> <ColorPicker id="colorPickerAttributeTable" className="color-picker-block mr-2" onChange={(e)=>{self?.optionColorFound(e)}} placement="top" color = {this.props.selectedColor}/> Scegli il colore
+                                    <BrushOutlined className="mr-2"/> <ColorPicker id="colorPickerAttributeTable" className="color-picker-block mr-2" onChange={(e)=>{self?.optionColorFound(e)}} placement="top" color = {this.props.selectedColor}/>{this.nls("chooseColor")}
                                 </button>
                                 <DropdownItem onClick={()=>{self?.optionColorCleanSelected()}}>
-                                    <ClearOutlined className="mr-2"/> Cancella le evidenziazioni
+                                    <ClearOutlined className="mr-2"/>{this.nls("clearHightlight")}
                                 </DropdownItem>
                             </DropdownMenu>
                         </Dropdown>}

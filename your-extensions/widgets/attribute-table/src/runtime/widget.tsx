@@ -497,7 +497,7 @@ export default class Widget extends React.PureComponent<AllWidgetProps<any>&stat
                     <div className="text-center container-fluid">
                         <div className="row">
                             <div className="col-md-12 mt-2 font-weight-bold">
-                                Nessuna tabella aperta o nessun risultato trovato
+                                {this.nls("noTableOpened")}
                             </div>
                         </div>
                     </div>
