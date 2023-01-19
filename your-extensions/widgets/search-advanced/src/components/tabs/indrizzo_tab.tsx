@@ -272,7 +272,8 @@ export default class IndrizzoTab extends React.PureComponent<any,any>{
                     open = {errorMessage && errorMessage !== ""  ?true:false}
                     text = {errorMessage}
                     type = "warning"
-                    onClose={()=>searchWidget.setState({errorMessage:""})}
+                    onClose={()=>searchWidget.setState({errorMessage:null})}
+                    closable
                 />
             </div>
         )
