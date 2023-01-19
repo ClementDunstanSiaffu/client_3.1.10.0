@@ -68,20 +68,23 @@ export default class IndrizzoTab extends React.PureComponent<any,any>{
     const geometry = this.context?.geometry;
     const idWidgetTable = this.context?.idWidgetTable;
     const searchedLayerIds = this.context?.searchedLayerIds;
-    const searchByAddress = this.context?.searchByAddress
+    const searchByAddress = this.context?.searchByAddress;
+    const noSelectedService = this.nls("selectService");
+    const noSelectedType = this.nls("selectSelection");
+    const layerOnAddress = this.nls("layerOnAddress")
     let errorMessage = null;
     let disableButtton = false;
     jimuMapView.view.map.tables.removeAll();
     let arrayErrors = [];
-    if(!checkedLayers.length) arrayErrors.push("Seleziona almeno un servizio");
-    if(!typeSelected) arrayErrors.push("Seleziona una tipologia di selezione");
+    if(!checkedLayers.length) arrayErrors.push(noSelectedService);
+    if(!typeSelected) arrayErrors.push(noSelectedType);
     if(arrayErrors.length === 0 && searchByAddress){
       const foundInSearchAdress = [];
       for (let i = 0;i < checkedLayers.length;i++){
         const currentChechedId = checkedLayers[i];
         if (searchedLayerIds.includes(currentChechedId))foundInSearchAdress.push(currentChechedId);
       }
-      if (!foundInSearchAdress.length)arrayErrors.push("Checked layers was no found on searched address")
+      if (!foundInSearchAdress.length)arrayErrors.push(layerOnAddress)
     }
     Widget.foundGeometry = searchWidget.graphicLayerFound;
     if (arrayErrors.length)errorMessage = arrayErrors.join();

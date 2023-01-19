@@ -23,5 +23,8 @@ export default {
     scopeAlert:"Selezionare prima l'ambito, poi fare click sul comune per evidenziarlo",
     filterByExtention:"Filtro per estensione",
     filterByValueBuffer:"Filtro per buffer di valori",
-    noItemSelected:"Non è stato selezionato alcun elemento sulla mappa"
+    noItemSelected:"Non è stato selezionato alcun elemento sulla mappa",
+    selectService:"Seleziona almeno un servizio",
+    selectSelection:"Seleziona una tipologia di selezione",
+    layerOnAddress:"I livelli controllati non sono stati trovati all'indirizzo cercato"
 }

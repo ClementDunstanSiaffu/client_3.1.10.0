@@ -23,6 +23,9 @@ System.register([], function (_export) {return {execute: function () {_export({
     "scopeAlert":"Select the scope first, then click on the municipality to highlight it",
     "filterByExtention":"Filter by extention",
     "filterByValueBuffer":"Filter by value buffer",
-    "noItemSelected":"No items was selected on the map"
+    "noItemSelected":"No items was selected on the map",
+    "selectService":"Select at least one service",
+    "selectSelection":"Select a type of selection",
+    "layerOnAddress":"Checked layers was no found on searched address"
 })}}});
 
