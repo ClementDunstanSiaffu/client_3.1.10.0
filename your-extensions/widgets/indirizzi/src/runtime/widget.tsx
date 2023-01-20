@@ -19,9 +19,6 @@ export default class Widget extends React.PureComponent<AllWidgetProps<IMConfig>
 
     static activeView = null;
     
-    // graphicLayerFound = new GraphicsLayer({id:"indirizzi-found-sketch",listMode:"hide",visible:true});
-    // graphicLayerSelected = new GraphicsLayer({id:"indirizzi-selected-sketch",listMode:"hide",visible:true});
-
     graphicLayerFound = new GraphicsLayer({listMode:"hide",visible:true});
     graphicLayerSelected = new GraphicsLayer({listMode:"hide",visible:true});
 
@@ -88,33 +85,6 @@ export default class Widget extends React.PureComponent<AllWidgetProps<IMConfig>
     }
 
     getActiveView = ()=> Widget.activeView;
-
-    // getAllCheckedLayers(){
-    //     const activeView = Widget.activeView;
-    //     let allCheckedLayers = [];
-    //     if (activeView){
-    //         const allLayers = activeView.view.map.allLayers.items;
-    //         const layersIds = this.state.layersIds;
-    //         const listServices = this.state.listServices;
-    //         if (layersIds.length){
-    //             for (let i = 0;i < layersIds.length;i++){
-    //                 const currentLayerIds = layersIds[i];
-    //                 const serviceKey = currentLayerIds.serviceKey
-    //                 if (listServices.includes(serviceKey)){
-    //                     const layerIds = currentLayerIds.layerIds;
-    //                     for (let j = 0;j < allLayers.length;j++){
-    //                         const currentLayer = allLayers[i];
-    //                         if (layerIds.includes(currentLayer.id)){
-    //                             allCheckedLayers.push(currentLayer);
-    //                         }
-    //                     }
-    //                 }
-    //             }
-    //         }
-    //     }
-    //     return allCheckedLayers;
-    // }
-
     
     getAllCheckedLayers(){
         const activeView = Widget.activeView;
@@ -378,7 +348,6 @@ export default class Widget extends React.PureComponent<AllWidgetProps<IMConfig>
 
         this.state.jimuMapView.selectFeaturesByGraphic(polygonGraphic,"contains").then((results)=>{
             
-            console.log(results,"check results")
             searchedLayers = helper.getSelectedLayerFromSearch(results);
             let arrayGeometry = [];
             //TODO PRENDERE GEOMETRIA
@@ -388,7 +357,6 @@ export default class Widget extends React.PureComponent<AllWidgetProps<IMConfig>
                 if (serviceKeys.length){
                     for (let i = 0;i < serviceKeys.length;i++){
                         const currentService = services[serviceKeys[i]];
-                        console.log(searchedLayers,"check searched layer")
                         if (searchedLayers?.length){
                             const item = searchedLayers.find((item)=>{
                                 if (
@@ -409,7 +377,6 @@ export default class Widget extends React.PureComponent<AllWidgetProps<IMConfig>
     
             });
 
-            
             //controllo errori
             let arrayErrors = [];
             if(arrayGeometry.length) { // @ts-ignore
@@ -452,74 +419,6 @@ export default class Widget extends React.PureComponent<AllWidgetProps<IMConfig>
 
         this.graphicLayerFound.add(polygonGraphic);
 
-        // let arrayGeometry = [];
-        // //TODO PRENDERE GEOMETRIA
-        // this.graphicLayerFound.graphics.forEach(g=>{
-        //     const services = this.props.config.services;
-        //     const serviceKeys = Object.keys(services);
-        //     if (serviceKeys.length){
-        //         for (let i = 0;i < serviceKeys.length;i++){
-        //             const currentService = services[serviceKeys[i]];
-        //             console.log(searchedLayers,"check searched layer")
-        //             if (searchedLayers?.length){
-        //                 const item = searchedLayers.find((item)=>{
-        //                     if (
-        //                             item.featureServer === currentService.url && 
-        //                             currentService.layerListIds.includes(item.id)
-        //                         ){
-        //                             return item;
-        //                         }
-        //                 })
-        //                 if (Boolean(item)){
-        //                     //@ts-ignore
-        //                     g.geometry = geometryEngine.buffer(g.geometry, this.state.valueBufferAddress, "meters");
-        //                     arrayGeometry.push(g.geometry);
-        //                 }
-        //             }
-        //         }
-        //     }
-
-        //     // // @ts-ignore
-        //     // g.geometry = geometryEngine.buffer(g.geometry, this.state.valueBufferCoord, "meters");
-        //     // arrayGeometry.push(g.geometry);
-        // });
-
-        // //controllo errori
-        // let arrayErrors = [];
-        // if(arrayGeometry.length) { // @ts-ignore
-        //     this.state.geometry = geometryEngine.union(arrayGeometry);
-        // }
-        // else arrayErrors.push("Seleziona una geometria in mappa");
-        // if(!this.state.listServices.length) arrayErrors.push("Seleziona almeno un servizio");
-        // if(!this.state.typeSelected) arrayErrors.push("Seleziona una tipologia di selezione");
-
-        // this.setState({
-        //     errorMessage:arrayErrors.join()
-        // });
-
-        // if(arrayErrors.length === 0 && this.props.config.settings.idWidgetTable !== ""){
-
-        //     this.state.jimuMapView.view.map.allLayers.forEach((f, index) =>{
-        //         if(f && f.type==="feature" && this.state.listServices.indexOf(index) !== -1){
-        //             if(f.labelingInfo?.length){
-        //                 f.labelingInfo[0].symbol.font.family = "Arial";//fix font verdana not in static esri
-        //                 f.labelsVisible = this.state.labelVisible;
-        //             }
-        //         }
-        //     });
-        //     //mando layerid ad TableList
-        //     this.props.dispatch(
-        //         appActions.widgetStatePropChange(
-        //             this.props.config.settings.idWidgetTable,
-        //             "layerOpen",
-        //             {
-        //                 typeSelected:this.state.typeSelected,
-        //                 geometry:this.state.geometry.toJSON(),
-        //                 listServices:this.state.listServices
-        //             }
-        //         )
-        //     );
-        // }
     }
 
 
