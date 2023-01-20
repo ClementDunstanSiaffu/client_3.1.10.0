@@ -4,17 +4,14 @@ import {IMConfig} from '../config'
 import {Alert, Button, Checkbox, Label, MultiSelect, NumericInput, Option, Select, Slider, Tab, Tabs} from 'jimu-ui'
 import GraphicsLayer from "esri/layers/GraphicsLayer";
 import geometryEngine from "esri/geometry/geometryEngine";
-import {JimuLayerView, JimuMapView, JimuMapViewComponent} from 'jimu-arcgis'
+import {JimuMapView, JimuMapViewComponent} from 'jimu-arcgis'
 import {CalciteAccordion, CalciteAccordionItem} from "calcite-components";
 import Graphic from 'esri/Graphic';
 import Search from "esri/widgets/Search";
-import Sketch from "esri/widgets/Sketch";
 import coordinateFormatter from "esri/geometry/coordinateFormatter";
 import webMercatorUtils from "esri/geometry/support/webMercatorUtils";
 import FeatureLayer from 'esri/layers/FeatureLayer';
-import LayerView from 'esri/views/layers/LayerView';
 import helper from '../helper/helper';
-import Extent from 'esri/geometry/Extent';
 import Polygon from 'esri/geometry/Polygon';
 import defaultMessages from './translations/default'
 
@@ -145,16 +142,11 @@ export default class Widget extends React.PureComponent<AllWidgetProps<IMConfig>
 
             searchWidget.on("select-result", (event)=>{
                 if(event && event.result && event.result.feature){
-                    // jmv.selectFeaturesByGraphic(event.result.feature,"contains").then((results)=>{
-                    //     const searchedLayers = helper.getSelectedLayerFromSearch(results);
-                    //     this.setState({searchedLayers:searchedLayers})
-                    // })
                     jmv.view.graphics.removeAll();
                     this.graphicLayerFound.removeAll();
 
                     //@ts-ignore
                     const geometryBuffer: Polygon = geometryEngine.buffer( event.result.feature.geometry, 1000, "meters");
-                    // const geometryBuffer: Polygon = geometryEngine.buffer( event.result.feature.geometry, 1, "meters");
 
                     const polygonGraphic = new Graphic({
                         geometry: geometryBuffer,
