@@ -16,6 +16,7 @@ import LayerView from 'esri/views/layers/LayerView';
 import helper from '../helper/helper';
 import Extent from 'esri/geometry/Extent';
 import Polygon from 'esri/geometry/Polygon';
+import defaultMessages from './translations/default'
 
 export default class Widget extends React.PureComponent<AllWidgetProps<IMConfig>, any> {
 
@@ -82,9 +83,11 @@ export default class Widget extends React.PureComponent<AllWidgetProps<IMConfig>
 
     }
 
-    getActiveView(){
-        return Widget.activeView;
+    nls = (id: string) => {
+        return this.props.intl ? this.props.intl.formatMessage({ id: id, defaultMessage: defaultMessages[id] }) : id
     }
+
+    getActiveView = ()=> Widget.activeView;
 
     getAllCheckedLayers(){
         const activeView = Widget.activeView;
@@ -301,14 +304,12 @@ export default class Widget extends React.PureComponent<AllWidgetProps<IMConfig>
         if(arrayGeometry.length) { // @ts-ignore
             this.state.geometry = geometryEngine.union(arrayGeometry);
         }
-        else arrayErrors.push("Seleziona una geometria in mappa");
-        if(!this.state.listServices.length) arrayErrors.push("Seleziona almeno un servizio");
-        if(!this.state.typeSelected) arrayErrors.push("Seleziona una tipologia di selezione");
+        else arrayErrors.push(this.nls("selectGeometryAlert"));
+        if(!this.state.listServices.length) arrayErrors.push(this.nls("selectService"));
+        if(!this.state.typeSelected) arrayErrors.push(this.nls("selectSelection"));
         if (!arrayGeometry.length && configErrors.length > 0) arrayErrors = configErrors
 
-        this.setState({
-            errorMessage:arrayErrors.join()
-        });
+        this.setState({errorMessage:arrayErrors.join()});
 
         if(arrayErrors.length === 0 && this.props.config.settings.idWidgetTable !== ""){
 
@@ -415,7 +416,7 @@ export default class Widget extends React.PureComponent<AllWidgetProps<IMConfig>
                 <div className="col-md-12">
                     <Label centric check>
                         <Checkbox className="mr-2" aria-label="Visualizza disegno selezione" checked={this.graphicLayerFound.visible} onChange={this._viewSelectDraw}/>
-                        Visualizza disegno selezione
+                        {this.nls("viewDrawingSelection")}
                     </Label>
                 </div>
             </div>
@@ -423,7 +424,7 @@ export default class Widget extends React.PureComponent<AllWidgetProps<IMConfig>
                 <div className="col-md-12">
                     <Label centric check>
                         <Checkbox className="mr-2" aria-label="Visualizza disegno selezione" checked={this.state.labelVisible} onChange={this._viewLabels}/>
-                        Visualizza etichette
+                        {this.nls("viewLabels")}
                     </Label>
                 </div>
             </div>
@@ -436,28 +437,28 @@ export default class Widget extends React.PureComponent<AllWidgetProps<IMConfig>
                     <div>
                         <div className="container-fluid mt-3 mb-3">
                             <div className="row">
-                                <label>Ricerca per indirizzo</label>
+                                <label>{this.nls("searchByAddress")}</label>
                                 <div id="search-widget-address" className="w-100"></div>
                             </div>
                         </div>
                         <CalciteAccordion className="mt-4 mb-2">
-                            <CalciteAccordionItem icon-start="car" itemTitle="Seleziona layers da interrogare">
+                            <CalciteAccordionItem icon-start="car" itemTitle={this.nls("selectLayerQuery")}>
                                 <div className="container-fluid mt-3 mb-3">
                                     <div className="row">
-                                        <label>Layer selezionati: {this.state.listServices.length} / {this.state.arrayLayer.length}</label>
+                                        <label>{this.nls("selectedLayers")}: {this.state.listServices.length} / {this.state.arrayLayer.length}</label>
                                         <MultiSelect
                                             items={this.state.arrayLayer}
                                             onClickItem={this.onChangeSelectLayer}
-                                            placeholder="Lista servizi"
+                                            placeholder={this.nls("listServices")}
                                         />
                                     </div>
                                 </div>
                             </CalciteAccordionItem>
-                            <CalciteAccordionItem icon-start="car" itemTitle="Opzione di ricerca">
+                            <CalciteAccordionItem icon-start="car" itemTitle={this.nls("researchOption")}>
                                 <div className="container-fluid mt-3 mb-3">
                                     <div className="row">
                                         <label className="w-100">
-                                            Valore di buffer <NumericInput defaultValue={this.state.valueBufferAddress} value={this.state.valueBufferAddress} onChange={this.onChangeSliderAddress} className="d-inline-block w-50"/> m
+                                            {this.nls("bufferValue")} <NumericInput defaultValue={this.state.valueBufferAddress} value={this.state.valueBufferAddress} onChange={this.onChangeSliderAddress} className="d-inline-block w-50"/> m
                                             <Slider
                                                 className="w-100 mt-1"
                                                 aria-label="Range"
@@ -472,8 +473,8 @@ export default class Widget extends React.PureComponent<AllWidgetProps<IMConfig>
                                     </div>
                                     <div className="row mb-3">
                                         <label className="w-100">
-                                            Tipo di selezione
-                                            <Select className="w-100 mt-2" onChange={this.onChangeSelectTypeGeometry} placeholder="Selezione tipo...">
+                                            {this.nls("typeOfSelection")}
+                                            <Select className="w-100 mt-2" onChange={this.onChangeSelectTypeGeometry} placeholder={this.nls("typeSelection")}>
                                                 <Option value="intersects" selected="selected">Intersects</Option>
                                                 <Option value="contains">Contains</Option>
                                                 <Option value="crosses">Crosses</Option>
@@ -490,7 +491,7 @@ export default class Widget extends React.PureComponent<AllWidgetProps<IMConfig>
                             </CalciteAccordionItem>
                         </CalciteAccordion>
 
-                        <Button type="primary" className="w-100" onClick={this.onClickResearchfromAddress}>Ricerca nei layer</Button>
+                        <Button type="primary" className="w-100" onClick={this.onClickResearchfromAddress}>{this.nls("searchInLayers")}</Button>
 
                         {this.state.errorMessage && this.state.errorMessage !== "" ? (
                             <Alert
@@ -560,20 +561,20 @@ export default class Widget extends React.PureComponent<AllWidgetProps<IMConfig>
                             <CalciteAccordionItem icon-start="car" itemTitle="Seleziona layers da interrogare">
                                 <div className="container-fluid mt-3 mb-3">
                                     <div className="row">
-                                        <label>Layer selezionati: {this.state.listServices.length} / {this.state.arrayLayer.length}</label>
+                                        <label>{this.nls("selectedLayers")}: {this.state.listServices.length} / {this.state.arrayLayer.length}</label>
                                         <MultiSelect
                                             items={this.state.arrayLayer}
                                             onClickItem={this.onChangeSelectLayer}
-                                            placeholder="Lista servizi"
+                                            placeholder={this.nls("listServices")}
                                         />
                                     </div>
                                 </div>
                             </CalciteAccordionItem>
-                            <CalciteAccordionItem icon-start="car" itemTitle="Opzione di ricerca">
+                            <CalciteAccordionItem icon-start="car" itemTitle={this.nls("researchOption")}>
                                 <div className="container-fluid mt-3 mb-3">
                                     <div className="row">
                                         <label className="w-100">
-                                            Valore di buffer <NumericInput defaultValue={this.state.valueBufferCoord} value={this.state.valueBufferCoord} onChange={this.onChangeSliderCoord} className="d-inline-block w-50"/> m
+                                            {this.nls("bufferValue")} <NumericInput defaultValue={this.state.valueBufferCoord} value={this.state.valueBufferCoord} onChange={this.onChangeSliderCoord} className="d-inline-block w-50"/> m
                                             <Slider
                                                 className="w-100 mt-1"
                                                 aria-label="Range"
@@ -588,7 +589,7 @@ export default class Widget extends React.PureComponent<AllWidgetProps<IMConfig>
                                     </div>
                                     <div className="row mb-3">
                                         <label className="w-100">
-                                            Tipo di selezione
+                                            {this.nls("typeOfSelection")}
                                             <Select className="w-100 mt-2" onChange={this.onChangeSelectTypeGeometry} placeholder="Selezione tipo...">
                                                 <Option value="intersects" selected="selected">Intersects</Option>
                                                 <Option value="contains">Contains</Option>
@@ -606,7 +607,7 @@ export default class Widget extends React.PureComponent<AllWidgetProps<IMConfig>
                             </CalciteAccordionItem>
                         </CalciteAccordion>
 
-                        <Button type="primary" className="w-100" onClick={this.onClickResearchfromCoord}>Ricerca nei layer</Button>
+                        <Button type="primary" className="w-100" onClick={this.onClickResearchfromCoord}>{this.nls("searchInLayers")}</Button>
 
                         {this.state.errorMessage && this.state.errorMessage !== "" ? (
                             <Alert
@@ -626,14 +627,14 @@ export default class Widget extends React.PureComponent<AllWidgetProps<IMConfig>
                         <div className="container-fluid mt-3 mb-3">
                             <div className="row mb-3">
                                 <label className="w-100 form-label">
-                                    Aggiungi un file CSV
+                                    {this.nls("addCsvFile")}
                                 </label>
 
                                 <input className="form-control" type="file" onChange={this.onChangeFileCsvCoordinate}/>
 
                                 <div className="mt-2 form-text">
-                                    Il file deve essere formattato con tre campi ID,Y,X.
-                                    (Esempio: Punto_1,38.72323056,16.49598056)
+                                    {this.nls("formattedXYZ")}
+                                    ({this.nls("example")}: Punto_1,38.72323056,16.49598056)
                                 </div>
                             </div>
                         </div>
@@ -641,11 +642,11 @@ export default class Widget extends React.PureComponent<AllWidgetProps<IMConfig>
                             <CalciteAccordionItem icon-start="car" itemTitle="Seleziona layers da interrogare">
                                 <div className="container-fluid mt-3 mb-3">
                                     <div className="row">
-                                        <label>Layer selezionati: {this.state.listServices.length} / {this.state.arrayLayer.length}</label>
+                                        <label>{this.nls("selectedLayers")}: {this.state.listServices.length} / {this.state.arrayLayer.length}</label>
                                         <MultiSelect
                                             items={this.state.arrayLayer}
                                             onClickItem={this.onChangeSelectLayer}
-                                            placeholder="Lista servizi"
+                                            placeholder={this.nls("listServices")}
                                         />
                                     </div>
                                 </div>
@@ -654,7 +655,7 @@ export default class Widget extends React.PureComponent<AllWidgetProps<IMConfig>
                                 <div className="container-fluid mt-3 mb-3">
                                     <div className="row">
                                         <label className="w-100">
-                                            Valore di buffer <NumericInput defaultValue={this.state.valueBufferCoord} value={this.state.valueBufferCoord} onChange={this.onChangeSliderCoord} className="d-inline-block w-50"/> m
+                                            {this.nls("bufferValue")} <NumericInput defaultValue={this.state.valueBufferCoord} value={this.state.valueBufferCoord} onChange={this.onChangeSliderCoord} className="d-inline-block w-50"/> m
                                             <Slider
                                                 className="w-100 mt-1"
                                                 aria-label="Range"
@@ -669,7 +670,7 @@ export default class Widget extends React.PureComponent<AllWidgetProps<IMConfig>
                                     </div>
                                     <div className="row mb-3">
                                         <label className="w-100">
-                                            Tipo di selezione
+                                            {this.nls("typeOfSelection")}
                                             <Select className="w-100 mt-2" onChange={this.onChangeSelectTypeGeometry} placeholder="Selezione tipo...">
                                                 <Option value="intersects" selected="selected">Intersects</Option>
                                                 <Option value="contains">Contains</Option>
@@ -687,7 +688,7 @@ export default class Widget extends React.PureComponent<AllWidgetProps<IMConfig>
                             </CalciteAccordionItem>
                         </CalciteAccordion>
 
-                        <Button type="primary" className="w-100" onClick={this.onClickResearchfromCoord}>Ricerca nei layer</Button>
+                        <Button type="primary" className="w-100" onClick={this.onClickResearchfromCoord}>{this.nls("searchInLayers")}</Button>
 
                         {this.state.errorMessage && this.state.errorMessage !== "" ? (
                             <Alert

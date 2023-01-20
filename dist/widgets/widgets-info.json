@@ -6760,6 +6760,7 @@
       "license": "",
       "properties": {},
       "translatedLocales": [
+        "it",
         "en"
       ],
       "defaultSize": {
@@ -6767,8 +6768,14 @@
         "height": 500
       }
     },
-    "i18nLabel": {},
-    "i18nDescription": {},
+    "i18nLabel": {
+      "it": "Indirizzi",
+      "en": "Addresses"
+    },
+    "i18nDescription": {
+      "it": null,
+      "en": null
+    },
     "uri": "widgets/indirizzi/",
     "icon": "widgets/indirizzi/icon.png",
     "order": 700,
