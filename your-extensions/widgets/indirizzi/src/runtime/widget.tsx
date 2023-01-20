@@ -367,7 +367,7 @@ export default class Widget extends React.PureComponent<AllWidgetProps<IMConfig>
 
         this.state.jimuMapView.view.goTo(point);
 
-        let geometry = geometryEngine.buffer(point, 1, "meters");
+        let geometry = geometryEngine.buffer(point, 1000, "meters");
         const polygonGraphic = new Graphic({
             //@ts-ignore
             geometry: geometry,
