@@ -41,7 +41,8 @@ class Helper {
                     for (let j = 0;j < innerResults.length;j++){
                         const layer = innerResults[j].layer;
                         const object = {featureServer:layer.url,id:layer.layerId}
-                        selectedIds.push(object)
+                        const index = selectedIds.findIndex((item)=>item.id === layer.layerId);
+                        if (index === -1)selectedIds.push(object)
                     }
                 }
             }

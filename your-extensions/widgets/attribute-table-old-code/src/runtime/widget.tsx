@@ -115,7 +115,6 @@ export default class Widget extends React.PureComponent<AllWidgetProps<any>, any
         this.defaultValue = "";
         this.tabs = [];
         this.arrayTable = [];
-        const jimuMapView = layerOpen.activeView();
         const allCheckedLayers = layerOpen.getAllLayers();
         for(let i=0;i<allCheckedLayers.length;i++){
             const f = allCheckedLayers[i];

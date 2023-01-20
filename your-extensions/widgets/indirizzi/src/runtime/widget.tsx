@@ -19,8 +19,11 @@ export default class Widget extends React.PureComponent<AllWidgetProps<IMConfig>
 
     static activeView = null;
     
-    graphicLayerFound = new GraphicsLayer({id:"indirizzi-found-sketch",listMode:"hide",visible:true});
-    graphicLayerSelected = new GraphicsLayer({id:"indirizzi-selected-sketch",listMode:"hide",visible:true});
+    // graphicLayerFound = new GraphicsLayer({id:"indirizzi-found-sketch",listMode:"hide",visible:true});
+    // graphicLayerSelected = new GraphicsLayer({id:"indirizzi-selected-sketch",listMode:"hide",visible:true});
+
+    graphicLayerFound = new GraphicsLayer({listMode:"hide",visible:true});
+    graphicLayerSelected = new GraphicsLayer({listMode:"hide",visible:true});
 
     symbolFound = {
         type: "simple-fill",
@@ -86,26 +89,49 @@ export default class Widget extends React.PureComponent<AllWidgetProps<IMConfig>
 
     getActiveView = ()=> Widget.activeView;
 
+    // getAllCheckedLayers(){
+    //     const activeView = Widget.activeView;
+    //     let allCheckedLayers = [];
+    //     if (activeView){
+    //         const allLayers = activeView.view.map.allLayers.items;
+    //         const layersIds = this.state.layersIds;
+    //         const listServices = this.state.listServices;
+    //         if (layersIds.length){
+    //             for (let i = 0;i < layersIds.length;i++){
+    //                 const currentLayerIds = layersIds[i];
+    //                 const serviceKey = currentLayerIds.serviceKey
+    //                 if (listServices.includes(serviceKey)){
+    //                     const layerIds = currentLayerIds.layerIds;
+    //                     for (let j = 0;j < allLayers.length;j++){
+    //                         const currentLayer = allLayers[i];
+    //                         if (layerIds.includes(currentLayer.id)){
+    //                             allCheckedLayers.push(currentLayer);
+    //                         }
+    //                     }
+    //                 }
+    //             }
+    //         }
+    //     }
+    //     return allCheckedLayers;
+    // }
+
+    
     getAllCheckedLayers(){
         const activeView = Widget.activeView;
         let allCheckedLayers = [];
         if (activeView){
             const allLayers = activeView.view.map.allLayers.items;
-            const layersIds = this.state.layersIds;
             const listServices = this.state.listServices;
-            if (layersIds.length){
-                for (let i = 0;i < layersIds.length;i++){
-                    const currentLayerIds = layersIds[i];
-                    const serviceKey = currentLayerIds.serviceKey
-                    if (listServices.includes(serviceKey)){
-                        const layerIds = currentLayerIds.layerIds;
-                        for (let j = 0;j < allLayers.length;j++){
-                            const currentLayer = allLayers[i];
-                            if (layerIds.includes(currentLayer.id)){
-                                allCheckedLayers.push(currentLayer);
-                            }
+            if (listServices.length && allLayers.length){
+                for (let i =0;i < listServices.length;i++){
+                    const serviceKey = listServices[i];
+                    const services = this.props.config.services;
+                    const currentService = services[serviceKey];
+                    allLayers.forEach(el=>{
+                        if (el.url === currentService.url && currentService.layerListIds.includes(el.layerId)){
+                            allCheckedLayers.push(el);
                         }
-                    }
+                    })
                 }
             }
         }
