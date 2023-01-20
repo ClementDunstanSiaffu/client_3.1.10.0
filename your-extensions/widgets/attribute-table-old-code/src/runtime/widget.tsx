@@ -335,14 +335,14 @@ export default class Widget extends React.PureComponent<AllWidgetProps<any>, any
             const table = this.arrayTable[foundIndex];
             if(table && table.layer){
                 this.arrayTable.splice(foundIndex,1);
-                this.props.stateProps.layerOpen.listServices.splice(foundIndex,1);
+                // this.props.stateProps.layerOpen.listServices.splice(foundIndex,1); --TODO
                 table.layer.visible = false;
             }
         }
 
         this.setState({
             tabsLength: this.tabs.length,
-            listServices: this.props.stateProps.layerOpen.listServices
+            // listServices: this.props.stateProps.layerOpen.listServices --TODO
         });
     }
 

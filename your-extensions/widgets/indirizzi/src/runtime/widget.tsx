@@ -367,60 +367,159 @@ export default class Widget extends React.PureComponent<AllWidgetProps<IMConfig>
 
         this.state.jimuMapView.view.goTo(point);
 
-        let geometry = geometryEngine.buffer(point, 1000, "meters");
+        let geometry = geometryEngine.buffer(point,10000,"meters");
         const polygonGraphic = new Graphic({
             //@ts-ignore
             geometry: geometry,
             symbol: this.symbolFound
         });
 
+        let searchedLayers = []
+
+        this.state.jimuMapView.selectFeaturesByGraphic(polygonGraphic,"contains").then((results)=>{
+            
+            console.log(results,"check results")
+            searchedLayers = helper.getSelectedLayerFromSearch(results);
+            let arrayGeometry = [];
+            //TODO PRENDERE GEOMETRIA
+            this.graphicLayerFound.graphics.forEach(g=>{
+                const services = this.props.config.services;
+                const serviceKeys = Object.keys(services);
+                if (serviceKeys.length){
+                    for (let i = 0;i < serviceKeys.length;i++){
+                        const currentService = services[serviceKeys[i]];
+                        console.log(searchedLayers,"check searched layer")
+                        if (searchedLayers?.length){
+                            const item = searchedLayers.find((item)=>{
+                                if (
+                                        item.featureServer === currentService.url && 
+                                        currentService.layerListIds.includes(item.id)
+                                    ){
+                                        return item;
+                                    }
+                            })
+                            if (Boolean(item)){
+                                //@ts-ignore
+                                g.geometry = geometryEngine.buffer(g.geometry, this.state.valueBufferAddress, "meters");
+                                arrayGeometry.push(g.geometry);
+                            }
+                        }
+                    }
+                }
+    
+            });
+
+            
+            //controllo errori
+            let arrayErrors = [];
+            if(arrayGeometry.length) { // @ts-ignore
+                this.state.geometry = geometryEngine.union(arrayGeometry);
+            }
+            else arrayErrors.push("Seleziona una geometria in mappa");
+            if(!this.state.listServices.length) arrayErrors.push("Seleziona almeno un servizio");
+            if(!this.state.typeSelected) arrayErrors.push("Seleziona una tipologia di selezione");
+
+            this.setState({
+                errorMessage:arrayErrors.join()
+            });
+
+            if(arrayErrors.length === 0 && this.props.config.settings.idWidgetTable !== ""){
+
+                this.state.jimuMapView.view.map.allLayers.forEach((f, index) =>{
+                    if(f && f.type==="feature" && this.state.listServices.indexOf(index) !== -1){
+                        if(f.labelingInfo?.length){
+                            f.labelingInfo[0].symbol.font.family = "Arial";//fix font verdana not in static esri
+                            f.labelsVisible = this.state.labelVisible;
+                        }
+                    }
+                });
+                //mando layerid ad TableList
+                this.props.dispatch(
+                    appActions.widgetStatePropChange(
+                        "value",
+                        "layerOpen",
+                        {
+                            typeSelected:this.state.typeSelected,
+                            geometry:this.state.geometry.toJSON(),
+                            listServices:this.state.listServices,
+                            activeView:this.getActiveView,
+                            getAllLayers:this.getAllCheckedLayers
+                        }
+                    )
+                );
+            }
+        })
 
         this.graphicLayerFound.add(polygonGraphic);
 
-        let arrayGeometry = [];
-        //TODO PRENDERE GEOMETRIA
-        this.graphicLayerFound.graphics.forEach(g=>{
-            // @ts-ignore
-            g.geometry = geometryEngine.buffer(g.geometry, this.state.valueBufferCoord, "meters");
-            arrayGeometry.push(g.geometry);
-        });
+        // let arrayGeometry = [];
+        // //TODO PRENDERE GEOMETRIA
+        // this.graphicLayerFound.graphics.forEach(g=>{
+        //     const services = this.props.config.services;
+        //     const serviceKeys = Object.keys(services);
+        //     if (serviceKeys.length){
+        //         for (let i = 0;i < serviceKeys.length;i++){
+        //             const currentService = services[serviceKeys[i]];
+        //             console.log(searchedLayers,"check searched layer")
+        //             if (searchedLayers?.length){
+        //                 const item = searchedLayers.find((item)=>{
+        //                     if (
+        //                             item.featureServer === currentService.url && 
+        //                             currentService.layerListIds.includes(item.id)
+        //                         ){
+        //                             return item;
+        //                         }
+        //                 })
+        //                 if (Boolean(item)){
+        //                     //@ts-ignore
+        //                     g.geometry = geometryEngine.buffer(g.geometry, this.state.valueBufferAddress, "meters");
+        //                     arrayGeometry.push(g.geometry);
+        //                 }
+        //             }
+        //         }
+        //     }
 
-        //controllo errori
-        let arrayErrors = [];
-        if(arrayGeometry.length) { // @ts-ignore
-            this.state.geometry = geometryEngine.union(arrayGeometry);
-        }
-        else arrayErrors.push("Seleziona una geometria in mappa");
-        if(!this.state.listServices.length) arrayErrors.push("Seleziona almeno un servizio");
-        if(!this.state.typeSelected) arrayErrors.push("Seleziona una tipologia di selezione");
+        //     // // @ts-ignore
+        //     // g.geometry = geometryEngine.buffer(g.geometry, this.state.valueBufferCoord, "meters");
+        //     // arrayGeometry.push(g.geometry);
+        // });
 
-        this.setState({
-            errorMessage:arrayErrors.join()
-        });
+        // //controllo errori
+        // let arrayErrors = [];
+        // if(arrayGeometry.length) { // @ts-ignore
+        //     this.state.geometry = geometryEngine.union(arrayGeometry);
+        // }
+        // else arrayErrors.push("Seleziona una geometria in mappa");
+        // if(!this.state.listServices.length) arrayErrors.push("Seleziona almeno un servizio");
+        // if(!this.state.typeSelected) arrayErrors.push("Seleziona una tipologia di selezione");
 
-        if(arrayErrors.length === 0 && this.props.config.settings.idWidgetTable !== ""){
+        // this.setState({
+        //     errorMessage:arrayErrors.join()
+        // });
 
-            this.state.jimuMapView.view.map.allLayers.forEach((f, index) =>{
-                if(f && f.type==="feature" && this.state.listServices.indexOf(index) !== -1){
-                    if(f.labelingInfo?.length){
-                        f.labelingInfo[0].symbol.font.family = "Arial";//fix font verdana not in static esri
-                        f.labelsVisible = this.state.labelVisible;
-                    }
-                }
-            });
-            //mando layerid ad TableList
-            this.props.dispatch(
-                appActions.widgetStatePropChange(
-                    this.props.config.settings.idWidgetTable,
-                    "layerOpen",
-                    {
-                        typeSelected:this.state.typeSelected,
-                        geometry:this.state.geometry.toJSON(),
-                        listServices:this.state.listServices
-                    }
-                )
-            );
-        }
+        // if(arrayErrors.length === 0 && this.props.config.settings.idWidgetTable !== ""){
+
+        //     this.state.jimuMapView.view.map.allLayers.forEach((f, index) =>{
+        //         if(f && f.type==="feature" && this.state.listServices.indexOf(index) !== -1){
+        //             if(f.labelingInfo?.length){
+        //                 f.labelingInfo[0].symbol.font.family = "Arial";//fix font verdana not in static esri
+        //                 f.labelsVisible = this.state.labelVisible;
+        //             }
+        //         }
+        //     });
+        //     //mando layerid ad TableList
+        //     this.props.dispatch(
+        //         appActions.widgetStatePropChange(
+        //             this.props.config.settings.idWidgetTable,
+        //             "layerOpen",
+        //             {
+        //                 typeSelected:this.state.typeSelected,
+        //                 geometry:this.state.geometry.toJSON(),
+        //                 listServices:this.state.listServices
+        //             }
+        //         )
+        //     );
+        // }
     }
 
 
