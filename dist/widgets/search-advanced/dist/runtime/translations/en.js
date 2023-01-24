@@ -26,6 +26,9 @@ System.register([], function (_export) {return {execute: function () {_export({
     "noItemSelected":"No items was selected on the map",
     "selectService":"Select at least one service",
     "selectSelection":"Select a type of selection",
-    "layerOnAddress":"Checked layers was no found on searched address"
+    "layerOnAddress":"Checked layers was no found on searched address",
+    "failedMunipacilities":"Failed to load Munipacilities",
+    "failedSite":"Failed to load Site",
+    "failedAmbito":"Failed to load Ambito"
 })}}});
 

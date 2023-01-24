@@ -9,6 +9,8 @@ import Query from 'esri/rest/support/Query';
 import query from 'esri/rest/query';
 import Graphic from 'esri/Graphic';
 import helper from '../../helper/helper';
+import Polygon from 'esri/geometry/Polygon';
+
 
 export default class SitoTab extends React.PureComponent<any,any>{
 
@@ -24,60 +26,101 @@ export default class SitoTab extends React.PureComponent<any,any>{
         return searchWidget.nls(id);
     }
 
-    async onChangeSelectSTO (e) {
-        const searchWidget = this.context?.parent;
-        const jimuMapView = this.context?.jimuMapView;
-        const searchSTO = this.context?.searchSTO
+   async onChangeSelectSTO (e) {
 
-        searchWidget.setLocatingPostion(true,false)
-        searchWidget.graphicLayerFound.removeAll();
-        const queryObject = new Query();
-        //TODO
-        // queryObject.where = `IDCOMPARTIMENTO = ${e.target.value}`;
-        queryObject.where = `FID = ${e.target.value}`
-        queryObject.returnGeometry = true;
-        // @ts-expect-error
-        queryObject.outFields = '*';
-        try{
-          const results = await query.executeQueryJSON(searchSTO.url, queryObject);
-            //---TODO ---//
-          // results.features.sort(function (a, b) {
-          //   return ((a.attributes.NOMECOMUNE < b.attributes.NOMECOMUNE) ? -1 : ((a.attributes.NOMECOMUNE == b.attributes.NOMECOMUNE) ? 0 : 1));
-          // })
-    
-          const feature = results.features;
-          const totalpolygonGraphic = []
-          if (feature?.length){
-            feature.forEach((el,i)=>{
-                const polygon = helper.returnGraphicsGeometry(el);
-                let symbol = searchWidget.symbolSelected
-                if (polygon.type === "point"){
-                  symbol = {
-                    type: "simple-marker", 
-                    color:[51, 51, 204, 0.5],
-                    size:"100px",
-                    outline:{
-                      color:"transparent",
-                      width:0
-                    }
-                  }
-                } 
-                const polygonGraphic = new Graphic({geometry: polygon,symbol: symbol});
-                searchWidget.graphicLayerFound.add(polygonGraphic);
-                totalpolygonGraphic.push(polygonGraphic);
-            })
-            if (totalpolygonGraphic.length){
-              jimuMapView.view.goTo({center:totalpolygonGraphic});
-              searchWidget.setLocatingPostion(false,false);
-            }
-            searchWidget.setState({resultSTO:feature});
-          }else{
-            searchWidget.setLocatingPostion(false,true);
-          }
-        }catch(err){
-            searchWidget.setLocatingPostion(false,true);
-        }
+    const searchWidget = this.context?.parent;
+    const jimuMapView = this.context?.jimuMapView;
+    const searchItems = this.context?.searchItems
+
+    searchWidget.graphicLayerFound.removeAll();
+    const queryObject = new Query();
+    queryObject.where = `IDCOMPARTIMENTO = "${e.target.value}"`;
+    queryObject.returnGeometry = true;
+    // @ts-expect-error
+    queryObject.outFields = '*';
+    const results = await query.executeQueryJSON(searchItems.url, queryObject);
+    results.features.sort(function (a, b) {
+      return ((a.attributes.NOMECOMUNE < b.attributes.NOMECOMUNE) ? -1 : ((a.attributes.NOMECOMUNE == b.attributes.NOMECOMUNE) ? 0 : 1));
+    })
+
+    const totalpolygonGraphic = []
+    results.features.forEach((el, i) => {
+    const geometryComune = el.geometry;
+    const polygon = new Polygon(geometryComune);
+    const polygonGraphic = new Graphic({
+      geometry: polygon,
+      symbol: searchWidget.symbolFound
+    })
+
+    searchWidget.graphicLayerFound.add(polygonGraphic);
+      totalpolygonGraphic.push(polygonGraphic);
+    })
+
+    if(totalpolygonGraphic?.length){
+    jimuMapView.view.goTo({
+        center: [totalpolygonGraphic]
+    })
+    }
+
+        searchWidget.setState({
+        resultSTO: results.features
+        })
       }
+
+    // async onChangeSelectSTO (e) {
+    //     const searchWidget = this.context?.parent;
+    //     const jimuMapView = this.context?.jimuMapView;
+    //     const searchSTO = this.context?.searchSTO
+
+    //     searchWidget.setLocatingPostion(true,false)
+    //     searchWidget.graphicLayerFound.removeAll();
+    //     const queryObject = new Query();
+    //     //TODO
+    //     // queryObject.where = `IDCOMPARTIMENTO = ${e.target.value}`;
+    //     queryObject.where = `FID = ${e.target.value}`
+    //     queryObject.returnGeometry = true;
+    //     // @ts-expect-error
+    //     queryObject.outFields = '*';
+    //     try{
+    //       const results = await query.executeQueryJSON(searchSTO.url, queryObject);
+    //         //---TODO ---//
+    //       // results.features.sort(function (a, b) {
+    //       //   return ((a.attributes.NOMECOMUNE < b.attributes.NOMECOMUNE) ? -1 : ((a.attributes.NOMECOMUNE == b.attributes.NOMECOMUNE) ? 0 : 1));
+    //       // })
+    
+    //       const feature = results.features;
+    //       const totalpolygonGraphic = []
+    //       if (feature?.length){
+    //         feature.forEach((el,i)=>{
+    //             const polygon = helper.returnGraphicsGeometry(el);
+    //             let symbol = searchWidget.symbolSelected
+    //             if (polygon.type === "point"){
+    //               symbol = {
+    //                 type: "simple-marker", 
+    //                 color:[51, 51, 204, 0.5],
+    //                 size:"100px",
+    //                 outline:{
+    //                   color:"transparent",
+    //                   width:0
+    //                 }
+    //               }
+    //             } 
+    //             const polygonGraphic = new Graphic({geometry: polygon,symbol: symbol});
+    //             searchWidget.graphicLayerFound.add(polygonGraphic);
+    //             totalpolygonGraphic.push(polygonGraphic);
+    //         })
+    //         if (totalpolygonGraphic.length){
+    //           jimuMapView.view.goTo({center:totalpolygonGraphic});
+    //           searchWidget.setLocatingPostion(false,false);
+    //         }
+    //         searchWidget.setState({resultSTO:feature});
+    //       }else{
+    //         searchWidget.setLocatingPostion(false,true);
+    //       }
+    //     }catch(err){
+    //         searchWidget.setLocatingPostion(false,true);
+    //     }
+    //   }
 
     render(): React.ReactNode {
 
@@ -85,15 +128,20 @@ export default class SitoTab extends React.PureComponent<any,any>{
         const urlFetched = this.context?.urlFetched;
         const searchWidget = this.context?.parent;
         const locatingPosition = this.context?.locatingPosition;
-        const resultSTO = this.context?.resultSTO
+        const resultSTO = this.context?.resultSTO;
+
 
         return(
             <div className="mt-4 container-fluid">
                 <div className="row">
                     <div className="col-md-12">
                         <div className="mb-2">
+                        {
+                            (!listSTO.length  && urlFetched["ambito"]) && 
+                            <Alert className="w-100" form="basic" open text={this.nls("failedSite")} type="error" withIcon/>
+                        }
                             {
-                                (!listSTO.length && urlFetched["sito"]) && 
+                                (listSTO.length > 0 && urlFetched["sito"]) && 
                                 <Alert className="w-100" form="basic" open text={this.nls("siteALert")} type="info" withIcon/>
                             }
                             {
@@ -120,7 +168,7 @@ export default class SitoTab extends React.PureComponent<any,any>{
                                 }
                                 </Select>
                             }
-                            <LocatingPositionLoader locatingPosition={locatingPosition}/>
+                            {/* <LocatingPositionLoader locatingPosition={locatingPosition}/>
                             {
                                 !locatingPosition["status"] && locatingPosition["error"] && 
                                     <Alert 
@@ -129,7 +177,7 @@ export default class SitoTab extends React.PureComponent<any,any>{
                                     type = "error"
                                     onClose={()=>searchWidget.setLocatingPostion(false,false)}
                                     />
-                            }
+                            } */}
                         </div>
                         <div style={{maxHeight: 350, overflowY: 'auto'}}>
                             { !resultSTO?.length

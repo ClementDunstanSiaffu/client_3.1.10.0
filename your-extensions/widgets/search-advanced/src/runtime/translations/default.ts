@@ -26,5 +26,8 @@ export default {
     noItemSelected:"Non è stato selezionato alcun elemento sulla mappa",
     selectService:"Seleziona almeno un servizio",
     selectSelection:"Seleziona una tipologia di selezione",
-    layerOnAddress:"I livelli controllati non sono stati trovati all'indirizzo cercato"
+    layerOnAddress:"I livelli controllati non sono stati trovati all'indirizzo cercato",
+    failedMunipacilities:"Impossibile caricare le strutture comunali",
+    failedSite:"Impossibile caricare il sito",
+    failedAmbito:"Impossibile caricare l'ambito"
 }

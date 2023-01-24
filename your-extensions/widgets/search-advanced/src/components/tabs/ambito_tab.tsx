@@ -9,6 +9,8 @@ import Query from 'esri/rest/support/Query';
 import query from 'esri/rest/query';
 import Graphic from 'esri/Graphic';
 import helper from '../../helper/helper';
+import Polygon from 'esri/geometry/Polygon';
+
 
 export default class AmbitoTab extends React.PureComponent<any,any>{
 
@@ -25,59 +27,97 @@ export default class AmbitoTab extends React.PureComponent<any,any>{
     }
 
     async onChangeSelectAmbiti (e) {
-        const searchWidget = this.context?.parent;
-        const jimuMapView = this.context?.jimuMapView;
-        const searchAmbiti = this.context?.searchAmbiti
 
-        searchWidget.setLocatingPostion(true,false);
-        searchWidget.graphicLayerFound.removeAll();
-        const queryObject = new Query();
-        //TODO
-        // queryObject.where = `IDAMBITO = "${e.target.value}"`;
-        queryObject.where = `FID = ${e.target.value}`;
-        queryObject.returnGeometry = true;
-        // @ts-expect-error
-        queryObject.outFields = '*';
-        try{
-          const results = await query.executeQueryJSON(searchAmbiti?.url, queryObject);
-          //TODO
-          // results.features.sort(function (a, b) {
-          //   return ((a.attributes.NOMECOMUNE < b.attributes.NOMECOMUNE) ? -1 : ((a.attributes.NOMECOMUNE == b.attributes.NOMECOMUNE) ? 0 : 1))
-          // })
-          const feature = results.features;
-          const totalpolygonGraphic = [];
-          if (feature.length){
-            feature.forEach((el,i)=>{
-                const polygon = helper.returnGraphicsGeometry(el);
-                let symbol = searchWidget.symbolSelected
-                if (polygon.type === "point"){
-                  symbol = {
-                    type: "simple-marker", 
-                    color:[51, 51, 204, 0.5],
-                    size:"100px",
-                    outline:{
-                      color:"transparent",
-                      width:0
-                    }
-                  }
-                }
-                const polygonGraphic = new Graphic({geometry: polygon,symbol:symbol});
-                searchWidget.graphicLayerFound.add(polygonGraphic);
-                totalpolygonGraphic.push(polygonGraphic);
-            })
-            if (totalpolygonGraphic.length){
-              console.log("go to")
-              jimuMapView.view.goTo({center:totalpolygonGraphic});
-              searchWidget.setLocatingPostion(false,false);
-            }
-            searchWidget.setState({resultsAmbiti: results.features})
-          }else{
-            searchWidget.setLocatingPostion(false,true);
-          }
-          }catch(err){
-            searchWidget.setLocatingPostion(false,true);
-          }
-      }
+      const searchWidget = this.context?.parent;
+      const jimuMapView = this.context?.jimuMapView;
+      const searchItems = this.context?.searchItems
+
+
+      searchWidget.graphicLayerFound.removeAll();
+    const queryObject = new Query();
+    queryObject.where = `IDAMBITO = "${e.target.value}"`;
+    queryObject.returnGeometry = true;
+    // @ts-expect-error
+    queryObject.outFields = '*';
+    const results = await query.executeQueryJSON(searchItems.url, queryObject);
+    results.features.sort(function (a, b) {
+      return ((a.attributes.NOMECOMUNE < b.attributes.NOMECOMUNE) ? -1 : ((a.attributes.NOMECOMUNE == b.attributes.NOMECOMUNE) ? 0 : 1))
+    })
+    const totalpolygonGraphic = [];
+    results.features.forEach((el, i) => {
+      const geometryComune = el.geometry;
+      const polygon = new Polygon(geometryComune);
+      const polygonGraphic = new Graphic({
+        geometry: polygon,
+        symbol: searchWidget.symbolFound
+      })
+      searchWidget.graphicLayerFound.add(polygonGraphic);
+      totalpolygonGraphic.push(polygonGraphic);
+    })
+
+    jimuMapView.view.goTo({
+      center: [totalpolygonGraphic]
+    })
+
+    searchWidget.setState({
+      resultsAmbiti: results.features
+    })
+    }
+
+    // async onChangeSelectAmbiti (e) {
+    //     const searchWidget = this.context?.parent;
+    //     const jimuMapView = this.context?.jimuMapView;
+    //     const searchAmbiti = this.context?.searchAmbiti
+
+    //     searchWidget.setLocatingPostion(true,false);
+    //     searchWidget.graphicLayerFound.removeAll();
+    //     const queryObject = new Query();
+    //     //TODO
+    //     // queryObject.where = `IDAMBITO = "${e.target.value}"`;
+    //     queryObject.where = `FID = ${e.target.value}`;
+    //     queryObject.returnGeometry = true;
+    //     // @ts-expect-error
+    //     queryObject.outFields = '*';
+    //     try{
+    //       const results = await query.executeQueryJSON(searchAmbiti?.url, queryObject);
+    //       //TODO
+    //       // results.features.sort(function (a, b) {
+    //       //   return ((a.attributes.NOMECOMUNE < b.attributes.NOMECOMUNE) ? -1 : ((a.attributes.NOMECOMUNE == b.attributes.NOMECOMUNE) ? 0 : 1))
+    //       // })
+    //       const feature = results.features;
+    //       const totalpolygonGraphic = [];
+    //       if (feature.length){
+    //         feature.forEach((el,i)=>{
+    //             const polygon = helper.returnGraphicsGeometry(el);
+    //             let symbol = searchWidget.symbolSelected
+    //             if (polygon.type === "point"){
+    //               symbol = {
+    //                 type: "simple-marker", 
+    //                 color:[51, 51, 204, 0.5],
+    //                 size:"100px",
+    //                 outline:{
+    //                   color:"transparent",
+    //                   width:0
+    //                 }
+    //               }
+    //             }
+    //             const polygonGraphic = new Graphic({geometry: polygon,symbol:symbol});
+    //             searchWidget.graphicLayerFound.add(polygonGraphic);
+    //             totalpolygonGraphic.push(polygonGraphic);
+    //         })
+    //         if (totalpolygonGraphic.length){
+    //           console.log("go to")
+    //           jimuMapView.view.goTo({center:totalpolygonGraphic});
+    //           searchWidget.setLocatingPostion(false,false);
+    //         }
+    //         searchWidget.setState({resultsAmbiti: results.features})
+    //       }else{
+    //         searchWidget.setLocatingPostion(false,true);
+    //       }
+    //       }catch(err){
+    //         searchWidget.setLocatingPostion(false,true);
+    //       }
+    //   }
 
     render(): React.ReactNode {
 
@@ -87,13 +127,19 @@ export default class AmbitoTab extends React.PureComponent<any,any>{
         const locatingPosition = this.context?.locatingPosition;
         const resultsAmbiti = this.context?.resultsAmbiti
 
+        console.log(urlFetched,urlFetched["ambito"],"checking")
+
         return(
             <div className="mt-4 container-fluid">
             <div className="row">
               <div className="col-md-12">
                 <div className="mb-2">
                   {
-                    (!listAmbiti.length && urlFetched["ambito"]) && 
+                    (!listAmbiti.length  && urlFetched["ambito"]) && 
+                    <Alert className="w-100" form="basic" open text={this.nls("failedAmbito")} type="error" withIcon/>
+                  }
+                  {
+                    (listAmbiti.length > 0 && urlFetched["ambito"]) && 
                     <Alert className="w-100" form="basic" open text={this.nls("scopeAlert")} type="info" withIcon/>
                   }
                   {
@@ -115,8 +161,8 @@ export default class AmbitoTab extends React.PureComponent<any,any>{
                         // </Option>
                       })}
                     </Select>}
-                  <LocatingPositionLoader locatingPosition={locatingPosition}/>
-                  {
+                  {/* <LocatingPositionLoader locatingPosition={locatingPosition}/> */}
+                  {/* {
                     !locatingPosition["status"] && locatingPosition["error"] && 
                         <Alert 
                             open = {!locatingPosition["status"] && locatingPosition["error"]  ?true:false}
@@ -124,7 +170,7 @@ export default class AmbitoTab extends React.PureComponent<any,any>{
                             type = "error"
                             onClose={()=>searchWidget.setLocatingPostion(false,false)}
                         />
-                }
+                } */}
                 </div>
                 <div style={{maxHeight: 350, overflowY: 'auto'}}>
                   { !resultsAmbiti?.length

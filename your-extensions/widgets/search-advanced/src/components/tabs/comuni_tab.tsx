@@ -78,7 +78,10 @@ export default class ComuniTab extends React.PureComponent<any,any>{
             <div className="row">
               <div className="col-md-12">
                 <div className="mb-2">
-                  {(!listComuni.length && urlFetched["comuni"]) &&
+                  {(!listComuni.length  && urlFetched["comuni"]) &&
+                    <Alert className="w-100" form="basic" open text={this.nls("failedMunipacilities")} type="error" withIcon/>
+                  }
+                  {(listComuni.length > 0 && urlFetched["comuni"]) &&
                     <Alert className="w-100" form="basic" open text={this.nls("selectTheMunicipality")} type="info" withIcon/>
                   }
                   {

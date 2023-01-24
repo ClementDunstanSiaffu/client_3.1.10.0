@@ -301,15 +301,27 @@ export default class Widget extends React.PureComponent<AllWidgetProps<IMConfig>
     // @ts-expect-error
     queryObject.outFields = this.props.config.searchAmbiti.outFields;
 
-    const results = await query.executeQueryJSON(this.props.config.searchAmbiti.url, queryObject);
+    try{
+      const results = await query.executeQueryJSON(this.props.config.searchAmbiti.url, queryObject);
+         //---TODO--//
+    // results.features.sort(function (a, b) {
+    //   return ((a.attributes.IDAMBITO < b.attributes.IDAMBITO) ? -1 : ((a.attributes.IDAMBITO == b.attributes.IDAMBITO) ? 0 : 1));
+    // })
+      this.setState({
+        listAmbiti: results.features
+      })
+    }catch(err){
+
+    }
+    // const results = await query.executeQueryJSON(this.props.config.searchAmbiti.url, queryObject);
     //---TODO--//
     // results.features.sort(function (a, b) {
     //   return ((a.attributes.IDAMBITO < b.attributes.IDAMBITO) ? -1 : ((a.attributes.IDAMBITO == b.attributes.IDAMBITO) ? 0 : 1));
     // })
 
-    this.setState({
-      listAmbiti: results.features
-    })
+    // this.setState({
+    //   listAmbiti: results.features
+    // })
     this.updateFetchStatus("ambito",true)
   }
 
