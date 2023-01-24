@@ -208,10 +208,10 @@ export default class Widget extends React.PureComponent<AllWidgetProps<IMConfig>
 
       searchWidget.on("select-result", (event)=>{
         if(event && event.result && event.result.feature){
+          
           jmv.view.graphics.removeAll();
           this.graphicLayerFound.removeAll();
           
-  
           //@ts-ignore
           const geometryBuffer: Polygon = geometryEngine.buffer( event.result.feature.geometry, 1000, "meters");
           const polygonGraphic = new Graphic({geometry: geometryBuffer,symbol: this.symbolFound});
@@ -273,13 +273,13 @@ export default class Widget extends React.PureComponent<AllWidgetProps<IMConfig>
     queryObject.returnGeometry = false;
     // @ts-expect-error
     queryObject.outFields = this.props.config.searchItems.outFields;
-    const results = await query.executeQueryJSON(this.props.config.searchItems.url, queryObject);
-    //--- TODO ---//
-    // results.features.sort(function (a, b) {
-    //   return ((a.attributes.NOMECOMUNE < b.attributes.NOMECOMUNE) ? -1 : ((a.attributes.NOMECOMUNE == b.attributes.NOMECOMUNE) ? 0 : 1));
-    // })
- 
-    this.setState({listComuni: results.features,})
+    try{
+      const results = await query.executeQueryJSON(this.props.config.searchItems.url, queryObject);
+      results.features.sort(function (a, b) {
+        return ((a.attributes.NOMECOMUNE < b.attributes.NOMECOMUNE) ? -1 : ((a.attributes.NOMECOMUNE == b.attributes.NOMECOMUNE) ? 0 : 1));
+      })
+      this.setState({listComuni: results.features,})
+    }catch(err){}
     this.updateFetchStatus("comuni",true)
   }
 
@@ -289,8 +289,10 @@ export default class Widget extends React.PureComponent<AllWidgetProps<IMConfig>
     queryObject.returnGeometry = false;
     // @ts-expect-error
     queryObject.outFields = this.props.config.searchSTO.outFields;
-    const results = await query.executeQueryJSON(this.props.config.searchSTO.url, queryObject);
-    this.setState({listSTO: results.features})
+    try{
+      const results = await query.executeQueryJSON(this.props.config.searchSTO.url, queryObject);
+      this.setState({listSTO: results.features})
+    }catch(err){}
     this.updateFetchStatus("sito",true)
   }
 
@@ -300,28 +302,15 @@ export default class Widget extends React.PureComponent<AllWidgetProps<IMConfig>
     queryObject.returnGeometry = false;
     // @ts-expect-error
     queryObject.outFields = this.props.config.searchAmbiti.outFields;
-
     try{
       const results = await query.executeQueryJSON(this.props.config.searchAmbiti.url, queryObject);
-         //---TODO--//
-    // results.features.sort(function (a, b) {
-    //   return ((a.attributes.IDAMBITO < b.attributes.IDAMBITO) ? -1 : ((a.attributes.IDAMBITO == b.attributes.IDAMBITO) ? 0 : 1));
-    // })
+      results.features.sort(function (a, b) {
+        return ((a.attributes.IDAMBITO < b.attributes.IDAMBITO) ? -1 : ((a.attributes.IDAMBITO == b.attributes.IDAMBITO) ? 0 : 1));
+      })
       this.setState({
         listAmbiti: results.features
       })
-    }catch(err){
-
-    }
-    // const results = await query.executeQueryJSON(this.props.config.searchAmbiti.url, queryObject);
-    //---TODO--//
-    // results.features.sort(function (a, b) {
-    //   return ((a.attributes.IDAMBITO < b.attributes.IDAMBITO) ? -1 : ((a.attributes.IDAMBITO == b.attributes.IDAMBITO) ? 0 : 1));
-    // })
-
-    // this.setState({
-    //   listAmbiti: results.features
-    // })
+    }catch(err){}
     this.updateFetchStatus("ambito",true)
   }
 
@@ -331,8 +320,7 @@ export default class Widget extends React.PureComponent<AllWidgetProps<IMConfig>
   async onClickViewTable (e,field:string) {
     this.graphicLayerSelected.removeAll();
     const queryObject = new Query();
-    // queryObject.where = `OBJECTID = ${e.target.id}`;---TODO
-    queryObject.where = `FID = ${e.target.id}`;
+    queryObject.where = `OBJECTID = ${e.target.id}`;
     queryObject.returnGeometry = true;
     //@ts-ignore
     queryObject.outFields = this.props.config[field]?.outFields ? this.props.config[field].outFields : ['*']

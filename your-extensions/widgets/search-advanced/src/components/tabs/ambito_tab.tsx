@@ -1,5 +1,4 @@
 
-
 import {React,jsx} from 'jimu-core';
 import {Select,Option,Alert,Loading} from 'jimu-ui';
 import { SearchWidgetContext } from '../../context/context';
@@ -8,169 +7,108 @@ import Table from '../common/table';
 import Query from 'esri/rest/support/Query';
 import query from 'esri/rest/query';
 import Graphic from 'esri/Graphic';
-import helper from '../../helper/helper';
 import Polygon from 'esri/geometry/Polygon';
-
 
 export default class AmbitoTab extends React.PureComponent<any,any>{
 
-    static contextType?: React.Context<any> = SearchWidgetContext;
+  static contextType?: React.Context<any> = SearchWidgetContext;
 
-    constructor(props:any){
-        super(props);
-        this.onChangeSelectAmbiti = this.onChangeSelectAmbiti.bind(this);
-    }
+  constructor(props:any){
+    super(props);
+    this.onChangeSelectAmbiti = this.onChangeSelectAmbiti.bind(this);
+  }
 
-    nls = (id:string)=>{
-        const searchWidget = this.context?.parent;
-        return searchWidget.nls(id);
-    }
+  nls = (id:string)=>{
+    const searchWidget = this.context?.parent;
+    return searchWidget.nls(id);
+  }
 
-    async onChangeSelectAmbiti (e) {
+  async onChangeSelectAmbiti (e) {
 
-      const searchWidget = this.context?.parent;
-      const jimuMapView = this.context?.jimuMapView;
-      const searchItems = this.context?.searchItems
+    const searchWidget = this.context?.parent;
+    const jimuMapView = this.context?.jimuMapView;
+    const searchItems = this.context?.searchItems
 
+    searchWidget.graphicLayerFound.removeAll();
+    searchWidget.setLocatingPostion(true,false);
 
-      searchWidget.graphicLayerFound.removeAll();
     const queryObject = new Query();
     queryObject.where = `IDAMBITO = "${e.target.value}"`;
     queryObject.returnGeometry = true;
     // @ts-expect-error
     queryObject.outFields = '*';
-    const results = await query.executeQueryJSON(searchItems.url, queryObject);
-    results.features.sort(function (a, b) {
-      return ((a.attributes.NOMECOMUNE < b.attributes.NOMECOMUNE) ? -1 : ((a.attributes.NOMECOMUNE == b.attributes.NOMECOMUNE) ? 0 : 1))
-    })
-    const totalpolygonGraphic = [];
-    results.features.forEach((el, i) => {
-      const geometryComune = el.geometry;
-      const polygon = new Polygon(geometryComune);
-      const polygonGraphic = new Graphic({
-        geometry: polygon,
-        symbol: searchWidget.symbolFound
+
+    try{
+      const results = await query.executeQueryJSON(searchItems.url, queryObject);
+      results.features.sort(function (a, b) {
+        return ((a.attributes.NOMECOMUNE < b.attributes.NOMECOMUNE) ? -1 : ((a.attributes.NOMECOMUNE == b.attributes.NOMECOMUNE) ? 0 : 1))
       })
-      searchWidget.graphicLayerFound.add(polygonGraphic);
-      totalpolygonGraphic.push(polygonGraphic);
-    })
+      const totalpolygonGraphic = [];
+      results.features.forEach((el, i) => {
+        const geometryComune = el.geometry;
+        const polygon = new Polygon(geometryComune);
+        const polygonGraphic = new Graphic({geometry: polygon,symbol: searchWidget.symbolFound})
+        searchWidget.graphicLayerFound.add(polygonGraphic);
+        totalpolygonGraphic.push(polygonGraphic);
+      })
 
-    jimuMapView.view.goTo({
-      center: [totalpolygonGraphic]
-    })
+      jimuMapView.view.goTo({center: [totalpolygonGraphic]})
 
-    searchWidget.setState({
-      resultsAmbiti: results.features
-    })
+      searchWidget.setState({resultsAmbiti: results.features})
+      searchWidget.setLocatingPostion(false,false);
+      }catch(err){
+        console.log(err,"src/components/ambito_tab line 60")
+        searchWidget.setLocatingPostion(false,true);
+      }
     }
-
-    // async onChangeSelectAmbiti (e) {
-    //     const searchWidget = this.context?.parent;
-    //     const jimuMapView = this.context?.jimuMapView;
-    //     const searchAmbiti = this.context?.searchAmbiti
-
-    //     searchWidget.setLocatingPostion(true,false);
-    //     searchWidget.graphicLayerFound.removeAll();
-    //     const queryObject = new Query();
-    //     //TODO
-    //     // queryObject.where = `IDAMBITO = "${e.target.value}"`;
-    //     queryObject.where = `FID = ${e.target.value}`;
-    //     queryObject.returnGeometry = true;
-    //     // @ts-expect-error
-    //     queryObject.outFields = '*';
-    //     try{
-    //       const results = await query.executeQueryJSON(searchAmbiti?.url, queryObject);
-    //       //TODO
-    //       // results.features.sort(function (a, b) {
-    //       //   return ((a.attributes.NOMECOMUNE < b.attributes.NOMECOMUNE) ? -1 : ((a.attributes.NOMECOMUNE == b.attributes.NOMECOMUNE) ? 0 : 1))
-    //       // })
-    //       const feature = results.features;
-    //       const totalpolygonGraphic = [];
-    //       if (feature.length){
-    //         feature.forEach((el,i)=>{
-    //             const polygon = helper.returnGraphicsGeometry(el);
-    //             let symbol = searchWidget.symbolSelected
-    //             if (polygon.type === "point"){
-    //               symbol = {
-    //                 type: "simple-marker", 
-    //                 color:[51, 51, 204, 0.5],
-    //                 size:"100px",
-    //                 outline:{
-    //                   color:"transparent",
-    //                   width:0
-    //                 }
-    //               }
-    //             }
-    //             const polygonGraphic = new Graphic({geometry: polygon,symbol:symbol});
-    //             searchWidget.graphicLayerFound.add(polygonGraphic);
-    //             totalpolygonGraphic.push(polygonGraphic);
-    //         })
-    //         if (totalpolygonGraphic.length){
-    //           console.log("go to")
-    //           jimuMapView.view.goTo({center:totalpolygonGraphic});
-    //           searchWidget.setLocatingPostion(false,false);
-    //         }
-    //         searchWidget.setState({resultsAmbiti: results.features})
-    //       }else{
-    //         searchWidget.setLocatingPostion(false,true);
-    //       }
-    //       }catch(err){
-    //         searchWidget.setLocatingPostion(false,true);
-    //       }
-    //   }
 
     render(): React.ReactNode {
 
-        const listAmbiti = this.context?.listAmbiti??[];
-        const urlFetched = this.context?.urlFetched;
-        const searchWidget = this.context?.parent;
-        const locatingPosition = this.context?.locatingPosition;
-        const resultsAmbiti = this.context?.resultsAmbiti
+      const listAmbiti = this.context?.listAmbiti??[];
+      const urlFetched = this.context?.urlFetched;
+      const searchWidget = this.context?.parent;
+      const locatingPosition = this.context?.locatingPosition;
+      const resultsAmbiti = this.context?.resultsAmbiti
 
-        console.log(urlFetched,urlFetched["ambito"],"checking")
-
-        return(
-            <div className="mt-4 container-fluid">
-            <div className="row">
-              <div className="col-md-12">
-                <div className="mb-2">
+      return(
+        <div className="mt-4 container-fluid">
+          <div className="row">
+            <div className="col-md-12">
+              <div className="mb-2">
+                {
+                  (!listAmbiti.length  && urlFetched["ambito"]) && 
+                  <Alert className="w-100" form="basic" open text={this.nls("failedAmbito")} type="error" withIcon/>
+                }
+                {
+                  listAmbiti.length > 0  && 
+                  <Alert className="w-100" form="basic" open text={this.nls("scopeAlert")} type="info" withIcon/>
+                }
+                {
+                  (!listAmbiti.length && !urlFetched["ambito"]) && 
+                    <div style={{height:'80px',position:'relative',width:'100%',marginLeft:"auto",marginRight:"auto"}}>
+                      <Loading />
+                    </div>
+                }
+              </div>
+              <div className="mb-2">
+                {listAmbiti.length > 0 && 
+                  <Select onChange={this.onChangeSelectAmbiti} placeholder="Seleziona un comune">
+                    {listAmbiti.map((el, i) => {
+                      return <Option value={el.attributes.IDAMBITO}>
+                        {el.attributes.NOMEAMBITO}
+                        </Option>
+                    })}
+                  </Select>}
+                  <LocatingPositionLoader locatingPosition={locatingPosition}/>
                   {
-                    (!listAmbiti.length  && urlFetched["ambito"]) && 
-                    <Alert className="w-100" form="basic" open text={this.nls("failedAmbito")} type="error" withIcon/>
-                  }
-                  {
-                    (listAmbiti.length > 0 && urlFetched["ambito"]) && 
-                    <Alert className="w-100" form="basic" open text={this.nls("scopeAlert")} type="info" withIcon/>
-                  }
-                  {
-                    (!listAmbiti.length && !urlFetched["ambito"]) && 
-                      <div style={{height:'80px',position:'relative',width:'100%',marginLeft:"auto",marginRight:"auto"}}>
-                        <Loading />
-                      </div>
-                  }
-                  {/* <Alert className="w-100" form="basic" open text="Selezionare prima l'ambito, poi fare click sul comune per evidenziarlo" type="info" withIcon/> */}
-                </div>
-                <div className="mb-2">
-                  {listAmbiti.length > 0 && 
-                    <Select onChange={this.onChangeSelectAmbiti} placeholder="Seleziona un comune">
-                      {listAmbiti.map((el, i) => {
-                        return <Option value={el.attributes.FID}>{el.attributes[Object.keys(el.attributes)[1]]}</Option>
-                        //TODO-require vpn 
-                        // return <Option value={el.attributes.IDAMBITO}>
-                        //   {el.attributes.NOMEAMBITO}
-                        // </Option>
-                      })}
-                    </Select>}
-                  {/* <LocatingPositionLoader locatingPosition={locatingPosition}/> */}
-                  {/* {
                     !locatingPosition["status"] && locatingPosition["error"] && 
-                        <Alert 
-                            open = {!locatingPosition["status"] && locatingPosition["error"]  ?true:false}
-                            text = {this.nls("failedToLocatePosition")}
-                            type = "error"
-                            onClose={()=>searchWidget.setLocatingPostion(false,false)}
-                        />
-                } */}
+                      <Alert 
+                        open = {!locatingPosition["status"] && locatingPosition["error"]  ?true:false}
+                        text = {this.nls("failedToLocatePosition")}
+                        type = "error"
+                        onClose={()=>searchWidget.setLocatingPostion(false,false)}
+                      />
+                  }
                 </div>
                 <div style={{maxHeight: 350, overflowY: 'auto'}}>
                   { !resultsAmbiti?.length

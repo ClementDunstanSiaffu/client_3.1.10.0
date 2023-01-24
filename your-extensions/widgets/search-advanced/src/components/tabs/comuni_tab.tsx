@@ -7,7 +7,6 @@ import Query from 'esri/rest/support/Query';
 import query from 'esri/rest/query';
 import Graphic from 'esri/Graphic';
 import helper from '../../helper/helper';
-import { symbol } from 'prop-types';
 
 export default class ComuniTab extends React.PureComponent<any,any>{
 
@@ -31,8 +30,7 @@ export default class ComuniTab extends React.PureComponent<any,any>{
 
         searchWidget.graphicLayerFound.removeAll();
         const queryObject = new Query();
-        // queryObject.where = `OBJECTID = ${e.target.value}`;---TODO
-        queryObject.where = `FID = ${e.target.value}`;
+        queryObject.where = `OBJECTID = ${e.target.value}`;
         queryObject.returnGeometry = true;
         queryObject.outFields = searchItems?.outFields;
         searchWidget.setLocatingPostion(true,false);
@@ -61,6 +59,7 @@ export default class ComuniTab extends React.PureComponent<any,any>{
             searchWidget.setLocatingPostion(false,true);
           }
         }catch(err){
+            console.log(err,"src/components/comuni_tab line 62")
             searchWidget.setLocatingPostion(false,true);
         }
      
@@ -81,7 +80,7 @@ export default class ComuniTab extends React.PureComponent<any,any>{
                   {(!listComuni.length  && urlFetched["comuni"]) &&
                     <Alert className="w-100" form="basic" open text={this.nls("failedMunipacilities")} type="error" withIcon/>
                   }
-                  {(listComuni.length > 0 && urlFetched["comuni"]) &&
+                  {listComuni.length > 0 &&
                     <Alert className="w-100" form="basic" open text={this.nls("selectTheMunicipality")} type="info" withIcon/>
                   }
                   {
@@ -96,13 +95,9 @@ export default class ComuniTab extends React.PureComponent<any,any>{
                    listComuni.length > 0 &&
                       <Select className="w-100" onChange={this.onChangeSelectComuni} placeholder={this.nls("selectAMunicipality")}>
                         {listComuni.map((el, i) => {
-                            return <Option value={el.attributes.FID}>
-                             {el.attributes[Object.keys(el.attributes)[1]]}
-                           </Option>
-                           //TODO ---
-                          // return <Option value={el.attributes.OBJECTID}>
-                          //   {el.attributes.NOMECOMUNE}
-                          // </Option>
+                          return <Option value={el.attributes.OBJECTID}>
+                            {el.attributes.NOMECOMUNE}
+                          </Option>
                         })}
                       </Select>
                   }
