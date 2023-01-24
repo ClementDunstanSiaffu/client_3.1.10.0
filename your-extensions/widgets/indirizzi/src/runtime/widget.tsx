@@ -574,7 +574,7 @@ export default class Widget extends React.PureComponent<AllWidgetProps<IMConfig>
                             </div>
                         </div>
                         <CalciteAccordion className="mt-4 mb-2">
-                            <CalciteAccordionItem icon-start="car" itemTitle="Seleziona layers da interrogare">
+                            <CalciteAccordionItem icon-start="car" itemTitle={this.nls("selectLayerQuery")}>
                                 <div className="container-fluid mt-3 mb-3">
                                     <div className="row">
                                         <label>{this.nls("selectedLayers")}: {this.state.listServices.length} / {this.state.arrayLayer.length}</label>
@@ -606,7 +606,7 @@ export default class Widget extends React.PureComponent<AllWidgetProps<IMConfig>
                                     <div className="row mb-3">
                                         <label className="w-100">
                                             {this.nls("typeOfSelection")}
-                                            <Select className="w-100 mt-2" onChange={this.onChangeSelectTypeGeometry} placeholder="Selezione tipo...">
+                                            <Select className="w-100 mt-2" onChange={this.onChangeSelectTypeGeometry} placeholder={this.nls("typeSelection")}>
                                                 <Option value="intersects" selected="selected">Intersects</Option>
                                                 <Option value="contains">Contains</Option>
                                                 <Option value="crosses">Crosses</Option>
