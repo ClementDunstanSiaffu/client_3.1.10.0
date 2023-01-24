@@ -317,37 +317,89 @@ export default class Widget extends React.PureComponent<AllWidgetProps<IMConfig>
   /**==============================================
    * EVENT CLICK SELECT
    ==============================================*/
-  async onClickViewTable (e,field:string) {
+   async onClickViewTable (e) {
+
     this.graphicLayerSelected.removeAll();
     const queryObject = new Query();
-    queryObject.where = `OBJECTID = ${e.target.id}`;
+    queryObject.where = `OBJECTID = "${e.target.id}"`;
     queryObject.returnGeometry = true;
     //@ts-ignore
-    queryObject.outFields = this.props.config[field]?.outFields ? this.props.config[field].outFields : ['*']
+    queryObject.outFields = this.props.config.searchItems.outFieldsDisplay ? this.props.config.searchItems.outFieldsDisplay : ["*"];
+    try{
     const results = await query.executeQueryJSON(this.props.config.searchItems.url, queryObject);
     if(results && results.features?.length){
       const feature = results.features[0];
+      const polygon = new Polygon(feature.geometry);
       let arrayFieldsContentPopupTemplate = []
-      const polygon = helper.returnGraphicsGeometry(feature);
       for(let i=0;i<results.fields.length;i++){
         let itemField = results.fields[i];
-        arrayFieldsContentPopupTemplate.push({fieldName: itemField.name,label: itemField.alias})
+        arrayFieldsContentPopupTemplate.push({
+          fieldName: itemField.name,
+          label: itemField.alias
+        })
       }
+
       const polygonGraphic = new Graphic({
         geometry: polygon,
         popupTemplate:{
           title:"Feature selezionata",
-          content:[{type:"fields",fieldInfos:arrayFieldsContentPopupTemplate}],
+          content:[{
+            type:"fields",
+            fieldInfos:arrayFieldsContentPopupTemplate
+          }]
         },
         attributes:feature.attributes,
-        symbol:this.symbolSelected,
+        symbol: this.symbolSelected
       });
 
       this.graphicLayerSelected.add(polygonGraphic);
-      this.state.jimuMapView.view.goTo({center: polygonGraphic});
-      this.state.jimuMapView.view.popup.open({location:polygon,features:[polygonGraphic]});
+
+      this.state.jimuMapView.view.goTo({
+        center: polygonGraphic
+      });
+      this.state.jimuMapView.view.popup.open({
+        features: [polygonGraphic],
+        location: polygon.centroid
+      });
+    }else{
+      console.log("Errore view STO")
     }
+  }catch(err){
+    console.log(err,"src/runtime/widget.tsx line 368")
   }
+
+  }
+  // async onClickViewTable (e,field:string) {
+  //   this.graphicLayerSelected.removeAll();
+  //   const queryObject = new Query();
+  //   queryObject.where = `OBJECTID = ${e.target.id}`;
+  //   queryObject.returnGeometry = true;
+  //   //@ts-ignore
+  //   queryObject.outFields = this.props.config[field]?.outFields ? this.props.config[field].outFields : ['*']
+  //   const results = await query.executeQueryJSON(this.props.config.searchItems.url, queryObject);
+  //   if(results && results.features?.length){
+  //     const feature = results.features[0];
+  //     let arrayFieldsContentPopupTemplate = []
+  //     const polygon = helper.returnGraphicsGeometry(feature);
+  //     for(let i=0;i<results.fields.length;i++){
+  //       let itemField = results.fields[i];
+  //       arrayFieldsContentPopupTemplate.push({fieldName: itemField.name,label: itemField.alias})
+  //     }
+  //     const polygonGraphic = new Graphic({
+  //       geometry: polygon,
+  //       popupTemplate:{
+  //         title:"Feature selezionata",
+  //         content:[{type:"fields",fieldInfos:arrayFieldsContentPopupTemplate}],
+  //       },
+  //       attributes:feature.attributes,
+  //       symbol:this.symbolSelected,
+  //     });
+
+  //     this.graphicLayerSelected.add(polygonGraphic);
+  //     this.state.jimuMapView.view.goTo({center: polygonGraphic});
+  //     this.state.jimuMapView.view.popup.open({location:polygon,features:[polygonGraphic]});
+  //   }
+  // }
 
   setLocatingPostion(locatingStatus:boolean,errorStatus:boolean){
     const copiedLocatingPosition = {...this.state.locatingPosition};
