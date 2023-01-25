@@ -25,10 +25,10 @@ export default class ButtonGroupComponent extends React.PureComponent<PropsType,
 
     constructor (props) {
         super(props)
-        this.state = {
-            geometryFilter: null,
-            listServices:[]
-        }
+        // this.state = {
+        //     geometryFilter: null,
+        //     listServices:[]
+        // }
         this.optionClickDownload = this.optionClickDownload.bind(this);
         this.optionColorRandom = this.optionColorRandom.bind(this);
     }
@@ -134,20 +134,20 @@ export default class ButtonGroupComponent extends React.PureComponent<PropsType,
 
     optionFilterRemove(){
         const self = this.props.parent;
-        delete self.props.stateProps.layerOpen.where;
-        delete self.props.stateProps.layerOpen.geometry;
-        delete self.props.stateProps.layerOpen.typeSelected;
+        // delete self.props.stateProps.layerOpen.where;
+        // delete self.props.stateProps.layerOpen.geometry;
+        // delete self.props.stateProps.layerOpen.typeSelected;
         self.createListTable();
 
         //pulisco eventuali graphicLayerSketch
-        this.state.jimuMapView.view.map.layers.items.filter(f=>f.id.indexOf("sketch") !== -1).forEach(f=>f.removeAll());
+        self.state.jimuMapView.view.map.layers.items.filter(f=>f.id.indexOf("sketch") !== -1).forEach(f=>f.removeAll());
     }
 
     setButtonFilter(){
         let buttonFilter;
         const self = this.props?.parent;
-        const filterValue = this.props.filterValue
-        if(this.state.geometryFilter){
+        const filterValue = this.props.filterValue;
+        if(self.state.geometryFilter){
             buttonFilter = <div>
                 <Button onClick={this.optionFilterRemove} size="default">
                     <WidgetFilterOutlined/>{this.nls("clearFilter")}
