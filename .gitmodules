@@ -1,0 +1,3 @@
+[submodule "your-extensions/widgets/query-builder"]
+	path = your-extensions/widgets/query-builder
+	url = https://github.com/ClementDunstanSiaffu/client_3.1.10.0
