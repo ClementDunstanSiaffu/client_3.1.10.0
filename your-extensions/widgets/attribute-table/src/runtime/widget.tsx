@@ -104,7 +104,7 @@ export default class Widget extends React.PureComponent<AllWidgetProps<any>&stat
         this.setState({geometryFilter: layerOpen.geometry,listServices:checkedLayers,tabs:tabs});
     }
     
-    createFeatureTable(layer,highlightIds:any){
+    createFeatureTable(layer,highlightIds:any,layerView:any){
         const activeView = this.props.stateValue?.value?.getActiveView();
         const initialMapZoom = this.props.stateValue?.value?.initialMapZoom;
         const div = document.createElement("div");
@@ -163,6 +163,7 @@ export default class Widget extends React.PureComponent<AllWidgetProps<any>&stat
                 const view = activeView.view;
                 view.goTo({center: view.center,zoom:initialMapZoom });
             }
+            if (event.removed.length)helper.removeObjectId(layerView,event.removed[0].objectId)
         });
         reactiveUtils.when(()=>view.stationary,()=>{
             let filterByExtention = true;
@@ -250,7 +251,7 @@ export default class Widget extends React.PureComponent<AllWidgetProps<any>&stat
         const features = results?.features??[];
         if(layer && features.length ){
             this.setState({features:features})
-            featureTable = this.createFeatureTable(layer,highlightIds);
+            featureTable = this.createFeatureTable(layer,highlightIds,layerView);
             if (activeView.view.stationary && this.state.viewExtent && filterValue === 1){
                 setTimeout(()=>{
                     featureTable.filterGeometry = this.state.viewExtent;

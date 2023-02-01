@@ -6810,9 +6810,9 @@
     "group": 7
   },
   {
-    "name": "query-builder-new",
+    "name": "query-builder",
     "manifest": {
-      "name": "query-builder-new",
+      "name": "query-builder",
       "label": "Query Builder",
       "type": "widget",
       "version": "1.10.0",
@@ -6840,8 +6840,8 @@
       "it": null,
       "en": null
     },
-    "uri": "widgets/query-builder-new/",
-    "icon": "widgets/query-builder-new/icon.svg",
+    "uri": "widgets/query-builder/",
+    "icon": "widgets/query-builder/icon.svg",
     "order": 700,
     "group": 7
   },
