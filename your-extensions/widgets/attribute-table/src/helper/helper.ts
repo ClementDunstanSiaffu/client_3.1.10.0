@@ -146,26 +146,18 @@ class Helper {
     }
 
     removeObjectId = (layerView:LayerView,objectId:number)=>{
-        console.log(layerView,"beginning")
         if (layerView && objectId){
             //@ts-ignore
             const currentHighligts = layerView?._highlightIds;
             if (currentHighligts.size){
-                // const newHighlights = new Map();
-                // for(const [key,value] of currentHighligts){
-                //     if (key !== objectId)newHighlights.set(key,value);
-                // }
-                // if (newHighlights.size){
-                    //@ts-ignore
-                    layerView._highlightIds = new Map();
-                    for (const [key,value] of currentHighligts){
-                        if (key !== objectId){
-                            //@ts-ignore
-                            layerView._highlightIds.set(key,value)
-                        }
+                //@ts-ignore
+                layerView._highlightIds = new Map();
+                for (const [key,value] of currentHighligts){
+                    if (key !== objectId){
+                        //@ts-ignore
+                        layerView._highlightIds.set(key,value)
                     }
-                // }
-                console.log(layerView,"check layerView end")
+                }
             }
         }
     }
