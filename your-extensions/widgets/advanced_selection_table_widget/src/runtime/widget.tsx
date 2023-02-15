@@ -31,8 +31,6 @@ export default class AdvancedSelectionTable extends React.PureComponent<AllWidge
         super(props);
         this.getAllCheckedLayers = this.getAllCheckedLayers.bind(this);
         this.onCloseAlert = this.onCloseAlert.bind(this);
-        this.controlCheckedLayers = this.controlCheckedLayers.bind(this);
-        this.removeAttributes = this.removeAttributes.bind(this);
     }
 
     state = {
@@ -102,7 +100,6 @@ export default class AdvancedSelectionTable extends React.PureComponent<AllWidge
 
     getMapLayers = (activeView:JimuMapView)=>{
         if (activeView){
-            console.log(activeView.jimuLayerViews,"check jimulayer views")
             const newLayersArray = Object.keys(activeView?.jimuLayerViews)?.reduce((newLayerArray,item)=>{
                 if (activeView?.jimuLayerViews[item]?.view && activeView?.jimuLayerViews[item]?.layer?.type === "feature"){
                     let object = {
@@ -148,66 +145,12 @@ export default class AdvancedSelectionTable extends React.PureComponent<AllWidge
                         //@ts-ignore
                     view.map.allLayers?.items.map((f)=>{
                         const selected = this.props.stateValue?.value?.checkedLayers;
-                        if (selected?.length <= 0 || !selected)helper.activateLayerOnTheMap(f.id,f.visible);
-                        // console.log(selected,this.props.stateValue,"check selected")
-                        // if (f.type === "feature"){
-                        //     if (selected?.length){
-                        //         if (selected.includes(f.id)){
-                        //             console.log("true it is included")
-                        //         }
-                        //     }else{
-                        //         if (f.visible)checkedLayers.push(f.id);
-                        //     } 
-                        // }
-                    
+                        if (selected?.length <= 0 || !selected)helper.activateLayerOnTheMap(f.id,f.visible);    
                     }) 
                     
             });
         }
     }
-
-    controlCheckedLayers = (id:string)=>{
-        const selected = this.props.stateValue?.value?.checkedLayers;
-        let newSelected = [];
-        if (selected?.length){
-            const selectedIndex = selected?.indexOf(id);
-            const copiedSelected = [...selected];
-            if (selectedIndex === -1){
-                copiedSelected.push(id);
-                // helper.activateLayerOnTheMap(id,true) 
-            }else{
-                copiedSelected.splice(selectedIndex,1);
-                // helper.activateLayerOnTheMap(id,false) ;
-                this.props.dispatch(appActions.widgetStatePropChange("value","createTable",true));
-                this.removeAttributes(id);
-            }
-            newSelected = copiedSelected;
-        }else{
-            newSelected.push(id);
-        }
-        console.log(newSelected,"check new selected")
-        this.props.dispatch(appActions.widgetStatePropChange("value","checkedLayers",newSelected));
-    }
-
-    removeAttributes = (id:string)=>{
-        const numberOfAttribute = this.props.stateValue?.value?.numberOfAttribute
-        const currentLayerContents = this.props.stateValue?.value?.layerContents??[];
-        const copiedLayerContents = [...currentLayerContents];
-        const newNumberOfAttribute = {...numberOfAttribute};
-        const newLayerContents = copiedLayerContents.reduce((newArray,item:{id:string,attributes:any[]})=>{
-          if (item?.id !== id){
-            newArray.push(item);
-          }else{
-            if (newNumberOfAttribute[id]){
-              delete newNumberOfAttribute[id];
-            }
-          }
-          return newArray;
-        },[])
-        this.setState({layerContents:newLayerContents});
-        this.props.dispatch(appActions.widgetStatePropChange("value","numberOfAttribute",newNumberOfAttribute))
-        helper.unhighlightLayer(id);
-      }
 
     selectFeatureLayer = (geometry:any)=>{
         const checkedLayers = this.props.stateValue?.value?.checkedLayers??[];
@@ -363,7 +306,6 @@ export default class AdvancedSelectionTable extends React.PureComponent<AllWidge
         if (this.sketch){
             this.sketch?.cancel();
         }
-        // helper.deactivateAllLayer();
         this.props.dispatch(appActions.widgetStatePropChange("value","createTable",true));
     }
 
