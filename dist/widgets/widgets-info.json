@@ -6911,6 +6911,35 @@
     "group": 7
   },
   {
+    "name": "search-value-widget",
+    "manifest": {
+      "name": "search-value-widget",
+      "label": "Search Value",
+      "type": "widget",
+      "version": "1.10.0",
+      "dependency": "jimu-arcgis",
+      "exbVersion": "1.10.0",
+      "author": "Clement Dunstan Siaffu",
+      "description": "This is the widget which show searched value on the map",
+      "copyright": "",
+      "license": "",
+      "properties": {},
+      "translatedLocales": [
+        "en"
+      ],
+      "defaultSize": {
+        "width": 800,
+        "height": 500
+      }
+    },
+    "i18nLabel": {},
+    "i18nDescription": {},
+    "uri": "widgets/search-value-widget/",
+    "icon": "widgets/search-value-widget/icon.png",
+    "order": 700,
+    "group": 7
+  },
+  {
     "name": "simple",
     "manifest": {
       "name": "simple",
