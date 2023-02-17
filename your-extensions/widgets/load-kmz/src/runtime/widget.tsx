@@ -9,9 +9,6 @@ import request from   "esri/request";
 import {ListValue} from "../config";
 import JSZip from '../lib/zip';
 import toGeoJson from '../lib/toGeoJson';
-import zipShp from '../lib/convertGeoJsonToShp/zip';
-import {getCsvUri} from '../lib/convertGeoJsonToCsv/'
-import FeatureLayer from 'esri/layers/FeatureLayer';
 import GeoJSONLayer from 'esri/layers/GeoJSONLayer';
 import Query from 'esri/rest/support/Query';
 
@@ -77,89 +74,13 @@ export default class Widget extends React.PureComponent<AllWidgetProps<IMConfig>
 
     getExtension = (filePath:string)=>filePath.split(".").pop();
 
-    getDom = xml =>(new DOMParser()).parseFromString(xml,"text/xml")
-    
+    getDom = (xml) =>{
+        const xmlVal = (new DOMParser()).parseFromString(xml,"text/xml");
+        return xmlVal;
+    }
 
     async onChangeFileUpload(e){
-        // const query = new Query();
-        // var zip = new JSZip();
         const fileName = e.target.value.toLowerCase();
-        // const  files = e.target.files;
-        // if (files?.length){
-        //     for(let i = 0;i < files.length;i++){
-        //         const f = files[i];
-        //         //@ts-ignore
-        //         zip.loadAsync(f).then((zip)=>{
-        //             let kmlDom = null
-        //             zip.forEach((filePath,file) => {
-        //                 if (this.getExtension(filePath) === "kml"){
-        //                     kmlDom = file.async("string").then(this.getDom);
-        //                     kmlDom.then(async(domVal)=>{
-        //                         const geoJsonObject = toGeoJson.kml(domVal);
-        //                         const blob = new Blob([JSON.stringify(geoJsonObject)], {type: "application/json"});
-        //                         const url  = URL.createObjectURL(blob);
-        //                         const layer = new GeoJSONLayer({ url });
-        //                         const results = await layer.queryFeatures(query);
-        //                         if (results.features.length){
-        //                             try{
-        //                                 this.state.jimuMapView.view.map.add(layer);
-        //                             }catch(err){
-        //                             }
-        //                             try{
-        //                                 this.state.jimuMapView.view.goTo(layer.fullExtent)
-        //                             }catch(err){
-        //                             }
-        //                         }
-                         
-        //                         // this.state.jimuMapView.view.goTo(layer.fullExtent)
-
-        //                         // const geoJsonLayer = new GeoJSONLayer({
-                                    
-        //                         // })
-
-        //                         // const uri = getCsvUri([geoJsonObject]);
-        //                         // console.log(geoJsonObject,"check uri")
-        //                         // const featureCollection = {
-        //                         //     layerDefinition:null,
-        //                         //     featureSets:geoJsonObject.features
-        //                         // }
-        //                         // const feature = new FeatureLayer();
-
-        //                         // const newGeoJsonObject = JSON.stringify(geoJsonObject);
-        //                         // const zippedShpFile = zipShp(geoJsonObject);
-        //                         // console.log(zippedShpFile,"check zippe shp file")
-        //                         // console.log(geoJsonObject,"check newGeoJsonObject");
-        //                         // let sourceGraphics = [];
-        //                         // const graphics = geoJsonObject.features.map(el=>{
-        //                         //     const geometry = {
-        //                         //         type:el.geometry.type,
-        //                         //         longitude:el.geometry.coordinates[0],
-        //                         //         latitude:el.geometry.coordinates[1]
-        //                         //     }
-        //                         //     console.log(geometry)
-        //                         //     const newObject = {
-        //                         //         attributes:el.properties,
-        //                         //         geometry:geometry
-        //                         //     }
-        //                         //     // console.log(el.geometry,newObject,"check el value")
-        //                         //     return Graphic.fromJSON(newObject);
-        //                         // })
-        //                         // // console.log(graphics,"check graphics")
-        //                         // sourceGraphics = sourceGraphics.concat(graphics);
-        //                         // let layerToAdd = new GraphicsLayer({graphics: sourceGraphics});
-        //                         // this.state.jimuMapView.view.map.add(layerToAdd);
-        //                         // console.log(sourceGraphics,"check sources")
-        //                         // // this.state.jimuMapView.view.goTo(sourceGraphics).catch((error) => {
-        //                         // //     if (error.name != "AbortError") {
-        //                         // //         console.error(error);
-        //                         // //     }
-        //                         // // });
-        //                     })
-        //                 }
-        //             });
-        //         })
-        //     }
-        // }
         if (fileName.indexOf(".zip") !== -1) {
             //is file a zip - if not notify user
             this.generateFeatureCollection(fileName);
@@ -188,9 +109,27 @@ export default class Widget extends React.PureComponent<AllWidgetProps<IMConfig>
                                 const geoJsonObject = toGeoJson.kml(domVal);
                                 const blob = new Blob([JSON.stringify(geoJsonObject)], {type: "application/json"});
                                 const url  = URL.createObjectURL(blob);
-                                const layer = new GeoJSONLayer({ url });
+                                const layer = new GeoJSONLayer({ url});
+                                query.outFields = ['*']
                                 const results = await layer.queryFeatures(query);
                                 if (results.features.length){
+                                    if (results.fields.length){
+                                        const fieldInfos = []
+                                        for (let i = 0;i < results.fields.length;i++){
+                                            const currentField = results.fields[i];
+                                            fieldInfos.push({
+                                                fieldName:currentField.name,
+                                                label:currentField.alias
+                                            })
+                                        }
+                                        layer.popupTemplate = {
+                                            title:"Add file layer",
+                                            content:[{
+                                                type:"fields",
+                                                fieldInfos:fieldInfos
+                                            }]
+                                        }
+                                    }
                                     try{
                                         this.state.jimuMapView.view.map.add(layer);
                                     }catch(err){
@@ -200,50 +139,6 @@ export default class Widget extends React.PureComponent<AllWidgetProps<IMConfig>
                                     }catch(err){
                                     }
                                 }
-                         
-                                // this.state.jimuMapView.view.goTo(layer.fullExtent)
-
-                                // const geoJsonLayer = new GeoJSONLayer({
-                                    
-                                // })
-
-                                // const uri = getCsvUri([geoJsonObject]);
-                                // console.log(geoJsonObject,"check uri")
-                                // const featureCollection = {
-                                //     layerDefinition:null,
-                                //     featureSets:geoJsonObject.features
-                                // }
-                                // const feature = new FeatureLayer();
-
-                                // const newGeoJsonObject = JSON.stringify(geoJsonObject);
-                                // const zippedShpFile = zipShp(geoJsonObject);
-                                // console.log(zippedShpFile,"check zippe shp file")
-                                // console.log(geoJsonObject,"check newGeoJsonObject");
-                                // let sourceGraphics = [];
-                                // const graphics = geoJsonObject.features.map(el=>{
-                                //     const geometry = {
-                                //         type:el.geometry.type,
-                                //         longitude:el.geometry.coordinates[0],
-                                //         latitude:el.geometry.coordinates[1]
-                                //     }
-                                //     console.log(geometry)
-                                //     const newObject = {
-                                //         attributes:el.properties,
-                                //         geometry:geometry
-                                //     }
-                                //     // console.log(el.geometry,newObject,"check el value")
-                                //     return Graphic.fromJSON(newObject);
-                                // })
-                                // // console.log(graphics,"check graphics")
-                                // sourceGraphics = sourceGraphics.concat(graphics);
-                                // let layerToAdd = new GraphicsLayer({graphics: sourceGraphics});
-                                // this.state.jimuMapView.view.map.add(layerToAdd);
-                                // console.log(sourceGraphics,"check sources")
-                                // // this.state.jimuMapView.view.goTo(sourceGraphics).catch((error) => {
-                                // //     if (error.name != "AbortError") {
-                                // //         console.error(error);
-                                // //     }
-                                // // });
                             })
                         }
                     });
@@ -282,7 +177,6 @@ export default class Widget extends React.PureComponent<AllWidgetProps<IMConfig>
             responseType: "json"
         })
             .then((response) => {
-                console.log(response,"check response")
                 const layerName =
                     response.data.featureCollection.layers[0].layerDefinition.name;
                 document.getElementById("upload-status").innerHTML =
@@ -316,7 +210,6 @@ export default class Widget extends React.PureComponent<AllWidgetProps<IMConfig>
              this.state.jimuMapView.view.map.add(layerToAdd);
              this.state.jimuMapView.view.goTo(sourceGraphics).catch((error) => {
                  if (error.name != "AbortError") {
-                     console.error(error);
                  }
              });
             // associate the feature with the popup on click to enable highlight and zoom to
