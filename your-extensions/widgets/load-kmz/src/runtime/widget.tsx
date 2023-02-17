@@ -48,7 +48,7 @@ export default class Widget extends React.PureComponent<AllWidgetProps<IMConfig>
       this.saveState = this.saveState.bind(this);
       this.onChangeFileUpload = this.onChangeFileUpload.bind(this);
       this.errorHandler = this.errorHandler.bind(this)
-  }
+    }
 
     activeViewChangeHandler (jmv: JimuMapView) {
         if (jmv) {
@@ -93,7 +93,6 @@ export default class Widget extends React.PureComponent<AllWidgetProps<IMConfig>
             this.generateLayerFromKMZ(files,fileName);
         }else {
             this.failedAddingLayer("failed to load")
-            // document.getElementById("upload-status").innerHTML = '<p style="color:red">Add shapefile as .zip file</p>';
         }
     }
 
@@ -132,10 +131,8 @@ export default class Widget extends React.PureComponent<AllWidgetProps<IMConfig>
                                         }
                                         layer.popupTemplate = {
                                             title:"Add file layer",
-                                            content:[{
-                                                type:"fields",
-                                                fieldInfos:fieldInfos
-                                            }]
+                                            //@ts-ignore
+                                            content:[{type:"fields",fieldInfos:fieldInfos}]
                                         }
                                     }
                                     try{
@@ -169,9 +166,6 @@ export default class Widget extends React.PureComponent<AllWidgetProps<IMConfig>
         let name = fileName.split(".");
         // Chrome adds c:\fakepath to the value - we need to remove it
         name = name[0].replace("c:\\fakepath\\", "");
-        // document.getElementById("upload-status").innerHTML =
-        //     "<b>Loading </b>" + name;
-
         // define the input params for generate see the rest doc for details
         // https://developers.arcgis.com/rest/users-groups-and-items/generate.htm
         const params = {
@@ -191,24 +185,15 @@ export default class Widget extends React.PureComponent<AllWidgetProps<IMConfig>
         // use the REST generate operation to generate a feature collection from the zipped shapefile
         request(this.state.portalUrl + "/sharing/rest/content/features/generate", {
             query: myContent,
+            //@ts-ignore
             body: document.getElementById("uploadForm"),
             responseType: "json"
         })
-            .then((response) => {
-                // const layerName =
-                //     response.data.featureCollection.layers[0].layerDefinition.name;
-                // document.getElementById("upload-status").innerHTML =
-                //     "<b>Loaded: </b>" + layerName;
-                this.addShapefileToMap(response.data.featureCollection);
-            })
-            .catch(this.errorHandler);
+        .then((response) => {this.addShapefileToMap(response.data.featureCollection);})
+        .catch(this.errorHandler);
     }
 
-    errorHandler(error) {
-        this.failedAddingLayer(error)
-        // document.getElementById("upload-status").innerHTML =
-        //     "<p style='color:red;max-width: 500px;'>" + error.message + "</p>";
-    }
+    errorHandler(error) {this.failedAddingLayer(error)}
 
     addShapefileToMap(featureCollection) {
         // add the shapefile to the map and zoom to the feature collection extent
@@ -217,111 +202,91 @@ export default class Widget extends React.PureComponent<AllWidgetProps<IMConfig>
         // see the 'Feature Collection in Local Storage' sample for an example of how to work with local storage
         let sourceGraphics = [];
 
-         featureCollection.layers.map((layer) => {
-            const graphics = layer.featureSet.features.map((feature) => {
-                return Graphic.fromJSON(feature);
-            });
+        featureCollection.layers.map((layer) => {
+            const graphics = layer.featureSet.features.map((feature) => {return Graphic.fromJSON(feature);});
             sourceGraphics = sourceGraphics.concat(graphics);
-             let layerToAdd = new GraphicsLayer({
-                 graphics: sourceGraphics
-             });
-
-             this.state.jimuMapView.view.map.add(layerToAdd);
-             this.state.jimuMapView.view.goTo(sourceGraphics).catch((error) => {
-                 if (error.name != "AbortError") {
-                 }
-             });
+            let layerToAdd = new GraphicsLayer({graphics: sourceGraphics});
+            this.state.jimuMapView.view.map.add(layerToAdd);
+            this.state.jimuMapView.view.goTo(sourceGraphics).catch((error) => {
+                if (error.name != "AbortError") {}
+            });
             // associate the feature with the popup on click to enable highlight and zoom to
         });
         const layerName = featureCollection.layers[0].layerDefinition.name;
         this.succefullyAddingLayer(layerName);
-        // document.getElementById("upload-status").innerHTML = "";
     }
 
-
-  render () {
-    return (
-        <div className="widget-address jimu-widget  container-fluid" style={{overflow:"auto"}}>
-            {this.props.hasOwnProperty('useMapWidgetIds') && this.props.useMapWidgetIds && this.props.useMapWidgetIds[0] && (
-                <JimuMapViewComponent useMapWidgetId={this.props.useMapWidgetIds?.[0]} onActiveViewChange={this.activeViewChangeHandler} />
-            )}
+    render () {
+        return (
+            <div className="widget-address jimu-widget  container-fluid" style={{overflow:"auto"}}>
+                {this.props.hasOwnProperty('useMapWidgetIds') && this.props.useMapWidgetIds && this.props.useMapWidgetIds[0] && (
+                    <JimuMapViewComponent useMapWidgetId={this.props.useMapWidgetIds?.[0]} onActiveViewChange={this.activeViewChangeHandler} />
+                )}
 
                 <div id="search-advanced-tab-Coord-file" className="d-flex flex-column p-1" title="Multicoordinate da file">
-                        <div className="container-fluid mt-3 mb-3">
-                            <div className="row mb-3">
-                                <label className="w-100 form-label">
-                                    Aggiungi file KMZ o SHAPE FILE
-                                </label>
-                                <form encType="multipart/form-data" method="post"  id="uploadForm"  >
-                                    <div className="field">
-                                        <label className="file-upload">
-                                            <span><strong>Add File</strong></span>
-                                            <input type="file" name="file" id="inFile" onChange={this.onChangeFileUpload}/>
-                                        </label>
+                    <div className="container-fluid mt-3 mb-3">
+                        <div className="row mb-3">
+                            <label className="w-100 form-label">Aggiungi file KMZ o SHAPE FILE</label>
+                            <form encType="multipart/form-data" method="post"  id="uploadForm"  >
+                                <div className="field">
+                                    <label className="file-upload">
+                                        <span><strong>Add File</strong></span>
+                                        <input type="file" name="file" id="inFile" onChange={this.onChangeFileUpload}/>
+                                    </label>
+                                </div>
+                            </form>
+                            {
+                                !this.state.loadingIndicator && this.state.layerName && (
+                                    <div style = {{fontSize:14,color:"black",textAlign:"start",marginTop:20}}>
+                                        <b>Layer Name </b> : {this.state.layerName}
                                     </div>
-                                </form>
-                                {
-                                    !this.state.loadingIndicator && this.state.layerName && (
-                                        <div style = {{fontSize:14,color:"black",textAlign:"start",marginTop:20}}>
-                                            <b>Layer Name </b> : {this.state.layerName}
-                                        </div>
-                                    )
-                                }
-                                {this.state.loadingIndicator && <div 
+                                )
+                            }
+                            {this.state.loadingIndicator && <div 
+                                style={{
+                                    width:"100%",
+                                    display:"flex",
+                                    flexDirection:"column",
+                                    justifyContent:"center",
+                                    height:"auto"
+                                }}
+                            >
+                                <div 
                                     style={{
-                                        width:"100%",
-                                        display:"flex",
-                                        flexDirection:"column",
-                                        justifyContent:"center",
-                                        height:"auto"
+                                        height:'80px',
+                                        position:'relative',
+                                        width:'100%',
+                                        marginLeft:"auto",
+                                        marginRight:"auto"
                                     }}
                                 >
-                                    <div 
-                                        style={{
-                                            height:'80px',
-                                            position:'relative',
-                                            width:'100%',
-                                            marginLeft:"auto",
-                                            marginRight:"auto"
-                                        }}
-                                    >
-                                        <Loading />
-                                    </div>
-                                        <div style = {{fontSize:14,color:"grey",width:'100%',textAlign:"center"}}>
-                                            Adding layer on the map....
-                                        </div>
-                                </div>}
-                                {this.state.failedToLoad && <div 
-                                    style={{
-                                        width:"100%",
-                                        display:"flex",
-                                        flexDirection:"column",
-                                        justifyContent:"center",
-                                        marginTop:20,
-                                        height:"auto"
-                                    }}
-                                >
-                                    <Alert 
-                                        text={this.state.errorMessage}
-                                        type = "error"
-                                        closable = {true}
-                                        onClose = {()=>this.succefullyAddingLayer(null)}
-                                    />
-                                </div>}
-                            </div>
-                            {/* <span
-                                className="file-upload-status"
-                                style={{ opacity: 1 }}
-                                id="upload-status"
-                            ></span> */}
-                        
-                           
-                         
-                            
+                                    <Loading />
+                                </div>
+                                <div style = {{fontSize:14,color:"grey",width:'100%',textAlign:"center"}}>
+                                    Adding layer on the map....
+                                </div>
+                            </div>}
+                            {this.state.failedToLoad && <div 
+                                style={{
+                                    width:"100%",
+                                    display:"flex",
+                                    flexDirection:"column",
+                                    justifyContent:"center",
+                                    marginTop:20,
+                                    height:"auto"
+                                }}
+                            >
+                                <Alert 
+                                    text={this.state.errorMessage}
+                                    type = "error"
+                                    closable = {true}
+                                    onClose = {()=>this.succefullyAddingLayer(null)}
+                                />
+                            </div>}
                         </div>
+                    </div>
                 </div>
-        </div>
-
-    )
-  }
+            </div>
+        )
+    }
 }
