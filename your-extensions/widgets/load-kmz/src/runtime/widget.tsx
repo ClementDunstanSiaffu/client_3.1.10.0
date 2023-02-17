@@ -1,7 +1,7 @@
 /** @jsx jsx */
 import {AllWidgetProps, appActions, jsx, React} from 'jimu-core'
 import {IMConfig} from '../config'
-import { Button,} from 'jimu-ui'
+import { Button,Loading,Alert} from 'jimu-ui'
 import GraphicsLayer from "esri/layers/GraphicsLayer";
 import {JimuMapView, JimuMapViewComponent} from 'jimu-arcgis'
 import Graphic from 'esri/Graphic';
@@ -30,21 +30,24 @@ export default class Widget extends React.PureComponent<AllWidgetProps<IMConfig>
     constructor (props) {
       super(props)
       this.state = {
-          jimuMapView: null,
-          labelVisible:true,
-          viewSelectDraw: true,
-
-          formExtraUrbano:{
+        jimuMapView: null,
+        labelVisible:true,
+        viewSelectDraw: true,
+        formExtraUrbano:{
               //TODO
-          },
-          arrayLayer: [],
-          portalUrl:  "https://www.arcgis.com",
+        },
+        arrayLayer: [],
+        portalUrl:  "https://www.arcgis.com",
+        loadingIndicator:false,
+        failedToLoad:false,
+        errorMessage:" ",
+        layerName:null
       };
       this.arrayView = Object.assign([], this.props.config.listvalues)
       this.activeViewChangeHandler = this.activeViewChangeHandler.bind(this);
       this.saveState = this.saveState.bind(this);
       this.onChangeFileUpload = this.onChangeFileUpload.bind(this);
-
+      this.errorHandler = this.errorHandler.bind(this)
   }
 
     activeViewChangeHandler (jmv: JimuMapView) {
@@ -80,20 +83,24 @@ export default class Widget extends React.PureComponent<AllWidgetProps<IMConfig>
     }
 
     async onChangeFileUpload(e){
+        this.loadingIndicator();
         const fileName = e.target.value.toLowerCase();
         if (fileName.indexOf(".zip") !== -1) {
             //is file a zip - if not notify user
             this.generateFeatureCollection(fileName);
         }else if(fileName.indexOf(".kmz") !== -1){
             const  files = e.target.files;
-            this.generateLayerFromKMZ(files);
+            this.generateLayerFromKMZ(files,fileName);
         }else {
-            document.getElementById("upload-status").innerHTML =
-                '<p style="color:red">Add shapefile as .zip file</p>';
+            this.failedAddingLayer("failed to load")
+            // document.getElementById("upload-status").innerHTML = '<p style="color:red">Add shapefile as .zip file</p>';
         }
     }
 
-    generateLayerFromKMZ(files:any[]){
+    generateLayerFromKMZ(files:any[],fileName:string){
+        let name = fileName.split(".");
+        //@ts-ignore
+        name = name[0].replace("c:\\fakepath\\", "");
         const query = new Query();
         const zip = new JSZip();
         if (files?.length){
@@ -109,7 +116,8 @@ export default class Widget extends React.PureComponent<AllWidgetProps<IMConfig>
                                 const geoJsonObject = toGeoJson.kml(domVal);
                                 const blob = new Blob([JSON.stringify(geoJsonObject)], {type: "application/json"});
                                 const url  = URL.createObjectURL(blob);
-                                const layer = new GeoJSONLayer({ url});
+                                //@ts-ignore
+                                const layer = new GeoJSONLayer({ url,title:name});
                                 query.outFields = ['*']
                                 const results = await layer.queryFeatures(query);
                                 if (results.features.length){
@@ -132,11 +140,10 @@ export default class Widget extends React.PureComponent<AllWidgetProps<IMConfig>
                                     }
                                     try{
                                         this.state.jimuMapView.view.map.add(layer);
+                                        this.state.jimuMapView.view.goTo(layer.fullExtent);
+                                        this.succefullyAddingLayer(layer.title);
                                     }catch(err){
-                                    }
-                                    try{
-                                        this.state.jimuMapView.view.goTo(layer.fullExtent)
-                                    }catch(err){
+                                        this.failedAddingLayer(err);
                                     }
                                 }
                             })
@@ -147,12 +154,23 @@ export default class Widget extends React.PureComponent<AllWidgetProps<IMConfig>
         }
     }
 
+    loadingIndicator = ()=>this.setState({loadingIndicator:true,failedToLoad:false,errorMessage:" ",layerName:null});
+
+    succefullyAddingLayer = (layerTitle)=>this.setState({
+        loadingIndicator:false,
+        failedToLoad:false,
+        errorMessage:" ",
+        layerName:layerTitle
+    });
+
+    failedAddingLayer = (error)=>this.setState({loadingIndicator:false,failedToLoad:true,errorMessage:error,layerName:null});
+
     generateFeatureCollection(fileName) {
         let name = fileName.split(".");
         // Chrome adds c:\fakepath to the value - we need to remove it
         name = name[0].replace("c:\\fakepath\\", "");
-        document.getElementById("upload-status").innerHTML =
-            "<b>Loading </b>" + name;
+        // document.getElementById("upload-status").innerHTML =
+        //     "<b>Loading </b>" + name;
 
         // define the input params for generate see the rest doc for details
         // https://developers.arcgis.com/rest/users-groups-and-items/generate.htm
@@ -177,18 +195,19 @@ export default class Widget extends React.PureComponent<AllWidgetProps<IMConfig>
             responseType: "json"
         })
             .then((response) => {
-                const layerName =
-                    response.data.featureCollection.layers[0].layerDefinition.name;
-                document.getElementById("upload-status").innerHTML =
-                    "<b>Loaded: </b>" + layerName;
+                // const layerName =
+                //     response.data.featureCollection.layers[0].layerDefinition.name;
+                // document.getElementById("upload-status").innerHTML =
+                //     "<b>Loaded: </b>" + layerName;
                 this.addShapefileToMap(response.data.featureCollection);
             })
             .catch(this.errorHandler);
     }
 
     errorHandler(error) {
-        document.getElementById("upload-status").innerHTML =
-            "<p style='color:red;max-width: 500px;'>" + error.message + "</p>";
+        this.failedAddingLayer(error)
+        // document.getElementById("upload-status").innerHTML =
+        //     "<p style='color:red;max-width: 500px;'>" + error.message + "</p>";
     }
 
     addShapefileToMap(featureCollection) {
@@ -214,7 +233,9 @@ export default class Widget extends React.PureComponent<AllWidgetProps<IMConfig>
              });
             // associate the feature with the popup on click to enable highlight and zoom to
         });
-        document.getElementById("upload-status").innerHTML = "";
+        const layerName = featureCollection.layers[0].layerDefinition.name;
+        this.succefullyAddingLayer(layerName);
+        // document.getElementById("upload-status").innerHTML = "";
     }
 
 
@@ -239,12 +260,64 @@ export default class Widget extends React.PureComponent<AllWidgetProps<IMConfig>
                                         </label>
                                     </div>
                                 </form>
+                                {
+                                    !this.state.loadingIndicator && this.state.layerName && (
+                                        <div style = {{fontSize:14,color:"black",textAlign:"start",marginTop:20}}>
+                                            <b>Layer Name </b> : {this.state.layerName}
+                                        </div>
+                                    )
+                                }
+                                {this.state.loadingIndicator && <div 
+                                    style={{
+                                        width:"100%",
+                                        display:"flex",
+                                        flexDirection:"column",
+                                        justifyContent:"center",
+                                        height:"auto"
+                                    }}
+                                >
+                                    <div 
+                                        style={{
+                                            height:'80px',
+                                            position:'relative',
+                                            width:'100%',
+                                            marginLeft:"auto",
+                                            marginRight:"auto"
+                                        }}
+                                    >
+                                        <Loading />
+                                    </div>
+                                        <div style = {{fontSize:14,color:"grey",width:'100%',textAlign:"center"}}>
+                                            Adding layer on the map....
+                                        </div>
+                                </div>}
+                                {this.state.failedToLoad && <div 
+                                    style={{
+                                        width:"100%",
+                                        display:"flex",
+                                        flexDirection:"column",
+                                        justifyContent:"center",
+                                        marginTop:20,
+                                        height:"auto"
+                                    }}
+                                >
+                                    <Alert 
+                                        text={this.state.errorMessage}
+                                        type = "error"
+                                        closable = {true}
+                                        onClose = {()=>this.succefullyAddingLayer(null)}
+                                    />
+                                </div>}
                             </div>
-                            <span
+                            {/* <span
                                 className="file-upload-status"
                                 style={{ opacity: 1 }}
                                 id="upload-status"
-                            ></span>
+                            ></span> */}
+                        
+                           
+                         
+                            
                         </div>
                 </div>
         </div>
