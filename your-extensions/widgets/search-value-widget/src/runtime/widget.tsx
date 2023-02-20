@@ -4,8 +4,13 @@ import Search from "esri/widgets/Search";
 import FeatureLayer from 'esri/layers/FeatureLayer';
 import { Loading } from 'jimu-ui';
 import geometryEngine from 'esri/geometry/geometryEngine';
+import Graphic from 'esri/Graphic';
 
 export default class Widget extends React.PureComponent<any,any>{
+
+    initialZoomValue = 0;
+    searchWidget = null;
+    cleared = false;
 
     constructor(props:any){
         super(props);
@@ -28,7 +33,18 @@ export default class Widget extends React.PureComponent<any,any>{
         return newFields;
     }
 
+    selectFeatureLayer = (geometry:any)=>{
+        const activeView = this.state.jmv;
+        if (activeView){
+            activeView?.selectFeaturesByGraphic(geometry,"contains").then((results)=>{})
+            .catch((err)=>{})
+        }
+      }
+
     onActiveViewChange = async(jmv:JimuMapView)=>{
+        jmv.clearSelectedFeatures();
+        this.initialZoomValue =  jmv.view.zoom;
+        jmv.view.popup.visible = true;
         const unrequiredValue = [""," "];
         let url = this.props.config.service.url;
         const layerId = this.props.config.service.layerId;
@@ -61,15 +77,33 @@ export default class Widget extends React.PureComponent<any,any>{
                         if(event && event.result && event.result.feature){
                             if (event.result.feature.geometry){
                                 const arrayGeometry = [];
+                                this.cleared = false;
                                 const newGeometry = geometryEngine.buffer(event.result.feature.geometry,1, "meters");
                                 arrayGeometry.push(newGeometry);
+                                try{
+                                    //@ts-ignore
+                                    const polygonGraphic = new Graphic({geometry:newGeometry,symbol:null});
+                                    this.selectFeatureLayer(polygonGraphic)
+                                }catch(err){}
                                 if (arrayGeometry.length){
                                     const unifiedGeomtry = geometryEngine.union(arrayGeometry);
+                                    if (jmv)jmv.view.popup.visible = true;
                                     jmv.view.goTo(unifiedGeomtry.extent);
                                 }
                             }
                         }
                     });
+                    searchWidget.on("search-clear", (event)=>{
+                        if (!this.cleared){
+                            // searchWidget.clear();
+                            jmv.clearSelectedFeatures();
+                            jmv.view.popup.visible = false;
+                            jmv.view.goTo({center:jmv.view.center,zoom:this.initialZoomValue});
+                            this.cleared = true;
+                            searchWidget.clear();
+                        }                       
+                    });
+                    this.searchWidget = searchWidget;
                 })
             }
              
@@ -77,6 +111,30 @@ export default class Widget extends React.PureComponent<any,any>{
     }
 
     render(): React.ReactNode {
+
+        let closedChecked = false;
+        let openChecked = false;
+        
+        if(this.props.state === "CLOSED" && !closedChecked){
+            const jmv = this.state.jmv;
+            if (jmv){
+                jmv.clearSelectedFeatures();
+                jmv.view.goTo({center:jmv.view.center,zoom:this.initialZoomValue});
+                jmv.view.popup.visible = false;
+            }
+            if (this.searchWidget){
+                this.cleared = true;
+                this.searchWidget.clear();
+            }
+            closedChecked = true;
+            openChecked = false;
+        }
+
+        if (this.props.state === "OPENED" && !openChecked){
+            closedChecked = false;
+            openChecked = true;  
+        }
+
         return(
             <div className="widget-search-value jimu-widget">
                 {
