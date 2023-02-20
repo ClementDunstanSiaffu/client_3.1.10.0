@@ -29,7 +29,13 @@ export default class Widget extends React.PureComponent<any,any>{
     }
 
     onActiveViewChange = async(jmv:JimuMapView)=>{
-        const url = this.props.config.service.url;
+        const unrequiredValue = [""," "];
+        let url = this.props.config.service.url;
+        const layerId = this.props.config.service.layerId;
+        const searchedField = this.props.config.service.searchField;
+        if (!unrequiredValue.includes(layerId)){
+            url = url+"/"+layerId.trim()
+        }
         if (url){
             const featureLayer =  new FeatureLayer(url);
             if (featureLayer){
@@ -41,6 +47,8 @@ export default class Widget extends React.PureComponent<any,any>{
                         placeholder: "Locating by using value",
                         maxResults:5,
                         maxSuggestions:6,
+                        displayField:searchedField,
+                        searchedField:[`${searchedField}`],
                         minSuggestCharacters:0,
                     }];
                     const searchWidget = new Search({

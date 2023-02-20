@@ -12,9 +12,9 @@ export default class Setting extends React.PureComponent<AllWidgetSettingProps<a
         })
     }
 
-    saveState = (val:string)=>{
+    saveState = (val:string,key:string)=>{
         const currentService = this.props.config.service;
-        const newService = {...currentService,"url":val};
+        const newService = {...currentService,[key]:val};
         this.props.onSettingChange({
             id:this.props.id,
             config:{...this.props.config,"service":newService}
@@ -31,7 +31,19 @@ export default class Setting extends React.PureComponent<AllWidgetSettingProps<a
                     <SettingRow label={"Service url"}>
                         <input 
                             defaultValue={this.props.config?.service.url} 
-                            onChange = {(e)=>this.saveState(e.target.value)}
+                            onChange = {(e)=>this.saveState(e.target.value,"url")}
+                        />   
+                    </SettingRow>
+                    <SettingRow label={"Layer id"}>
+                        <input 
+                            defaultValue={this.props.config?.service.layerId} 
+                            onChange = {(e)=>this.saveState(e.target.value,"layerId")}
+                        />
+                    </SettingRow>
+                    <SettingRow label={"Search field"}>
+                        <input 
+                            defaultValue={this.props.config?.service.searchField} 
+                            onChange = {(e)=>this.saveState(e.target.value,"searchField")}
                         />
                     </SettingRow>
                 </SettingSection>
