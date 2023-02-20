@@ -60,6 +60,7 @@ export default class Widget extends React.PureComponent<any,any>{
                     const searchWidget = new Search({
                         view:jmv.view,
                         container:"search-widget-search-value",
+                        includeDefaultSources:false,
                         sources:sources,
                         popupTemplate:{title:"Search value widget",content:[{type:"fields",fieldInfos:fieldInfos}]}
                     })
