@@ -14,22 +14,12 @@ export default class Widget extends React.PureComponent<any,any>{
 
     constructor(props:any){
         super(props);
-        this.state = {
-            jmv:null,
-            loader:true
-        }
+        this.state = {jmv:null,loader:true}
     }
 
     getFieldInfos = (fields:any[])=>{
         const newFields = []
-        if (fields.length){
-            fields.forEach(el=>{
-                newFields.push({
-                    fieldName:el.name,
-                    label:el.alias
-                })
-            })
-        }
+        if (fields.length)fields.forEach(el=>{newFields.push({fieldName:el.name,label:el.alias})})
         return newFields;
     }
 
@@ -95,7 +85,6 @@ export default class Widget extends React.PureComponent<any,any>{
                     });
                     searchWidget.on("search-clear", (event)=>{
                         if (!this.cleared){
-                            // searchWidget.clear();
                             jmv.clearSelectedFeatures();
                             jmv.view.popup.visible = false;
                             jmv.view.goTo({center:jmv.view.center,zoom:this.initialZoomValue});
@@ -167,11 +156,12 @@ export default class Widget extends React.PureComponent<any,any>{
                             >
                                 <Loading />
                             </div>
-                            <div style = {{fontSize:14,color:"grey",width:'100%',textAlign:"center"}}>Loading search widget....</div>
+                            <div style = {{fontSize:14,color:"grey",width:'100%',textAlign:"center"}}>
+                                Loading search widget....
+                            </div>
                         </div>
                     )
                 }
-                
             </div>
         )
     }
