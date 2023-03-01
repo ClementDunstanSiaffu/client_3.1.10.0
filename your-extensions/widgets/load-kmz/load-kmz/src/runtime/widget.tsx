@@ -35,15 +35,18 @@ export default class Widget extends React.PureComponent<AllWidgetProps<IMConfig>
         jimuMapView: null,
         labelVisible:true,
         viewSelectDraw: true,
-          formExtraUrbano:{
-              //TODO
+        formExtraUrbano:{
+            //TODO
         },
         arrayLayer: [],
         portalUrl:  "https://www.arcgis.com",
         loadingIndicator:false,
         failedToLoad:false,
         errorMessage:" ",
-        layerName:null
+        layerName:null,
+        addedLayerIds:[],
+        widgetStateOpenedChecked: false,
+        widgetStateClosedChecked: false,
       };
       this.arrayView = Object.assign([], this.props.config.listvalues)
       this.activeViewChangeHandler = this.activeViewChangeHandler.bind(this);
@@ -64,17 +67,8 @@ export default class Widget extends React.PureComponent<AllWidgetProps<IMConfig>
             jmv.view.map.add(this.graphicLayerFound);
             jmv.view.map.add(this.graphicLayerSelected);
             let arraySup = [];
-            this.arrayView.forEach((el, index) => {
-                arraySup.push({
-                    label:el.name,
-                    value:el
-                })
-            });
-
-            this.setState({
-                arrayLayer: arraySup,
-                jimuMapView: jmv,
-            });
+            this.arrayView.forEach((el, index) => {arraySup.push({label:el.name,value:el})});
+            this.setState({arrayLayer: arraySup,jimuMapView: jmv,});
         }
     }
 
@@ -149,6 +143,7 @@ export default class Widget extends React.PureComponent<AllWidgetProps<IMConfig>
                                         this.state.jimuMapView.view.goTo(layer.fullExtent);
                                         // debugger;
                                         this.succefullyAddingLayer(layer.title);
+                                        this.setAddedLayerIds(layer)
                                     }catch(err){
                                         this.failedAddingLayer(err);
                                     }
@@ -163,6 +158,12 @@ export default class Widget extends React.PureComponent<AllWidgetProps<IMConfig>
         }else{
             this.failedAddingLayer({message:this.nls("noFilesFound")});
         }
+    }
+
+    setAddedLayerIds = (layer)=>{
+        const copiedLayerIds = [...this.state.addedLayerIds];
+        copiedLayerIds.push(layer);
+        this.setState({addedLayerIds:copiedLayerIds});
     }
 
     loadingIndicator = ()=>this.setState({loadingIndicator:true,failedToLoad:false,errorMessage:" ",layerName:null});
@@ -222,9 +223,11 @@ export default class Widget extends React.PureComponent<AllWidgetProps<IMConfig>
             let layerToAdd = new GraphicsLayer({graphics: sourceGraphics, title: layer.layerDefinition.name});
             // debugger;
             this.state.jimuMapView.view.map.add(layerToAdd);
-            this.state.jimuMapView.view.goTo(sourceGraphics).catch((error) => {
+            this.state.jimuMapView.view.goTo(sourceGraphics)
+            .catch((error) => {
                 if (error.name != "AbortError") {}
             });
+            this.setAddedLayerIds(layerToAdd)
             // associate the feature with the popup on click to enable highlight and zoom to
         });
         const layerName = featureCollection.layers[0].layerDefinition.name;
@@ -232,8 +235,41 @@ export default class Widget extends React.PureComponent<AllWidgetProps<IMConfig>
         this.succefullyAddingLayer(layerName);
     }
 
+    clearFileInput(id) { 
+        const oldInput = document.getElementById(id); 
+        const newInput = document.createElement("input"); 
+        newInput.type = "file"; 
+        newInput.id = oldInput.id; 
+        newInput.name = oldInput.name; 
+        newInput.className = oldInput.className; 
+        newInput.onchange = this.onChangeFileUpload
+        newInput.style.cssText = oldInput.style.cssText; 
+        oldInput.parentNode.replaceChild(newInput, oldInput); 
+}
+
     render () {
-        console.log(this.state.errorMessage,"check error message")
+
+        if (this.props.state === "CLOSED" && !this.state.widgetStateClosedChecked){
+            const jmv = this.state.jimuMapView;
+            const addedLayerIds = this.state.addedLayerIds;
+            if (jmv && addedLayerIds.length )addedLayerIds.forEach((layerId)=>{
+                jmv.view.map.remove(layerId)
+            });
+            const element = document.getElementsByTagName("input");
+            const currentId = element[0].id;
+            this.setState({
+                widgetStateClosedChecked:true,
+                widgetStateOpenedChecked:false,
+                addedLayerIds:[],
+                layerName:null
+            });
+            this.clearFileInput(currentId);
+        }
+
+        if (this.props.state === "OPENED" && !this.state.widgetStateOpenedChecked){
+            this.setState({widgetStateOpenedChecked:true,widgetStateClosedChecked:false})
+        }
+
         return (
             <div className="widget-address jimu-widget  container-fluid" style={{overflow:"auto"}}>
                 {this.props.hasOwnProperty('useMapWidgetIds') && this.props.useMapWidgetIds && this.props.useMapWidgetIds[0] && (
