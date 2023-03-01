@@ -11,6 +11,7 @@ import JSZip from '../lib/zip';
 import toGeoJson from '../lib/toGeoJson';
 import GeoJSONLayer from 'esri/layers/GeoJSONLayer';
 import Query from 'esri/rest/support/Query';
+import defaultMessages from "../runtime/translations/default";
 
 
 export default class Widget extends React.PureComponent<AllWidgetProps<IMConfig>, any> {
@@ -52,6 +53,10 @@ export default class Widget extends React.PureComponent<AllWidgetProps<IMConfig>
     }
     componentWillUnmount() {
         console.log('Il componente sta per essere rimosso dalla pagina.');
+    }
+
+    nls = (id:string)=>{
+        return this.props.intl ? this.props.intl.formatMessage({id:id,defaultMessage:defaultMessages[id]}):id
     }
 
     activeViewChangeHandler (jmv: JimuMapView) {
@@ -148,17 +153,17 @@ export default class Widget extends React.PureComponent<AllWidgetProps<IMConfig>
                                         this.failedAddingLayer(err);
                                     }
                                 }else{
-                                    this.failedAddingLayer({message:"There is no features"});
+                                    this.failedAddingLayer({message:this.nls("noFeatures")});
                                 }
                             })
                         }else{
-                            this.failedAddingLayer({message:"No kml file found inside"});
+                            this.failedAddingLayer({message:this.nls("noKMLFile")});
                         }
                     });
                 })
             }
         }else{
-            this.failedAddingLayer({message:"No files found"});
+            this.failedAddingLayer({message:this.nls("noFilesFound")});
         }
     }
 

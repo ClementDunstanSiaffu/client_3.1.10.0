@@ -6824,6 +6824,7 @@
       "license": "",
       "properties": {},
       "translatedLocales": [
+        "it",
         "en"
       ],
       "defaultSize": {
@@ -6831,8 +6832,14 @@
         "height": 1500
       }
     },
-    "i18nLabel": {},
-    "i18nDescription": {},
+    "i18nLabel": {
+      "it": "Carica i livelli del file",
+      "en": "Load file layers"
+    },
+    "i18nDescription": {
+      "it": null,
+      "en": null
+    },
     "uri": "widgets/load-kmz/load-kmz/",
     "icon": "widgets/load-kmz/load-kmz/icon.svg",
     "order": 700,
