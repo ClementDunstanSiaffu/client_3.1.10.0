@@ -6813,7 +6813,7 @@
     "name": "load-kmz",
     "manifest": {
       "name": "load-kmz",
-      "label": "LOAD KMZ",
+      "label": "Carica SHP o KMZ",
       "type": "widget",
       "version": "1.10.0",
       "dependency": "jimu-arcgis",
@@ -6833,8 +6833,8 @@
     },
     "i18nLabel": {},
     "i18nDescription": {},
-    "uri": "widgets/load-kmz/",
-    "icon": "widgets/load-kmz/icon.svg",
+    "uri": "widgets/load-kmz/load-kmz/",
+    "icon": "widgets/load-kmz/load-kmz/icon.svg",
     "order": 700,
     "group": 7
   },

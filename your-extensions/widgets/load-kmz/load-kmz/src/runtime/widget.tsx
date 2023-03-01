@@ -12,6 +12,7 @@ import toGeoJson from '../lib/toGeoJson';
 import GeoJSONLayer from 'esri/layers/GeoJSONLayer';
 import Query from 'esri/rest/support/Query';
 
+
 export default class Widget extends React.PureComponent<AllWidgetProps<IMConfig>, any> {
     graphicLayerFound = new GraphicsLayer({id:"indirizzi-found-sketch",listMode:"hide",visible:true});
     graphicLayerSelected = new GraphicsLayer({id:"indirizzi-selected-sketch",listMode:"hide",visible:true});
@@ -33,7 +34,7 @@ export default class Widget extends React.PureComponent<AllWidgetProps<IMConfig>
         jimuMapView: null,
         labelVisible:true,
         viewSelectDraw: true,
-        formExtraUrbano:{
+          formExtraUrbano:{
               //TODO
         },
         arrayLayer: [],
@@ -48,6 +49,9 @@ export default class Widget extends React.PureComponent<AllWidgetProps<IMConfig>
       this.saveState = this.saveState.bind(this);
       this.onChangeFileUpload = this.onChangeFileUpload.bind(this);
       this.errorHandler = this.errorHandler.bind(this)
+    }
+    componentWillUnmount() {
+        console.log('Il componente sta per essere rimosso dalla pagina.');
     }
 
     activeViewChangeHandler (jmv: JimuMapView) {
@@ -92,7 +96,7 @@ export default class Widget extends React.PureComponent<AllWidgetProps<IMConfig>
             const  files = e.target.files;
             this.generateLayerFromKMZ(files,fileName);
         }else {
-            this.failedAddingLayer("failed to load")
+            this.failedAddingLayer({message:"failed to load"})
         }
     }
 
@@ -138,6 +142,7 @@ export default class Widget extends React.PureComponent<AllWidgetProps<IMConfig>
                                     try{
                                         this.state.jimuMapView.view.map.add(layer);
                                         this.state.jimuMapView.view.goTo(layer.fullExtent);
+                                        // debugger;
                                         this.succefullyAddingLayer(layer.title);
                                     }catch(err){
                                         this.failedAddingLayer(err);
@@ -160,7 +165,7 @@ export default class Widget extends React.PureComponent<AllWidgetProps<IMConfig>
         layerName:layerTitle
     });
 
-    failedAddingLayer = (error)=>this.setState({loadingIndicator:false,failedToLoad:true,errorMessage:error,layerName:null});
+    failedAddingLayer = (error)=>this.setState({loadingIndicator:false,failedToLoad:true,errorMessage:error?.message,layerName:null});
 
     generateFeatureCollection(fileName) {
         let name = fileName.split(".");
@@ -205,7 +210,8 @@ export default class Widget extends React.PureComponent<AllWidgetProps<IMConfig>
         featureCollection.layers.map((layer) => {
             const graphics = layer.featureSet.features.map((feature) => {return Graphic.fromJSON(feature);});
             sourceGraphics = sourceGraphics.concat(graphics);
-            let layerToAdd = new GraphicsLayer({graphics: sourceGraphics});
+            let layerToAdd = new GraphicsLayer({graphics: sourceGraphics, title: layer.layerDefinition.name});
+            // debugger;
             this.state.jimuMapView.view.map.add(layerToAdd);
             this.state.jimuMapView.view.goTo(sourceGraphics).catch((error) => {
                 if (error.name != "AbortError") {}
@@ -213,10 +219,12 @@ export default class Widget extends React.PureComponent<AllWidgetProps<IMConfig>
             // associate the feature with the popup on click to enable highlight and zoom to
         });
         const layerName = featureCollection.layers[0].layerDefinition.name;
+        // debugger;
         this.succefullyAddingLayer(layerName);
     }
 
     render () {
+        console.log(this.state.errorMessage,"check error message")
         return (
             <div className="widget-address jimu-widget  container-fluid" style={{overflow:"auto"}}>
                 {this.props.hasOwnProperty('useMapWidgetIds') && this.props.useMapWidgetIds && this.props.useMapWidgetIds[0] && (
@@ -225,6 +233,11 @@ export default class Widget extends React.PureComponent<AllWidgetProps<IMConfig>
 
                 <div id="search-advanced-tab-Coord-file" className="d-flex flex-column p-1" title="Multicoordinate da file">
                     <div className="container-fluid mt-3 mb-3">
+                        <div className="row mb-2">
+                            <div className="col-md-12">
+                                <Alert className="w-100" form="basic" open text="Lo Shape file va inserito all'interno di uno zip, mentre per il file KMZ inserire direttamente il file" type="info" withIcon/>
+                            </div>
+                        </div>
                         <div className="row mb-3">
                             <label className="w-100 form-label">Aggiungi file KMZ o SHAPE FILE</label>
                             <form encType="multipart/form-data" method="post"  id="uploadForm"  >

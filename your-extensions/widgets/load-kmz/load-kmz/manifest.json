@@ -1,6 +1,6 @@
 {
   "name": "load-kmz",
-  "label": "LOAD KMZ",
+  "label": "Carica SHP o KMZ",
   "type": "widget",
   "version": "1.10.0",
   "dependency": "jimu-arcgis",
