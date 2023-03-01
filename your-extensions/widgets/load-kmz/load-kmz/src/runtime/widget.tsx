@@ -21,11 +21,7 @@ export default class Widget extends React.PureComponent<AllWidgetProps<IMConfig>
         type: "simple-fill",
         color: [51, 51, 204, 0.5],
         style: "solid",
-        outline: {
-            style: "short-dash",
-            color: "white",
-            width: 3
-        }
+        outline: {style: "short-dash",color: "white",width: 3}
     };
 
     arrayView:ListValue[];
@@ -221,7 +217,6 @@ export default class Widget extends React.PureComponent<AllWidgetProps<IMConfig>
             const graphics = layer.featureSet.features.map((feature) => {return Graphic.fromJSON(feature);});
             sourceGraphics = sourceGraphics.concat(graphics);
             let layerToAdd = new GraphicsLayer({graphics: sourceGraphics, title: layer.layerDefinition.name});
-            // debugger;
             this.state.jimuMapView.view.map.add(layerToAdd);
             this.state.jimuMapView.view.goTo(sourceGraphics)
             .catch((error) => {
@@ -231,7 +226,6 @@ export default class Widget extends React.PureComponent<AllWidgetProps<IMConfig>
             // associate the feature with the popup on click to enable highlight and zoom to
         });
         const layerName = featureCollection.layers[0].layerDefinition.name;
-        // debugger;
         this.succefullyAddingLayer(layerName);
     }
 
@@ -245,7 +239,7 @@ export default class Widget extends React.PureComponent<AllWidgetProps<IMConfig>
         newInput.onchange = this.onChangeFileUpload
         newInput.style.cssText = oldInput.style.cssText; 
         oldInput.parentNode.replaceChild(newInput, oldInput); 
-}
+    }
 
     render () {
 
