@@ -261,7 +261,10 @@ export default class Widget extends React.PureComponent<AllWidgetProps<IMConfig>
                 widgetStateClosedChecked:true,
                 widgetStateOpenedChecked:false,
                 addedLayerIds:[],
-                layerName:null
+                layerName:null,
+                errorMessage:" ",
+                failedToLoad:false,
+                loadingIndicator:false
             });
             this.clearFileInput(currentId);
         }
