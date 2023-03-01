@@ -156,8 +156,6 @@ export default class Widget extends React.PureComponent<AllWidgetProps<IMConfig>
                                     this.failedAddingLayer({message:this.nls("noFeatures")});
                                 }
                             })
-                        }else{
-                            this.failedAddingLayer({message:this.nls("noKMLFile")});
                         }
                     });
                 })
