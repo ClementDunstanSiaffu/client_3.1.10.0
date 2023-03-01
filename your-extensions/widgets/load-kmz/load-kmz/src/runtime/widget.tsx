@@ -147,12 +147,18 @@ export default class Widget extends React.PureComponent<AllWidgetProps<IMConfig>
                                     }catch(err){
                                         this.failedAddingLayer(err);
                                     }
+                                }else{
+                                    this.failedAddingLayer({message:"There is no features"});
                                 }
                             })
+                        }else{
+                            this.failedAddingLayer({message:"No kml file found inside"});
                         }
                     });
                 })
             }
+        }else{
+            this.failedAddingLayer({message:"No files found"});
         }
     }
 
