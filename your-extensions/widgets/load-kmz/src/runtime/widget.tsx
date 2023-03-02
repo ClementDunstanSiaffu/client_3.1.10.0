@@ -77,7 +77,8 @@ export default class Widget extends React.PureComponent<AllWidgetProps<IMConfig>
     getExtension = (filePath:string)=>filePath.split(".").pop();
 
     getDom = (xml) =>{
-        const xmlVal = (new DOMParser()).parseFromString(xml,"text/xml");
+        const newXml = xml.trim();
+        const xmlVal = (new DOMParser()).parseFromString(newXml,"text/xml");
         return xmlVal;
     }
 
