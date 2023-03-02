@@ -69,17 +69,13 @@ export default class Widget extends React.PureComponent<any,any>{
                         placeholder: 'Search',
                         minSuggestCharacters:0,
                         getSuggestions: (params) => {
-                            // console.log(params,"check params")
                           return results.then((data) => {
-                            console.log(data,"check inside results")
                             let defaultSuggestions = [];
                             if (data?.features?.length){
                                 const features = data.features;
                                 defaultSuggestions = helper.getAllSuggestions(features,params);
-                                // console.log(defaultSuggestions,"check default suggestions")
                             }
                             return defaultSuggestions;
-                            // console.log(data,"check data")
                             // var results = [];
                             // var toSearch = params.suggestTerm;
                             // return[{
@@ -103,14 +99,15 @@ export default class Widget extends React.PureComponent<any,any>{
                             // })
                           })
                           .catch((err)=>{
-                            console.log(err,"check error")
                           })
                         },
                         getResults: (params) => {
                           return results.then((data) => {
                             const results = [];
+                            let searchResult = {};
                             let toSearch = params.suggestResult.text;
-                            const field = params.key;
+                            const field = params.suggestResult.key;
+                            const sourceIndex = params.suggestResult.sourceIndex;
                             if (!isNaN(parseInt(toSearch)) && typeof parseInt(toSearch) === "number"){
                                 toSearch = parseInt(toSearch);
                             }
@@ -139,7 +136,6 @@ export default class Widget extends React.PureComponent<any,any>{
                                             }
                                         })
                                     }
-                                    console.log(features[i]);
                                     // if (features[i].indexOf(toSearch) !== -1)results.push()
                                 }
                                 if (results.length){
@@ -159,9 +155,15 @@ export default class Widget extends React.PureComponent<any,any>{
                                             const unifiedGeomtry = geometryEngine.union(arrayGeometry);
                                             if (jmv)jmv.view.popup.visible = true;
                                             jmv.view.goTo(unifiedGeomtry.extent);
+                                            searchResult["extent"] = unifiedGeomtry.extent 
                                         }
+                                        searchResult["feature"] = searchedItem;
+                                        searchResult["target"] = searchedItem;
                                     }
                                 }
+                                searchResult["key"] = field
+                                searchResult["name"] = params.suggestResult.text;
+                                searchResult["sourceIndex"] = sourceIndex
                             }
                             // data = data["allIBLocations"]["data"];
                             // for(var i=0; i<data.length; i++) {
@@ -170,7 +172,6 @@ export default class Widget extends React.PureComponent<any,any>{
                             //   }}
                             
                             // const searchResults = results.map((feature) => {
-                            //   console.log(feature)
                             //   const graphic = new Graphic({
                             //     geometry: new Point({
                             //       latitude: feature.geoCode.latitude,
@@ -190,16 +191,17 @@ export default class Widget extends React.PureComponent<any,any>{
                             //   };
                             //   return searchResult;
                             // });
-                            return [];
+                            return searchResult;
                           });
-                        }
+                        },
+                        // popupEnabled:true,
+                        popupTemplate:{title:"Search value widget",content:[{type:"fields",fieldInfos:fieldInfos}]}
                       });
                     // const customSearchSources = new SearchSource({
                     //     getSuggestions:(params)=>{
                     //         results.then((data)=>{
 
                     //         })
-                    //         console.log(params,"check params")
                     //         return [{
                     //             key: "name",
                     //             text: "kile",
@@ -231,18 +233,15 @@ export default class Widget extends React.PureComponent<any,any>{
                         includeDefaultSources:false,
                         sources:[customSearchSource],
                         // sources:sources,
-                        popupTemplate:{title:"Search value widget",content:[{type:"fields",fieldInfos:fieldInfos}]}
+                        // popupTemplate:{title:"Search value widget",content:[{type:"fields",fieldInfos:fieldInfos}]}
                     })
 
-                    // console.log(searchWidget,"check search widget")
                     
                     // searchWidget.on("suggest-start",(event)=>{
                     //     // searchWidget.suggest(event.searchTerm)
-                    //     console.log(event,"check event on search start")
                     // })
                     // searchWidget.on("suggest-complete",(event)=>{
                     //     event.results[0].source.filter.where =  `${searchedField} LIKE '%${event.searchTerm}'` 
-                    //     console.log(event.results[0].source,"suggestion completet")
                     // })
                     searchWidget.on("select-result", (event)=>{
                         if(event && event.result && event.result.feature){
