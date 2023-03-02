@@ -1,0 +1,8 @@
+
+{
+    "service": {
+        "url": "https://services.arcgis.com/P3ePLMYs2RVChkJx/ArcGIS/rest/services/Bureau_of_Economic_Analysis_Gross_Domestic_Product_GDP_2019/FeatureServer",
+        "layerId":" ",
+        "searchField":"OBJECTID"
+    }
+}
