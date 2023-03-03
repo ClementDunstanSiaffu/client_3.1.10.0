@@ -232,14 +232,16 @@ export default class Widget extends React.PureComponent<AllWidgetProps<IMConfig>
 
     clearFileInput(id) { 
         const oldInput = document.getElementById(id); 
+        const parentNode = document.getElementById("fieldLoadKMZ")
         const newInput = document.createElement("input"); 
         newInput.type = "file"; 
         newInput.id = oldInput.id; 
         newInput.name = oldInput.name; 
         newInput.className = oldInput.className; 
         newInput.onchange = this.onChangeFileUpload
-        newInput.style.cssText = oldInput.style.cssText; 
-        oldInput.parentNode.replaceChild(newInput, oldInput); 
+        newInput.style.cssText = oldInput.style.cssText;
+        // parentNode.appendChild(newInput);
+        // oldInput.parentNode.replaceChild(newInput, oldInput); 
     }
 
     render () {
@@ -284,7 +286,7 @@ export default class Widget extends React.PureComponent<AllWidgetProps<IMConfig>
                         <div className="row mb-3">
                             <label className="w-100 form-label">Aggiungi file KMZ o SHAPE FILE</label>
                             <form encType="multipart/form-data" method="post"  id="uploadForm"  >
-                                <div className="field">
+                                <div className="field" id = "fieldLoadKMZ">
                                     <label className="file-upload">
                                         <span><strong>Add File</strong></span>
                                         <input type="file" name="file" id="inFile" onChange={this.onChangeFileUpload}/>
