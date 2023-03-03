@@ -1,12 +1,13 @@
 
 class Helper {
 
-    getAllSuggestions = (features:any[],params,searchedField)=>{
+    getAllSuggestions = (features:any[],params,searchedFieldArr)=>{
         // const suggestions = [];
         const searchItem = params?.suggestTerm??" "
         const suggestions = features.reduce((newSuggestions,{attributes})=>{
             // const keys = Object.keys(attributes);
-            const keys = [searchedField];
+            // const keys = [searchedField];
+            const keys = searchedFieldArr;
             if (keys.length){
                 keys.forEach((keyVal)=>{
                     const obj = {};

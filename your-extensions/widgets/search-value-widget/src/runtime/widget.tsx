@@ -41,7 +41,15 @@ export default class Widget extends React.PureComponent<any,any>{
         const unrequiredValue = [""," "];
         let url = this.props.config.service.url;
         const layerId = this.props.config.service.layerId;
+        let searchFieldArr = [];
         const searchedField = this.props.config.service.searchField;
+        const newSearchField = searchedField.split(",");
+        if (newSearchField?.length){
+            newSearchField.forEach((field)=>searchFieldArr.push(`${field}`));
+        }else{
+            searchFieldArr.push(`${searchedField}`)
+        }
+        // const searchedField = this.props.config.service.searchField;
         if (!unrequiredValue.includes(layerId))url = url+"/"+layerId.trim()
         if (url){
             const featureLayer =  new FeatureLayer(url);
@@ -49,7 +57,8 @@ export default class Widget extends React.PureComponent<any,any>{
                 featureLayer.load().then(async()=>{
                     const query = new Query();
                     query.returnGeometry = true;
-                    query.outFields = [`${searchedField}`];
+                    // query.outFields = [`${searchedField}`];
+                    query.outFields = searchFieldArr;
                     if (!query.outFields.includes("OBJECTID"))query.outFields.push("OBJECTID")
                     query.where = "1=1"
                     let results;
@@ -69,7 +78,8 @@ export default class Widget extends React.PureComponent<any,any>{
                             let defaultSuggestions = [];
                             if (data?.features?.length){
                                 const features = data.features;
-                                defaultSuggestions = helper.getAllSuggestions(features,params,searchedField);
+                                defaultSuggestions = helper.getAllSuggestions(features,params,searchFieldArr);
+                                // defaultSuggestions = helper.getAllSuggestions(features,params,searchedField);
                             }
                             return defaultSuggestions;
                           })
@@ -90,7 +100,8 @@ export default class Widget extends React.PureComponent<any,any>{
                             if (features.length){
                                 for (let i = 0;i < features.length;i++){
                                     const attributes = features[i]?.attributes;
-                                    let keys = [searchedField]
+                                    // let keys = [searchedField]
+                                    let keys = searchFieldArr
                                     if (keys.length){
                                         keys.forEach(key=>{
                                             let status = false;
