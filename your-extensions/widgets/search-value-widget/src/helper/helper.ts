@@ -12,8 +12,9 @@ class Helper {
                     if (typeof attributes[keyVal] === "number"){
                         status = attributes[keyVal] === parseInt(searchItem);
                     }else if (typeof attributes[keyVal] === "string"){
-                        const toLowerCase = attributes[keyVal].toLowerCase()
-                        status = toLowerCase.includes(searchItem)
+                        const toLowerCase = attributes[keyVal].toLowerCase();
+                        const searchItemLoweCase = typeof searchItem === "string" ? searchItem.toLowerCase():searchItem;
+                        status = toLowerCase.includes(searchItemLoweCase)
                     }
                     
                     if (status){

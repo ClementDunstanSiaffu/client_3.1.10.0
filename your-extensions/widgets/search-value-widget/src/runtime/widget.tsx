@@ -36,6 +36,7 @@ export default class Widget extends React.PureComponent<any,any>{
 
     onActiveViewChange = async(jmv:JimuMapView)=>{
         jmv.clearSelectedFeatures();
+        console.log(jmv,"check jmv ")
         this.initialZoomValue =  jmv.view.zoom;
         jmv.view.popup.visible = true;
         const unrequiredValue = [""," "];
@@ -71,6 +72,8 @@ export default class Widget extends React.PureComponent<any,any>{
                     const customSearchSource = new SearchSource({
                         placeholder: 'Search by value',
                         minSuggestCharacters:0,
+                        outFields:searchFieldArr,
+                        withinViewEnabled:true,
                         getSuggestions: (params) => {
                           return results.then((data) => {
                             let defaultSuggestions = [];
@@ -137,14 +140,34 @@ export default class Widget extends React.PureComponent<any,any>{
                           });
                         },
                         popupEnabled:true,
-                        popupTemplate:{title:"Search value widget",content:[{type:"fields",fieldInfos:fieldInfos}]}
+                        popupTemplate:{title:"Search value widget",content:[{type:"fields",fieldInfos:fieldInfos}]},
+                    
                     });
+                    console.log(searchFieldArr,"check search")
+                    const sources = [];
+                    searchFieldArr.forEach((el)=>{
+                        const obj = {
+                            layer:featureLayer,
+                            displayField:`${el}`,
+                            searchedField:[el]
+                        }
+                        sources.push(obj)
+                    })
+                    // const sources = {
+                    //     searchedField:searchFieldArr
+                    // }
+
                     const searchWidget = new Search({
                         view:jmv.view,
                         container:"search-widget-search-value",
                         includeDefaultSources:false,
                         sources:[customSearchSource],
-                        popupTemplate:{title:"Search value widget",content:[{type:"fields",fieldInfos:fieldInfos}]}
+                        popupTemplate:{title:"Search value widget",content:[{type:"fields",fieldInfos:fieldInfos}]},
+                    })
+                    searchWidget.on("suggest-complete",(event)=>{
+                        event.results[0].source["displayField"] = "COUNTRY"
+                        event.results[0].source["searchedField"] = "COUNTRY"
+                        console.log(event,"check event")
                     })
                     searchWidget.on("select-result", (event)=>{
                         if(event && event.result && event.result.feature){
@@ -203,8 +226,10 @@ export default class Widget extends React.PureComponent<any,any>{
         }
 
         if (this.props.state === "OPENED" && !openChecked){
+            const jmv = this.state.jmv;
             closedChecked = false;
-            openChecked = true;  
+            openChecked = true; 
+            if (jmv)jmv.view.popup.visible = false;
         }
 
         return(
