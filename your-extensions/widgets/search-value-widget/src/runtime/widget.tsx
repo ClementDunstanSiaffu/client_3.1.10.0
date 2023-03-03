@@ -42,9 +42,7 @@ export default class Widget extends React.PureComponent<any,any>{
         let url = this.props.config.service.url;
         const layerId = this.props.config.service.layerId;
         const searchedField = this.props.config.service.searchField;
-        if (!unrequiredValue.includes(layerId)){
-            url = url+"/"+layerId.trim()
-        }
+        if (!unrequiredValue.includes(layerId))url = url+"/"+layerId.trim()
         if (url){
             const featureLayer =  new FeatureLayer(url);
             if (featureLayer){
@@ -57,12 +55,9 @@ export default class Widget extends React.PureComponent<any,any>{
                     let results;
                     if (featureLayer.queryFeatures){
                         results = featureLayer.queryFeatures(query);
-                        const anotherResults = await featureLayer.queryFeatures(query);
                     }else{
                         const layerView = await jmv.view.whenLayerView(featureLayer);
-                        if (layerView.queryFeatures){
-                            results = layerView.queryFeatures(query);
-                        }
+                        if (layerView.queryFeatures)results = layerView.queryFeatures(query);
                     }
                     this.setState({loader:false,jmv:jmv})
                     const fieldInfos = this.getFieldInfos(featureLayer.fields??[]);
@@ -77,27 +72,6 @@ export default class Widget extends React.PureComponent<any,any>{
                                 defaultSuggestions = helper.getAllSuggestions(features,params,searchedField);
                             }
                             return defaultSuggestions;
-                            // var results = [];
-                            // var toSearch = params.suggestTerm;
-                            // return[{
-                            //     key:"name",
-                            //     text:"",
-                            //     sourceIndex:params.sourceIndex
-                            // }]
-                            // data = data["allIBLocations"]["data"];
-                      
-                            // for(var i=0; i<data.length; i++) {
-                            //   if(data[i]["name"].indexOf(toSearch)!=-1) {
-                            //     results.push(data[i]);
-                            //   }
-                            // }
-                            // return results.map((feature) => {
-                            //   return {
-                            //     key: "name",
-                            //     text: feature.name,
-                            //     sourceIndex: params.sourceIndex
-                            //   };
-                            // })
                           })
                           .catch((err)=>{
                           })
@@ -116,33 +90,17 @@ export default class Widget extends React.PureComponent<any,any>{
                             if (features.length){
                                 for (let i = 0;i < features.length;i++){
                                     const attributes = features[i]?.attributes;
-                                    // let keys = [];
-                                    // if (attributes){
-                                    //     keys = Object.keys(attributes);
-                                    // }
                                     let keys = [searchedField]
                                     if (keys.length){
                                         keys.forEach(key=>{
                                             let status = false;
                                             if (toSearch === attributes[key])status = true;
-                                            // if (typeof toSearch === "number"){
-                                            //     if (toSearch === attributes[key]){
-                                            //         status = true
-                                            //     }
-                                            // }else if (typeof toSearch === "string"){
-                                            //     if (toSearch === attributes[key]){
-                                            //         console.log(toSearch.includes(attributes[key]),toSearch,attributes[key],key)
-                                            //         status = true;
-                                            //     }
-                                            // }
                                             if (status)results.push(features[i])
                                         })
                                     }
-                                    // if (features[i].indexOf(toSearch) !== -1)results.push()
                                 }
                                 if (results.length){
                                     const searchedItem = results[0];
-                                    console.log(searchedItem,"check searched item")
                                     const searchedGeometry = searchedItem.geometry;
                                     if (searchedGeometry){
                                         const arrayGeometry = [];
@@ -168,87 +126,21 @@ export default class Widget extends React.PureComponent<any,any>{
                                 searchResult["name"] = params.suggestResult.text;
                                 searchResult["sourceIndex"] = sourceIndex
                             }
-                            // data = data["allIBLocations"]["data"];
-                            // for(var i=0; i<data.length; i++) {
-                            //   if(data[i]["name"].indexOf(toSearch)!=-1) {
-                            //     results.push(data[i]);
-                            //   }}
-                            
-                            // const searchResults = results.map((feature) => {
-                            //   const graphic = new Graphic({
-                            //     geometry: new Point({
-                            //       latitude: feature.geoCode.latitude,
-                            //       longitude: feature.geoCode.longitude
-                            //     }),
-                            //     attributes: feature.address
-                            //   });
-                            //   const buffer = geometryEngine.geodesicBuffer(
-                            //     graphic.geometry,
-                            //     100,
-                            //     "meters"
-                            //   );
-                            //   const searchResult = {
-                            //     extent: buffer.extent,
-                            //     feature: graphic,
-                            //     name: feature["name"]
-                            //   };
-                            //   return searchResult;
-                            // });
                             return [searchResult];
                           });
                         },
                         popupEnabled:true,
                         popupTemplate:{title:"Search value widget",content:[{type:"fields",fieldInfos:fieldInfos}]}
-                      });
-                    // const customSearchSources = new SearchSource({
-                    //     getSuggestions:(params)=>{
-                    //         results.then((data)=>{
-
-                    //         })
-                    //         return [{
-                    //             key: "name",
-                    //             text: "kile",
-                    //             sourceIndex: params.sourceIndex
-                    //         }]
-                    //     }
-                    // })
-
-                    // const searchExtent = {
-                    //     where: `${searchedField} LIKE '%'`
-                    // }
-                    const sources = [{
-                        layer: featureLayer,
-                        placeholder: "Locating by using value",
-                        maxResults:5,
-                        maxSuggestions:6,
-                        displayField:searchedField,
-                        searchedField:[`${searchedField}`],
-                        minSuggestCharacters:0,
-                        suggestionsEnabled:true,
-                        exactMatch:false,
-
-                        // filter:searchExtent
-                        // searchTerm: "%" + searchedField + "%"
-                    }];
+                    });
                     const searchWidget = new Search({
                         view:jmv.view,
                         container:"search-widget-search-value",
                         includeDefaultSources:false,
                         sources:[customSearchSource],
-                        // sources:sources,
                         popupTemplate:{title:"Search value widget",content:[{type:"fields",fieldInfos:fieldInfos}]}
                     })
-
-                    
-                    // searchWidget.on("suggest-start",(event)=>{
-                    //     // searchWidget.suggest(event.searchTerm)
-                    // })
-                    // searchWidget.on("suggest-complete",(event)=>{
-                    //     event.results[0].source.filter.where =  `${searchedField} LIKE '%${event.searchTerm}'` 
-                    // })
                     searchWidget.on("select-result", (event)=>{
                         if(event && event.result && event.result.feature){
-                            // console.log(event.result,"check feature")
                             if (event.result.feature.geometry){
                                 const arrayGeometry = [];
                                 this.cleared = false;
@@ -261,7 +153,7 @@ export default class Widget extends React.PureComponent<any,any>{
                                 }catch(err){}
                                 if (arrayGeometry.length){
                                     const unifiedGeomtry = geometryEngine.union(arrayGeometry);
-                                    if (jmv)jmv.view.popup.visible = true;
+                                    jmv.view.popup.visible = true;
                                     jmv.view.goTo(unifiedGeomtry.extent);
                                 }
                             }
@@ -320,24 +212,8 @@ export default class Widget extends React.PureComponent<any,any>{
                 <><div id="search-widget-search-value" className="w-100"></div></>
                 {
                     this.state.loader && (
-                        <div 
-                              style={{
-                                  width:"100%",
-                                  display:"flex",
-                                  flexDirection:"column",
-                                  justifyContent:"center",
-                                  height:"auto"
-                              }}
-                          >
-                            <div 
-                                style={{
-                                    height:'80px',
-                                    position:'relative',
-                                    width:'100%',
-                                    marginLeft:"auto",
-                                    marginRight:"auto"
-                                }}
-                            >
+                        <div style={{width:"100%",display:"flex",flexDirection:"column",justifyContent:"center",height:"auto"}}>
+                            <div style={{height:'80px',position:'relative',width:'100%',marginLeft:"auto",marginRight:"auto"}}>
                                 <Loading />
                             </div>
                             <div style = {{fontSize:14,color:"grey",width:'100%',textAlign:"center"}}>
