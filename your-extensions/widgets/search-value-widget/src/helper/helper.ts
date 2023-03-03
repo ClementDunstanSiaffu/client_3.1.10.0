@@ -1,11 +1,12 @@
 
 class Helper {
 
-    getAllSuggestions = (features:any[],params)=>{
+    getAllSuggestions = (features:any[],params,searchedField)=>{
         // const suggestions = [];
         const searchItem = params?.suggestTerm??" "
         const suggestions = features.reduce((newSuggestions,{attributes})=>{
-            const keys = Object.keys(attributes);
+            // const keys = Object.keys(attributes);
+            const keys = [searchedField];
             if (keys.length){
                 keys.forEach((keyVal)=>{
                     const obj = {};
@@ -18,7 +19,7 @@ class Helper {
                     }
                     
                     if (status){
-                        obj["key"] = attributes[keyVal],
+                        obj["key"] = attributes["OBJECTID"],
                         obj["text"] = `${attributes[keyVal]}`,
                         obj["sourceIndex"] = params.sourceIndex
                         newSuggestions.push(obj)

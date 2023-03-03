@@ -52,6 +52,7 @@ export default class Widget extends React.PureComponent<any,any>{
                     const query = new Query();
                     query.returnGeometry = true;
                     query.outFields = [`${searchedField}`];
+                    if (!query.outFields.includes("OBJECTID"))query.outFields.push("OBJECTID")
                     query.where = "1=1"
                     let results;
                     if (featureLayer.queryFeatures){
@@ -73,7 +74,7 @@ export default class Widget extends React.PureComponent<any,any>{
                             let defaultSuggestions = [];
                             if (data?.features?.length){
                                 const features = data.features;
-                                defaultSuggestions = helper.getAllSuggestions(features,params);
+                                defaultSuggestions = helper.getAllSuggestions(features,params,searchedField);
                             }
                             return defaultSuggestions;
                             // var results = [];
@@ -115,31 +116,33 @@ export default class Widget extends React.PureComponent<any,any>{
                             if (features.length){
                                 for (let i = 0;i < features.length;i++){
                                     const attributes = features[i]?.attributes;
-                                    let keys = [];
-                                    if (attributes){
-                                        keys = Object.keys(attributes);
-                                    }
+                                    // let keys = [];
+                                    // if (attributes){
+                                    //     keys = Object.keys(attributes);
+                                    // }
+                                    let keys = [searchedField]
                                     if (keys.length){
                                         keys.forEach(key=>{
                                             let status = false;
-                                            if (typeof toSearch === "number"){
-                                                if (toSearch === attributes[key]){
-                                                    status = true
-                                                }
-                                            }else if (typeof toSearch === "string"){
-                                                if (toSearch.includes(attributes[key])){
-                                                    status = true;
-                                                }
-                                            }
-                                            if (status){
-                                                results.push(features[i])
-                                            }
+                                            if (toSearch === attributes[key])status = true;
+                                            // if (typeof toSearch === "number"){
+                                            //     if (toSearch === attributes[key]){
+                                            //         status = true
+                                            //     }
+                                            // }else if (typeof toSearch === "string"){
+                                            //     if (toSearch === attributes[key]){
+                                            //         console.log(toSearch.includes(attributes[key]),toSearch,attributes[key],key)
+                                            //         status = true;
+                                            //     }
+                                            // }
+                                            if (status)results.push(features[i])
                                         })
                                     }
                                     // if (features[i].indexOf(toSearch) !== -1)results.push()
                                 }
                                 if (results.length){
                                     const searchedItem = results[0];
+                                    console.log(searchedItem,"check searched item")
                                     const searchedGeometry = searchedItem.geometry;
                                     if (searchedGeometry){
                                         const arrayGeometry = [];
@@ -235,7 +238,6 @@ export default class Widget extends React.PureComponent<any,any>{
                         // sources:sources,
                         popupTemplate:{title:"Search value widget",content:[{type:"fields",fieldInfos:fieldInfos}]}
                     })
-                    console.log(searchWidget,"check search widget")
 
                     
                     // searchWidget.on("suggest-start",(event)=>{
@@ -246,6 +248,7 @@ export default class Widget extends React.PureComponent<any,any>{
                     // })
                     searchWidget.on("select-result", (event)=>{
                         if(event && event.result && event.result.feature){
+                            // console.log(event.result,"check feature")
                             if (event.result.feature.geometry){
                                 const arrayGeometry = [];
                                 this.cleared = false;
