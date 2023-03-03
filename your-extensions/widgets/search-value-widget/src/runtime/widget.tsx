@@ -49,7 +49,6 @@ export default class Widget extends React.PureComponent<any,any>{
         }else{
             searchFieldArr.push(`${searchedField}`)
         }
-        // const searchedField = this.props.config.service.searchField;
         if (!unrequiredValue.includes(layerId))url = url+"/"+layerId.trim()
         if (url){
             const featureLayer =  new FeatureLayer(url);
@@ -57,7 +56,6 @@ export default class Widget extends React.PureComponent<any,any>{
                 featureLayer.load().then(async()=>{
                     const query = new Query();
                     query.returnGeometry = true;
-                    // query.outFields = [`${searchedField}`];
                     query.outFields = searchFieldArr;
                     if (!query.outFields.includes("OBJECTID"))query.outFields.push("OBJECTID")
                     query.where = "1=1"
@@ -71,7 +69,7 @@ export default class Widget extends React.PureComponent<any,any>{
                     this.setState({loader:false,jmv:jmv})
                     const fieldInfos = this.getFieldInfos(featureLayer.fields??[]);
                     const customSearchSource = new SearchSource({
-                        placeholder: 'Search',
+                        placeholder: 'Search by value',
                         minSuggestCharacters:0,
                         getSuggestions: (params) => {
                           return results.then((data) => {
@@ -79,7 +77,6 @@ export default class Widget extends React.PureComponent<any,any>{
                             if (data?.features?.length){
                                 const features = data.features;
                                 defaultSuggestions = helper.getAllSuggestions(features,params,searchFieldArr);
-                                // defaultSuggestions = helper.getAllSuggestions(features,params,searchedField);
                             }
                             return defaultSuggestions;
                           })
@@ -100,7 +97,6 @@ export default class Widget extends React.PureComponent<any,any>{
                             if (features.length){
                                 for (let i = 0;i < features.length;i++){
                                     const attributes = features[i]?.attributes;
-                                    // let keys = [searchedField]
                                     let keys = searchFieldArr
                                     if (keys.length){
                                         keys.forEach(key=>{
