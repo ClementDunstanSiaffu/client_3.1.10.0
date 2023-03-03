@@ -14,7 +14,7 @@ import Query from 'esri/rest/support/Query';
 import defaultMessages from "../runtime/translations/default";
 
 export default class Widget extends React.PureComponent<AllWidgetProps<IMConfig>, any> {
-    static initialZoom = 0;
+    static initialExtent = null;
     graphicLayerFound = new GraphicsLayer({id:"indirizzi-found-sketch",listMode:"hide",visible:true});
     graphicLayerSelected = new GraphicsLayer({id:"indirizzi-selected-sketch",listMode:"hide",visible:true});
     symbolFound = {
@@ -70,8 +70,7 @@ export default class Widget extends React.PureComponent<AllWidgetProps<IMConfig>
             let arraySup = [];
             this.arrayView.forEach((el, index) => {arraySup.push({label:el.name,value:el})});
             this.setState({arrayLayer: arraySup,jimuMapView: jmv,});
-            Widget.initialZoom = jmv.view.zoom;
-
+            Widget.initialExtent = jmv.view.extent;
         }
     }
 
@@ -240,7 +239,9 @@ export default class Widget extends React.PureComponent<AllWidgetProps<IMConfig>
     returnToOriginalExtent = ()=>{
         const jimuMapView = this.state.jimuMapView;
         const view = jimuMapView.view;
-        view.goTo({center: view.center,zoom: Widget.initialZoom});
+        if (Widget.initialExtent){
+            view.goTo(Widget.initialExtent)
+        }
     }
 
     createInput(){
