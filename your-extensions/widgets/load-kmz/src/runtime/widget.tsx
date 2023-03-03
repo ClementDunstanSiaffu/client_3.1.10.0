@@ -13,7 +13,6 @@ import GeoJSONLayer from 'esri/layers/GeoJSONLayer';
 import Query from 'esri/rest/support/Query';
 import defaultMessages from "../runtime/translations/default";
 
-
 export default class Widget extends React.PureComponent<AllWidgetProps<IMConfig>, any> {
     static initialZoom = 0;
     graphicLayerFound = new GraphicsLayer({id:"indirizzi-found-sketch",listMode:"hide",visible:true});
@@ -245,7 +244,7 @@ export default class Widget extends React.PureComponent<AllWidgetProps<IMConfig>
     }
 
     createInput(){
-        const parentNode = document.getElementById("labelInput")
+        const parentNode = document.getElementById("labelInputLoadKMZ")
         const inputELement = document.createElement("input");
         const spanElement = document.createElement("span");
         const strongElement = document.createElement("strong");
@@ -255,7 +254,6 @@ export default class Widget extends React.PureComponent<AllWidgetProps<IMConfig>
         inputELement.id = "inFile";
         inputELement.name = "file";
         inputELement.onchange = this.onChangeFileUpload;
-        console.log(parentNode,"check parent node")
         if (parentNode){
             parentNode.appendChild(strongElement)
             parentNode.appendChild(inputELement);
@@ -264,7 +262,7 @@ export default class Widget extends React.PureComponent<AllWidgetProps<IMConfig>
 
     clearFileInput(id) { 
         const oldInput = document.getElementById(id); 
-        const parentNode = document.getElementById("labelInput")
+        const parentNode = document.getElementById("labelInputLoadKMZ")
         const newInput = document.createElement("input"); 
         newInput.type = "file"; 
         newInput.id = oldInput.id; 
@@ -275,9 +273,6 @@ export default class Widget extends React.PureComponent<AllWidgetProps<IMConfig>
         if (parentNode.outerHTML){
             parentNode.innerHTML = " "
         }
-        // parentNode.replaceChild(newInput, oldInput); 
-        // parentNode.appendChild(newInput,oldInput);
-        // oldInput.parentNode.replaceChild(newInput, oldInput); 
     }
 
     render () {
@@ -325,10 +320,7 @@ export default class Widget extends React.PureComponent<AllWidgetProps<IMConfig>
                             <label className="w-100 form-label">Aggiungi file KMZ o SHAPE FILE</label>
                             <form encType="multipart/form-data" method="post"  id="uploadForm"  >
                                 <div className="field" id = "fieldLoadKMZ">
-                                    <label className="file-upload" id = "labelInput">
-                                        {/* <span><strong>Add File</strong></span> */}
-                                        {/* <input type="file" name="file" id="inFile" onChange={this.onChangeFileUpload}/> */}
-                                    </label>
+                                    <label className="file-upload" id = "labelInputLoadKMZ"></label>
                                 </div>
                             </form>
                             {
