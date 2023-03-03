@@ -15,6 +15,7 @@ import defaultMessages from "../runtime/translations/default";
 
 
 export default class Widget extends React.PureComponent<AllWidgetProps<IMConfig>, any> {
+    static initialZoom = 0;
     graphicLayerFound = new GraphicsLayer({id:"indirizzi-found-sketch",listMode:"hide",visible:true});
     graphicLayerSelected = new GraphicsLayer({id:"indirizzi-selected-sketch",listMode:"hide",visible:true});
     symbolFound = {
@@ -50,6 +51,11 @@ export default class Widget extends React.PureComponent<AllWidgetProps<IMConfig>
       this.onChangeFileUpload = this.onChangeFileUpload.bind(this);
       this.errorHandler = this.errorHandler.bind(this)
     }
+
+    componentDidMount(){
+        this.createInput();
+    }
+
     componentWillUnmount() {
         console.log('Il componente sta per essere rimosso dalla pagina.');
     }
@@ -65,6 +71,8 @@ export default class Widget extends React.PureComponent<AllWidgetProps<IMConfig>
             let arraySup = [];
             this.arrayView.forEach((el, index) => {arraySup.push({label:el.name,value:el})});
             this.setState({arrayLayer: arraySup,jimuMapView: jmv,});
+            Widget.initialZoom = jmv.view.zoom;
+
         }
     }
 
@@ -230,9 +238,33 @@ export default class Widget extends React.PureComponent<AllWidgetProps<IMConfig>
         this.succefullyAddingLayer(layerName);
     }
 
+    returnToOriginalExtent = ()=>{
+        const jimuMapView = this.state.jimuMapView;
+        const view = jimuMapView.view;
+        view.goTo({center: view.center,zoom: Widget.initialZoom});
+    }
+
+    createInput(){
+        const parentNode = document.getElementById("labelInput")
+        const inputELement = document.createElement("input");
+        const spanElement = document.createElement("span");
+        const strongElement = document.createElement("strong");
+        strongElement.textContent = "Add file";
+        spanElement.appendChild(strongElement);
+        inputELement.type = "file";
+        inputELement.id = "inFile";
+        inputELement.name = "file";
+        inputELement.onchange = this.onChangeFileUpload;
+        console.log(parentNode,"check parent node")
+        if (parentNode){
+            parentNode.appendChild(strongElement)
+            parentNode.appendChild(inputELement);
+        }
+    }
+
     clearFileInput(id) { 
         const oldInput = document.getElementById(id); 
-        const parentNode = document.getElementById("fieldLoadKMZ")
+        const parentNode = document.getElementById("labelInput")
         const newInput = document.createElement("input"); 
         newInput.type = "file"; 
         newInput.id = oldInput.id; 
@@ -240,7 +272,11 @@ export default class Widget extends React.PureComponent<AllWidgetProps<IMConfig>
         newInput.className = oldInput.className; 
         newInput.onchange = this.onChangeFileUpload
         newInput.style.cssText = oldInput.style.cssText;
-        // parentNode.appendChild(newInput);
+        if (parentNode.outerHTML){
+            parentNode.innerHTML = " "
+        }
+        // parentNode.replaceChild(newInput, oldInput); 
+        // parentNode.appendChild(newInput,oldInput);
         // oldInput.parentNode.replaceChild(newInput, oldInput); 
     }
 
@@ -250,7 +286,8 @@ export default class Widget extends React.PureComponent<AllWidgetProps<IMConfig>
             const jmv = this.state.jimuMapView;
             const addedLayerIds = this.state.addedLayerIds;
             if (jmv && addedLayerIds.length )addedLayerIds.forEach((layerId)=>{
-                jmv.view.map.remove(layerId)
+                jmv.view.map.remove(layerId);
+                this.returnToOriginalExtent();
             });
             const element = document.getElementsByTagName("input");
             const currentId = element[0].id;
@@ -267,7 +304,8 @@ export default class Widget extends React.PureComponent<AllWidgetProps<IMConfig>
         }
 
         if (this.props.state === "OPENED" && !this.state.widgetStateOpenedChecked){
-            this.setState({widgetStateOpenedChecked:true,widgetStateClosedChecked:false})
+            this.setState({widgetStateOpenedChecked:true,widgetStateClosedChecked:false});
+            this.createInput()
         }
 
         return (
@@ -287,9 +325,9 @@ export default class Widget extends React.PureComponent<AllWidgetProps<IMConfig>
                             <label className="w-100 form-label">Aggiungi file KMZ o SHAPE FILE</label>
                             <form encType="multipart/form-data" method="post"  id="uploadForm"  >
                                 <div className="field" id = "fieldLoadKMZ">
-                                    <label className="file-upload">
-                                        <span><strong>Add File</strong></span>
-                                        <input type="file" name="file" id="inFile" onChange={this.onChangeFileUpload}/>
+                                    <label className="file-upload" id = "labelInput">
+                                        {/* <span><strong>Add File</strong></span> */}
+                                        {/* <input type="file" name="file" id="inFile" onChange={this.onChangeFileUpload}/> */}
                                     </label>
                                 </div>
                             </form>
