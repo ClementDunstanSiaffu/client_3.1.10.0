@@ -191,10 +191,10 @@ export default class Widget extends React.PureComponent<any,any>{
                             //   };
                             //   return searchResult;
                             // });
-                            return searchResult;
+                            return [searchResult];
                           });
                         },
-                        // popupEnabled:true,
+                        popupEnabled:true,
                         popupTemplate:{title:"Search value widget",content:[{type:"fields",fieldInfos:fieldInfos}]}
                       });
                     // const customSearchSources = new SearchSource({
@@ -233,8 +233,9 @@ export default class Widget extends React.PureComponent<any,any>{
                         includeDefaultSources:false,
                         sources:[customSearchSource],
                         // sources:sources,
-                        // popupTemplate:{title:"Search value widget",content:[{type:"fields",fieldInfos:fieldInfos}]}
+                        popupTemplate:{title:"Search value widget",content:[{type:"fields",fieldInfos:fieldInfos}]}
                     })
+                    console.log(searchWidget,"check search widget")
 
                     
                     // searchWidget.on("suggest-start",(event)=>{
