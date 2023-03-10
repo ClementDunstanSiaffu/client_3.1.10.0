@@ -262,15 +262,15 @@ export default class Widget extends React.PureComponent<AllWidgetProps<IMConfig>
     }
 
     clearFileInput(id) { 
-        const oldInput = document.getElementById(id); 
+        // const oldInput = document.getElementById(id); 
         const parentNode = document.getElementById("labelInputLoadKMZ")
-        const newInput = document.createElement("input"); 
-        newInput.type = "file"; 
-        newInput.id = oldInput.id; 
-        newInput.name = oldInput.name; 
-        newInput.className = oldInput.className; 
-        newInput.onchange = this.onChangeFileUpload
-        newInput.style.cssText = oldInput.style.cssText;
+        // const newInput = document.createElement("input"); 
+        // newInput.type = "file"; 
+        // newInput.id = oldInput.id; 
+        // newInput.name = oldInput.name; 
+        // newInput.className = oldInput.className; 
+        // newInput.onchange = this.onChangeFileUpload
+        // newInput.style.cssText = oldInput.style.cssText;
         if (parentNode.outerHTML){
             parentNode.innerHTML = " "
         }
@@ -279,12 +279,12 @@ export default class Widget extends React.PureComponent<AllWidgetProps<IMConfig>
     render () {
 
         if (this.props.state === "CLOSED" && !this.state.widgetStateClosedChecked){
-            const jmv = this.state.jimuMapView;
-            const addedLayerIds = this.state.addedLayerIds;
-            if (jmv && addedLayerIds.length )addedLayerIds.forEach((layerId)=>{
-                jmv.view.map.remove(layerId);
-                this.returnToOriginalExtent();
-            });
+            // const jmv = this.state.jimuMapView;
+            // const addedLayerIds = this.state.addedLayerIds;
+            // if (jmv && addedLayerIds.length )addedLayerIds.forEach((layerId)=>{
+            //     // jmv.view.map.remove(layerId);
+            //     // this.returnToOriginalExtent();
+            // });
             const element = document.getElementsByTagName("input");
             const currentId = element[0].id;
             this.setState({
