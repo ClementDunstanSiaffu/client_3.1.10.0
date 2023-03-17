@@ -18,13 +18,11 @@ export default class Widget extends React.PureComponent<AllWidgetProps<any>&stat
     static initialMapZoom = 0;
     static currentViewExtent = null;
     arrayTable = [];
-    highlightsArr = [];
     uniqueValuesInfosSave = [];
     saveOldRenderer = [];
     filterTimeReceiveData = new Date().getTime();
     defaultValue = "";
     saveFeatures = [];
-    currentCheckBoxElement = null;
    
     constructor (props) {
         super(props)
@@ -36,7 +34,7 @@ export default class Widget extends React.PureComponent<AllWidgetProps<any>&stat
             viewExtent:null,
             features:null,
             showColorButtonGroup:true,
-            highlightIds:[]
+            tabChanged:false
         }
 
         this.tabsClose = this.tabsClose.bind(this);
@@ -59,6 +57,8 @@ export default class Widget extends React.PureComponent<AllWidgetProps<any>&stat
     nls = (id: string) => {
         return this.props.intl ? this.props.intl.formatMessage({ id: id, defaultMessage: defaultMessages[id] }) : id
     }
+
+    onClickTab = ()=>this.setState({tabChanged:!this.state.tabChanged});
 
     createListTable(){
         const allLayers = this.props.stateValue?.value?.getAllLayers()??[];
@@ -180,7 +180,6 @@ export default class Widget extends React.PureComponent<AllWidgetProps<any>&stat
         },{initial:true})
 
         this.arrayTable.push(featureTable);
-        this.highlightsArr.push(highlightIds);
         let colorButtonGroupStatus = true;
         if (!highlightIds.length)colorButtonGroupStatus = false;
         if (this.state.showColorButtonGroup !== colorButtonGroupStatus){
@@ -344,19 +343,6 @@ export default class Widget extends React.PureComponent<AllWidgetProps<any>&stat
         return null;
     }
 
-    getActiveHighlights(){
-        const tabs = this.state.tabs;
-        const highlightsArr = this.highlightsArr;
-        for(let i=0;i<tabs.length;i++){
-            const el = document.querySelector("#"+tabs[i].props.children.props.id);
-            //@ts-ignore
-            if(el?.checkVisibility()){
-                return highlightsArr[i];
-            }
-        }
-        return null;
-    }
-
     optionFilterExtentions(){this.props.dispatch(appActions.widgetStatePropChange("value","createTable",true));}
 
     optionOpenFilter(e){
@@ -487,30 +473,22 @@ export default class Widget extends React.PureComponent<AllWidgetProps<any>&stat
         }
     }
 
-    checkingForAll = ()=>{
-        if (this.currentCheckBoxElement){
-            const checked = this.currentCheckBoxElement.checked;
-            const activeTable = this.getActiveTable();
-            console.log(activeTable,"check active table");
-            if (checked){
-                const currentHighlight = this.getActiveHighlights();
-                if (currentHighlight.length)
-            }
-        }
-        console.log("hello world")
-    }
-
-    // componentWillUnmount(): void {
-    //     if (this.currentCheckBoxElement)this.currentCheckBoxElement.removeEventListener("change",this.checkingForAll)
-    // }
-
     render () {
-        const checkboxElement = document.querySelector(".vaadin-grid-select-all-checkbox");
-        if (checkboxElement){
-            checkboxElement.hidden = false;
-            const currentHighlight = this.getActiveHighlights();
-            if (currentHighlight?.length)checkboxElement.checked = true;
-            this.currentCheckBoxElement = checkboxElement;
+        const checkboxElement = document.getElementsByClassName("vaadin-grid-select-all-checkbox");
+        if (checkboxElement.length){
+            for (let i = 0;i < checkboxElement.length;i++){
+                const el = checkboxElement.item(i);
+                el.hidden = false;
+            }
+            // checkboxElement.forEach(el => {
+            //     console.log(el,"check el")
+            //     el.hidden = false;
+            // });
+            // console.log(checkboxElement.item(0),"checkedElement")
+            // checkboxElement.hidden = false;
+            // const currentHighlight = this.getActiveHighlights();
+            // if (currentHighlight?.length)checkboxElement.checked = true;
+            // this.currentCheckBoxElement = checkboxElement;
             // checkboxElement.addEventListener("change",this.checkingForAll)
         }
         const filterValue = this.props.stateValue?.value?.filterValue??1;
