@@ -18,6 +18,7 @@ export default class Widget extends React.PureComponent<AllWidgetProps<any>&stat
     static initialMapZoom = 0;
     static currentViewExtent = null;
     arrayTable = [];
+    highlightArr = [];
     uniqueValuesInfosSave = [];
     saveOldRenderer = [];
     filterTimeReceiveData = new Date().getTime();
@@ -96,9 +97,14 @@ export default class Widget extends React.PureComponent<AllWidgetProps<any>&stat
                             </Tab>
                         );
                         this.createTable(f,layerOpen).then((featureTable)=>{
-                            if(!featureTable){
-                            }else{
+                            if (featureTable){
+                                // setTimeout(()=>{
+                                //     // this.activateCheckAll();
+                                // },1000)
                             }
+                            // if(!featureTable){
+                            // }else{
+                            // }
                         });
                     }
                 }
@@ -134,19 +140,53 @@ export default class Widget extends React.PureComponent<AllWidgetProps<any>&stat
             highlightEnabled:true,
             highlightIds:highlightIds,
         });
-
+        
         featureTable.visibleElements = {
             header: true,
             menu: true,
             menuItems: {
                 clearSelection: true,
                 refreshData: true,
-                toggleColumns: false,
+                toggleColumns: true,
+                // toggleColumns: false,
                 zoomToSelection: true,
             },
             selectionColumn: true,
             columnMenus: true,
         }  
+        setTimeout(()=>{
+            const checkboxElement = featureTable.domNode.getElementsByTagName("vaadin-grid-cell-content")
+            // console.log(checkboxElement,"check node")
+            if (checkboxElement.length){
+                for (let i = 0;i < checkboxElement.length;i++){
+                    // console.log(checkboxElement.item(i)?.slot,"check current item")
+                    const el = checkboxElement.item(i);
+                    if (el?.slot === "vaadin-grid-cell-content-0"){
+                        const inputEl = document.createElement("input");
+                        inputEl.type = "checkbox";
+                        inputEl.className = "select-all-checkbox"
+                        el.appendChild(inputEl); 
+                    }
+                    // // el.hidden = false;
+                    // const inputEl = document.createElement("input");
+                    // inputEl.type = "checkbox";
+                    // el.appendChild(inputEl);
+                    // console.log(el,"check el")
+                    // el.checked = true;
+                    // featureTable.highlightIds = highlightIds;
+                    // featureTable.refresh();
+                }          
+            }
+        },1000)
+        // featureTable.viewModel.watch("state", function (state) {
+        //     console.log(state,"check state")
+        //     if (state === "loading") {
+        //       layer.queryObjectIds().then(function (ids) {
+        //         console.log(ids)
+        //         featureTable.highlightIds.add(ids)
+        //       });
+        //     }
+        // })
         featureTable.on("selection-change", (event) => {
             if(event.added.length){
                 try{
@@ -180,6 +220,7 @@ export default class Widget extends React.PureComponent<AllWidgetProps<any>&stat
         },{initial:true})
 
         this.arrayTable.push(featureTable);
+        this.highlightArr.push(highlightIds);
         let colorButtonGroupStatus = true;
         if (!highlightIds.length)colorButtonGroupStatus = false;
         if (this.state.showColorButtonGroup !== colorButtonGroupStatus){
@@ -473,24 +514,93 @@ export default class Widget extends React.PureComponent<AllWidgetProps<any>&stat
         }
     }
 
-    render () {
+    activateCheckAll = async()=>{
         const checkboxElement = document.getElementsByClassName("vaadin-grid-select-all-checkbox");
         if (checkboxElement.length){
             for (let i = 0;i < checkboxElement.length;i++){
                 const el = checkboxElement.item(i);
+                
+                // console.log(el,"check el")
                 el.hidden = false;
-            }
-            // checkboxElement.forEach(el => {
-            //     console.log(el,"check el")
-            //     el.hidden = false;
-            // });
-            // console.log(checkboxElement.item(0),"checkedElement")
-            // checkboxElement.hidden = false;
-            // const currentHighlight = this.getActiveHighlights();
-            // if (currentHighlight?.length)checkboxElement.checked = true;
-            // this.currentCheckBoxElement = checkboxElement;
-            // checkboxElement.addEventListener("change",this.checkingForAll)
+                // el.checked = true;
+                // console.log(el,"check el value")
+                // el.indeterminate = true;
+                const currentTable = this.getActiveTable();
+                if (currentTable){
+                    // const selectionModel = currentTable.getSelection();
+                    // console.log(selectionModel,"check selectio model")
+                    // const ids = await currentTable.layer.queryObjectIds();
+                    // currentTable.highlightIds.add(ids);
+                    // console.log(currentTable,"check both")
+                }
+                // const checboxTag = document.getElementsByTagName("vaadin-checkbox");
+                // for(let j =0;j<checboxTag.length;j++){
+                //     const highlight = this.highlightArr[i];
+                //     if (highlight?.length){
+                //         // el.setAttribute("checked","true");
+                //         // el.checked = true;
+                //         // const elItem = checboxTag.item(j);
+                //         // if (elItem){
+                //         //     elItem.setAttribute("checked","true");
+                //         // }
+                //         // if (checboxTag.item(j).hasOwnProperty("checked"))checboxTag.item(j).checked = true;
+                //     }
+                //     console.log(checboxTag.item(j),"check each single")
+                // }
+            }          
         }
+    }
+
+
+
+    render () {
+        window.onload = function() {
+            const checkboxElements = document.getElementsByClassName("vaadin-grid-select-all-checkbox");
+            for (let i = 0; i < checkboxElements.length; i++) {
+              const checkbox = document.createElement("input");
+              checkbox.type = "checkbox";
+              checkbox.addEventListener("change", function() {
+                // TODO: Add logic to select/deselect all items in the feature table
+              });
+              checkboxElements[i].appendChild(checkbox);
+            }
+        }
+        // console.log(this.highlightArr,"check all hightlight");
+        // const checkboxElement = document.getElementsByClassName("vaadin-grid-select-all-checkbox");
+        // if (checkboxElement.length){
+        //     for (let i = 0;i < checkboxElement.length;i++){
+        //         const el = checkboxElement.item(i);
+        //         el.hidden = false;
+        //         const checboxTag = document.getElementsByTagName("vaadin-checkbox");
+        //         for(let j =0;j<checboxTag.length;j++){
+        //             const highlight = this.highlightArr[i];
+        //             if (highlight?.length){
+        //                 el.checked = true;
+        //                 const elItem = checboxTag.item(j);
+        //                 // if (elItem){
+        //                 //     elItem.setAttribute("checked","true");
+        //                 // }
+        //                 // if (checboxTag.item(j).hasOwnProperty("checked"))checboxTag.item(j).checked = true;
+        //             }
+        //             console.log(checboxTag.item(j),"check each single")
+        //         }
+        //     }
+        //     // const checboxTag = document.getElementsByTagName("vaadin-checkbox");
+        //     // for(let j =0;j<checboxTag.length;j++){
+                
+        //     //     console.log(checboxTag.item(j),"check each single")
+        //     // }
+        //     // checkboxElement.forEach(el => {
+        //     //     console.log(el,"check el")
+        //     //     el.hidden = false;
+        //     // });
+        //     // console.log(checkboxElement.item(0),"checkedElement")
+        //     // checkboxElement.hidden = false;
+        //     // const currentHighlight = this.getActiveHighlights();
+        //     // if (currentHighlight?.length)checkboxElement.checked = true;
+        //     // this.currentCheckBoxElement = checkboxElement;
+        //     // checkboxElement.addEventListener("change",this.checkingForAll)
+        // }
         const filterValue = this.props.stateValue?.value?.filterValue??1;
         return (
             <div className="widget-attribute-table jimu-widget">

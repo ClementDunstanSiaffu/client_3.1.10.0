@@ -13,3 +13,11 @@
 .widget-attribute-table .tabClassControl > div{
     height: 100%;
 }
+
+.select-all-checkbox{
+    width: 15px;
+    height:15px;
+    margin-left:4%;
+    background-color: grey;
+    border: none;
+}
