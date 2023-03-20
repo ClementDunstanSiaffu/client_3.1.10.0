@@ -108,7 +108,7 @@ export default class Widget extends React.PureComponent<AllWidgetProps<any>&stat
         this.setState({geometryFilter: layerOpen.geometry,listServices:checkedLayers,tabs:tabs});
     }
     
-    createFeatureTable(layer,highlightIds:any,layerView:any){
+    createFeatureTable(layer,highlightIds:any,layerView:any,geometry?:any){
         const activeView = this.props.stateValue?.value?.getActiveView();
         const initialMapZoom = this.props.stateValue?.value?.initialMapZoom;
         const div = document.createElement("div");
@@ -170,7 +170,12 @@ export default class Widget extends React.PureComponent<AllWidgetProps<any>&stat
                                     });
                                 }else{
                                     let allIds = [];
-                                    layer.queryObjectIds().then((ids)=> {
+                                    const query = new Query();
+                                    if (geometry){
+                                        query.geometry = geometry;
+                                    }
+                                    // console.log(layer,"check layer")
+                                    featureTable.layer.queryObjectIds(query).then((ids)=> {
                                         ids.forEach(id => {
                                             featureTable.highlightIds.push(id);
                                         });
@@ -210,12 +215,12 @@ export default class Widget extends React.PureComponent<AllWidgetProps<any>&stat
                             const features = results.features;
                             if(features.length)activeView.view.goTo(features[0].geometry)
                         });
-                        const currentHightlight = this.state.highlightState[id];
-                        console.log(currentHightlight,event.added,event.added.length,)
-                        if (currentHightlight?.length === event.added.length,"when added"){
-                            const checkAllEl = document.querySelector("#select-all-checkbox-custom-attribute-table");
-                            if (checkAllEl)checkAllEl.checked = true;
-                        }
+                        // const currentHightlight = this.state.highlightState[id];
+                        // console.log(currentHightlight,event.added,event.added.length,)
+                        // if (currentHightlight?.length === event.added.length,"when added"){
+                        //     const checkAllEl = document.querySelector("#select-all-checkbox-custom-attribute-table");
+                        //     if (checkAllEl)checkAllEl.checked = true;
+                        // }
                     }
                     }catch (e){
                     }
@@ -322,7 +327,7 @@ export default class Widget extends React.PureComponent<AllWidgetProps<any>&stat
         const features = results?.features??[];
         if(layer && features.length ){
             this.setState({features:features})
-            featureTable = this.createFeatureTable(layer,highlightIds,layerView);
+            featureTable = this.createFeatureTable(layer,highlightIds,layerView,geometry);
             if (activeView.view.stationary && this.state.viewExtent && filterValue === 1){
                 setTimeout(()=>{
                     featureTable.filterGeometry = this.state.viewExtent;
