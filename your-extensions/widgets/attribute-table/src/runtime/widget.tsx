@@ -35,7 +35,8 @@ export default class Widget extends React.PureComponent<AllWidgetProps<any>&stat
             viewExtent:null,
             features:null,
             showColorButtonGroup:true,
-            tabChanged:false
+            tabChanged:false,
+            highlightState:{}
         }
 
         this.tabsClose = this.tabsClose.bind(this);
@@ -129,9 +130,10 @@ export default class Widget extends React.PureComponent<AllWidgetProps<any>&stat
 
         let view = null;
         if (activeView)view = activeView?.view;
-
+        const id = layer.id.split(" ").join("_")
+        console.log(id,"check layer id")
         const featureTable = new FeatureTable({
-            id:layer.id,
+            id:id,
             label:layer.title,
             view:view,
             multiSortEnabled: true,
@@ -153,7 +155,8 @@ export default class Widget extends React.PureComponent<AllWidgetProps<any>&stat
             },
             selectionColumn: true,
             columnMenus: true,
-        }  
+        } 
+        // console.log(featureTable,"check e on change") 
         setTimeout(()=>{
             const checkboxElement = featureTable.domNode.getElementsByTagName("vaadin-grid-cell-content")
             // console.log(checkboxElement,"check node")
@@ -164,7 +167,25 @@ export default class Widget extends React.PureComponent<AllWidgetProps<any>&stat
                     if (el?.slot === "vaadin-grid-cell-content-0"){
                         const inputEl = document.createElement("input");
                         inputEl.type = "checkbox";
-                        inputEl.className = "select-all-checkbox"
+                        inputEl.className = "select-all-checkbox";
+                        inputEl.checked = true;
+                        inputEl.onchange = (e)=>{
+                            if (e.target.checked){
+                                const currentHighlight = this.state.highlightState[id];
+                                console.log(currentHighlight,this.state.highlightState,id,"check current highlight")
+                                if (currentHighlight?.length){
+                                    currentHighlight.forEach(el => {
+                                        featureTable.highlightIds.push(el)
+                                    });
+                                }
+                                console.log(featureTable,"check feature table")
+                            }else{
+                                // const currentHightlight = featureTable.highlightIds.items;
+                                // const newHighlightState = {...this.state.highlightState,[id]:currentHightlight};
+                                // this.setState({highlightState:newHighlightState});
+                                if (featureTable.highlightIds)featureTable.highlightIds.removeAll()
+                            }
+                        }
                         el.appendChild(inputEl); 
                     }
                     // // el.hidden = false;
@@ -226,6 +247,9 @@ export default class Widget extends React.PureComponent<AllWidgetProps<any>&stat
         if (this.state.showColorButtonGroup !== colorButtonGroupStatus){
             this.setState({showColorButtonGroup:colorButtonGroupStatus});
         }
+        const currentHightlight = [...featureTable.highlightIds.items];
+        const newHighlightState = {...this.state.highlightState,[id]:currentHightlight};
+        this.setState({highlightState:newHighlightState});
         return featureTable;
     }
 
