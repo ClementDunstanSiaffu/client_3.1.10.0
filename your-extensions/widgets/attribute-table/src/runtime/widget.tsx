@@ -156,7 +156,9 @@ export default class Widget extends React.PureComponent<AllWidgetProps<any>&stat
                         inputEl.type = "checkbox";
                         inputEl.className = "select-all-checkbox";
                         inputEl.id = id
-                        if (featureTable.highlightIds.items.length)inputEl.checked = true;
+                        if (featureTable.highlightIds.items.length){
+                            inputEl.checked = true;
+                        }
                         inputEl.onchange = (e)=>{
                             if (e.target.checked){
                                 const currentHighlight = this.state.highlightState[id];
@@ -230,7 +232,7 @@ export default class Widget extends React.PureComponent<AllWidgetProps<any>&stat
         this.arrayTable.push(featureTable);
         this.highlightArr.push(highlightIds);
         let colorButtonGroupStatus = true;
-        if (!highlightIds.length)colorButtonGroupStatus = false;
+        // if (!highlightIds.length)colorButtonGroupStatus = false;
         if (this.state.showColorButtonGroup !== colorButtonGroupStatus){
             this.setState({showColorButtonGroup:colorButtonGroupStatus});
         }
@@ -429,13 +431,24 @@ export default class Widget extends React.PureComponent<AllWidgetProps<any>&stat
     createSymbol(type, color){
         const typeSymbol = type === 'point'? "simple-marker":type === 'polyline'? "simple-line":"simple-fill";
         return {
-            type: "simple-marker",
+            type: typeSymbol,
+            style: "solid",
             color,
             outline:{
-                width:0.5,
-                color:color
+                width:10
             }
+            // outline: null
         };
+        // return {
+        //     // type: "simple-marker",
+        //     type:typeSymbol,
+        //     color,
+        //     outline:{
+        //         width:10,
+        //         // width:0.5,
+        //         color:color
+        //     }
+        // };
     }
 
     optionColorFound(event){
@@ -445,7 +458,7 @@ export default class Widget extends React.PureComponent<AllWidgetProps<any>&stat
         const saveOldRenderer = this.saveOldRenderer;
         const jimuLayerViews = activeView?.jimuLayerViews;
         if(activeTable && jimuLayerViews){
-            let arrayItemSelected = activeTable.highlightIds
+            let arrayItemSelected = activeTable.highlightIds;
             if(arrayItemSelected){
                 const keys = Object.keys(jimuLayerViews)
                 if (keys.length){
