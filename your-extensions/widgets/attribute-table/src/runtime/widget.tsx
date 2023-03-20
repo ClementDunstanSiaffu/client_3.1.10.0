@@ -159,6 +159,7 @@ export default class Widget extends React.PureComponent<AllWidgetProps<any>&stat
                         const inputEl = document.createElement("input");
                         inputEl.type = "checkbox";
                         inputEl.className = "select-all-checkbox";
+                        inputEl.id = "select-all-checkbox-custom-attribute-table"
                         if (featureTable.highlightIds.items.length)inputEl.checked = true;
                         inputEl.onchange = (e)=>{
                             if (e.target.checked){
@@ -173,6 +174,8 @@ export default class Widget extends React.PureComponent<AllWidgetProps<any>&stat
                                         ids.forEach(id => {
                                             featureTable.highlightIds.push(id);
                                         });
+                                        const newHighlightState = {...this.state.highlightState,[id]:ids};
+                                        this.setState({highlightState:newHighlightState})
                                         // allIds = ids;
                                         // console.log(ids)
                                         // featureTable.selectRows(ids)
@@ -207,6 +210,12 @@ export default class Widget extends React.PureComponent<AllWidgetProps<any>&stat
                             const features = results.features;
                             if(features.length)activeView.view.goTo(features[0].geometry)
                         });
+                        const currentHightlight = this.state.highlightState[id];
+                        console.log(currentHightlight,event.added,event.added.length,)
+                        if (currentHightlight?.length === event.added.length,"when added"){
+                            const checkAllEl = document.querySelector("#select-all-checkbox-custom-attribute-table");
+                            if (checkAllEl)checkAllEl.checked = true;
+                        }
                     }
                     }catch (e){
                     }
@@ -215,7 +224,12 @@ export default class Widget extends React.PureComponent<AllWidgetProps<any>&stat
                 const view = activeView.view;
                 view.goTo({center: view.center,zoom:initialMapZoom });
             }
-            if (event.removed.length)helper.removeObjectId(layerView,event.removed[0].objectId)
+            if (event.removed.length){
+                helper.removeObjectId(layerView,event.removed[0].objectId);
+                const checkAllEl = document.querySelector("#select-all-checkbox-custom-attribute-table");
+                if (checkAllEl)checkAllEl.checked = false;
+                console.log(checkAllEl,"check all el when removed")
+            }
         });
 
         reactiveUtils.when(()=>view.stationary,()=>{
