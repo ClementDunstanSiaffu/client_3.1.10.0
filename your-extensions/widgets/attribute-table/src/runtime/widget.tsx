@@ -83,7 +83,6 @@ export default class Widget extends React.PureComponent<AllWidgetProps<any>&stat
                                     <div id={"container-"+newId} className="tabClassControl"></div>
                                 </Tab>
                             );
-    
                             this.createTable(fs,layerOpen).then((featureTable)=>{
                                 if(!featureTable){
                                 }else{
@@ -98,14 +97,9 @@ export default class Widget extends React.PureComponent<AllWidgetProps<any>&stat
                             </Tab>
                         );
                         this.createTable(f,layerOpen).then((featureTable)=>{
-                            if (featureTable){
-                                // setTimeout(()=>{
-                                //     // this.activateCheckAll();
-                                // },1000)
+                            if(!featureTable){
+                            }else{
                             }
-                            // if(!featureTable){
-                            // }else{
-                            // }
                         });
                     }
                 }
@@ -130,8 +124,8 @@ export default class Widget extends React.PureComponent<AllWidgetProps<any>&stat
 
         let view = null;
         if (activeView)view = activeView?.view;
-        const id = layer.id.split(" ").join("_")
-        console.log(id,"check layer id")
+        // const id = layer.id.split(" ").join("_")
+        const id = layer.id
         const featureTable = new FeatureTable({
             id:id,
             label:layer.title,
@@ -150,19 +144,16 @@ export default class Widget extends React.PureComponent<AllWidgetProps<any>&stat
                 clearSelection: true,
                 refreshData: true,
                 toggleColumns: true,
-                // toggleColumns: false,
                 zoomToSelection: true,
             },
             selectionColumn: true,
             columnMenus: true,
         } 
-        // console.log(featureTable,"check e on change") 
-        setTimeout(()=>{
+
+        const domTimeOut = setTimeout(()=>{
             const checkboxElement = featureTable.domNode.getElementsByTagName("vaadin-grid-cell-content")
-            // console.log(checkboxElement,"check node")
             if (checkboxElement.length){
                 for (let i = 0;i < checkboxElement.length;i++){
-                    // console.log(checkboxElement.item(i)?.slot,"check current item")
                     const el = checkboxElement.item(i);
                     if (el?.slot === "vaadin-grid-cell-content-0"){
                         const inputEl = document.createElement("input");
@@ -172,42 +163,22 @@ export default class Widget extends React.PureComponent<AllWidgetProps<any>&stat
                         inputEl.onchange = (e)=>{
                             if (e.target.checked){
                                 const currentHighlight = this.state.highlightState[id];
-                                console.log(currentHighlight,this.state.highlightState,id,"check current highlight")
                                 if (currentHighlight?.length){
                                     currentHighlight.forEach(el => {
                                         featureTable.highlightIds.push(el)
                                     });
                                 }
-                                console.log(featureTable,"check feature table")
                             }else{
-                                // const currentHightlight = featureTable.highlightIds.items;
-                                // const newHighlightState = {...this.state.highlightState,[id]:currentHightlight};
-                                // this.setState({highlightState:newHighlightState});
                                 if (featureTable.highlightIds)featureTable.highlightIds.removeAll()
                             }
                         }
                         el.appendChild(inputEl); 
                     }
-                    // // el.hidden = false;
-                    // const inputEl = document.createElement("input");
-                    // inputEl.type = "checkbox";
-                    // el.appendChild(inputEl);
-                    // console.log(el,"check el")
-                    // el.checked = true;
-                    // featureTable.highlightIds = highlightIds;
-                    // featureTable.refresh();
                 }          
             }
+            clearTimeout(domTimeOut);
         },1000)
-        // featureTable.viewModel.watch("state", function (state) {
-        //     console.log(state,"check state")
-        //     if (state === "loading") {
-        //       layer.queryObjectIds().then(function (ids) {
-        //         console.log(ids)
-        //         featureTable.highlightIds.add(ids)
-        //       });
-        //     }
-        // })
+
         featureTable.on("selection-change", (event) => {
             if(event.added.length){
                 try{
@@ -229,6 +200,7 @@ export default class Widget extends React.PureComponent<AllWidgetProps<any>&stat
             }
             if (event.removed.length)helper.removeObjectId(layerView,event.removed[0].objectId)
         });
+
         reactiveUtils.when(()=>view.stationary,()=>{
             let filterByExtention = true;
             if (
@@ -451,8 +423,6 @@ export default class Widget extends React.PureComponent<AllWidgetProps<any>&stat
     }
 
     optionColorFound(event){
-        //event.preventDefault();
-        //event.stopPropagation();
         const activeView = this.props.stateValue?.value?.getActiveView();
         const activeTable = this.getActiveTable();
         const uniqueValuesInfosSave = this.uniqueValuesInfosSave;
@@ -538,93 +508,7 @@ export default class Widget extends React.PureComponent<AllWidgetProps<any>&stat
         }
     }
 
-    activateCheckAll = async()=>{
-        const checkboxElement = document.getElementsByClassName("vaadin-grid-select-all-checkbox");
-        if (checkboxElement.length){
-            for (let i = 0;i < checkboxElement.length;i++){
-                const el = checkboxElement.item(i);
-                
-                // console.log(el,"check el")
-                el.hidden = false;
-                // el.checked = true;
-                // console.log(el,"check el value")
-                // el.indeterminate = true;
-                const currentTable = this.getActiveTable();
-                if (currentTable){
-                    // const selectionModel = currentTable.getSelection();
-                    // console.log(selectionModel,"check selectio model")
-                    // const ids = await currentTable.layer.queryObjectIds();
-                    // currentTable.highlightIds.add(ids);
-                    // console.log(currentTable,"check both")
-                }
-                // const checboxTag = document.getElementsByTagName("vaadin-checkbox");
-                // for(let j =0;j<checboxTag.length;j++){
-                //     const highlight = this.highlightArr[i];
-                //     if (highlight?.length){
-                //         // el.setAttribute("checked","true");
-                //         // el.checked = true;
-                //         // const elItem = checboxTag.item(j);
-                //         // if (elItem){
-                //         //     elItem.setAttribute("checked","true");
-                //         // }
-                //         // if (checboxTag.item(j).hasOwnProperty("checked"))checboxTag.item(j).checked = true;
-                //     }
-                //     console.log(checboxTag.item(j),"check each single")
-                // }
-            }          
-        }
-    }
-
-
-
     render () {
-        window.onload = function() {
-            const checkboxElements = document.getElementsByClassName("vaadin-grid-select-all-checkbox");
-            for (let i = 0; i < checkboxElements.length; i++) {
-              const checkbox = document.createElement("input");
-              checkbox.type = "checkbox";
-              checkbox.addEventListener("change", function() {
-                // TODO: Add logic to select/deselect all items in the feature table
-              });
-              checkboxElements[i].appendChild(checkbox);
-            }
-        }
-        // console.log(this.highlightArr,"check all hightlight");
-        // const checkboxElement = document.getElementsByClassName("vaadin-grid-select-all-checkbox");
-        // if (checkboxElement.length){
-        //     for (let i = 0;i < checkboxElement.length;i++){
-        //         const el = checkboxElement.item(i);
-        //         el.hidden = false;
-        //         const checboxTag = document.getElementsByTagName("vaadin-checkbox");
-        //         for(let j =0;j<checboxTag.length;j++){
-        //             const highlight = this.highlightArr[i];
-        //             if (highlight?.length){
-        //                 el.checked = true;
-        //                 const elItem = checboxTag.item(j);
-        //                 // if (elItem){
-        //                 //     elItem.setAttribute("checked","true");
-        //                 // }
-        //                 // if (checboxTag.item(j).hasOwnProperty("checked"))checboxTag.item(j).checked = true;
-        //             }
-        //             console.log(checboxTag.item(j),"check each single")
-        //         }
-        //     }
-        //     // const checboxTag = document.getElementsByTagName("vaadin-checkbox");
-        //     // for(let j =0;j<checboxTag.length;j++){
-                
-        //     //     console.log(checboxTag.item(j),"check each single")
-        //     // }
-        //     // checkboxElement.forEach(el => {
-        //     //     console.log(el,"check el")
-        //     //     el.hidden = false;
-        //     // });
-        //     // console.log(checkboxElement.item(0),"checkedElement")
-        //     // checkboxElement.hidden = false;
-        //     // const currentHighlight = this.getActiveHighlights();
-        //     // if (currentHighlight?.length)checkboxElement.checked = true;
-        //     // this.currentCheckBoxElement = checkboxElement;
-        //     // checkboxElement.addEventListener("change",this.checkingForAll)
-        // }
         const filterValue = this.props.stateValue?.value?.filterValue??1;
         return (
             <div className="widget-attribute-table jimu-widget">
