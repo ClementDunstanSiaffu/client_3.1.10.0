@@ -121,10 +121,8 @@ export default class Widget extends React.PureComponent<AllWidgetProps<any>&stat
                 clearInterval(checkExist);
             }
         }, 100);
-
         let view = null;
         if (activeView)view = activeView?.view;
-        // const id = layer.id.split(" ").join("_")
         const id = layer.id
         const featureTable = new FeatureTable({
             id:id,
@@ -136,7 +134,6 @@ export default class Widget extends React.PureComponent<AllWidgetProps<any>&stat
             highlightEnabled:true,
             highlightIds:highlightIds,
         });
-        
         featureTable.visibleElements = {
             header: true,
             menu: true,
@@ -149,7 +146,6 @@ export default class Widget extends React.PureComponent<AllWidgetProps<any>&stat
             selectionColumn: true,
             columnMenus: true,
         } 
-
         const domTimeOut = setTimeout(()=>{
             const checkboxElement = featureTable.domNode.getElementsByTagName("vaadin-grid-cell-content")
             if (checkboxElement.length){
@@ -164,36 +160,20 @@ export default class Widget extends React.PureComponent<AllWidgetProps<any>&stat
                         inputEl.onchange = (e)=>{
                             if (e.target.checked){
                                 const currentHighlight = this.state.highlightState[id];
-                                if (currentHighlight?.length){
-                                    featureTable.highlightIds.removeAll();
-                                    currentHighlight.forEach(el => {
-                                        featureTable.highlightIds.push(el)
-                                    });
-                                }else{
-                                    let allIds = [];
-                                    const query = new Query();
-                                    if (geometry){
-                                        query.geometry = geometry;
-                                    }
-                                    // console.log(layer,"check layer")
-                                    featureTable.layer.queryObjectIds(query).then((ids)=> {
-                                        ids.forEach(id => {
-                                            featureTable.highlightIds.push(id);
-                                        });
-                                        const newHighlightState = {...this.state.highlightState,[id]:ids};
-                                        this.setState({highlightState:newHighlightState})
-                                        // allIds = ids;
-                                        // console.log(ids)
-                                        // featureTable.selectRows(ids)
-                                      });
-                                    // const checkboxEl = document.getElementsByTagName("vaadin-grid-cell-content");
-                                    // if (checkboxEl.length){
-                                    //     for (let i = 0;i < checkboxEl.length;i++){
-                                    //         const titleValue = checkboxEl.item(i)?.title;
-                                    //         console.log(checkboxEl.item(i),"check the item")
-                                    //     }
-                                    // }
-                                }
+                                featureTable.highlightIds.removeAll();
+                                currentHighlight.forEach(el => {featureTable.highlightIds.push(el)});
+                                // if (currentHighlight?.length){
+                                //     featureTable.highlightIds.removeAll();
+                                //     currentHighlight.forEach(el => {featureTable.highlightIds.push(el)});
+                                // }else{
+                                //     const query = new Query();
+                                //     if (geometry)query.geometry = geometry;
+                                //     featureTable.layer.queryObjectIds(query).then((ids)=> {
+                                //         ids.forEach(id => {featureTable.highlightIds.push(id)});
+                                //         const newHighlightState = {...this.state.highlightState,[id]:ids};
+                                //         this.setState({highlightState:newHighlightState})
+                                //     });
+                                // }
                             }else{
                                 if (featureTable.highlightIds)featureTable.highlightIds.removeAll()
                             }
@@ -217,15 +197,13 @@ export default class Widget extends React.PureComponent<AllWidgetProps<any>&stat
                             if(features.length)activeView.view.goTo(features[0].geometry)
                         });
                         const currentHightlight = this.state.highlightState[id];
-                        // console.log(currentHightlight,event.added,event.added.length,)
-                        console.log(featureTable.highlightIds.items,currentHightlight,"check both")
                         if (currentHightlight?.length === featureTable.highlightIds.items.length){
                             const checkAllEl = document.getElementById(id);
                             if (checkAllEl)checkAllEl.checked = true;
                         }
                     }
-                    }catch (e){
-                    }
+                }catch (e){
+                }
             }
             if (event.removed.length > 0 && initialMapZoom){
                 const view = activeView.view;
@@ -256,9 +234,19 @@ export default class Widget extends React.PureComponent<AllWidgetProps<any>&stat
         if (this.state.showColorButtonGroup !== colorButtonGroupStatus){
             this.setState({showColorButtonGroup:colorButtonGroupStatus});
         }
-        const currentHightlight = [...featureTable.highlightIds.items];
-        const newHighlightState = {...this.state.highlightState,[id]:currentHightlight};
-        this.setState({highlightState:newHighlightState});
+        if (featureTable.highlightIds.items.length){
+            const currentHightlight = [...featureTable.highlightIds.items];
+            const newHighlightState = {...this.state.highlightState,[id]:currentHightlight};
+            this.setState({highlightState:newHighlightState});
+        }else{
+            const query = new Query();
+            if (geometry)query.geometry = geometry;
+            featureTable.layer.queryObjectIds(query).then((ids)=> {
+                const newHighlightState = {...this.state.highlightState,[id]:ids};
+                this.setState({highlightState:newHighlightState})
+            });
+        }
+        
         return featureTable;
     }
 
@@ -319,7 +307,6 @@ export default class Widget extends React.PureComponent<AllWidgetProps<any>&stat
                     query.where = "1=1";
                     currentLayerView.filter = {where: query.where}
                 }
-           
             }
             query.outFields = ["*"];
         }catch(err){}
@@ -330,9 +317,7 @@ export default class Widget extends React.PureComponent<AllWidgetProps<any>&stat
             this.setState({features:features})
             featureTable = this.createFeatureTable(layer,highlightIds,layerView,geometry);
             if (activeView.view.stationary && this.state.viewExtent && filterValue === 1){
-                setTimeout(()=>{
-                    featureTable.filterGeometry = this.state.viewExtent;
-                },10)
+                setTimeout(()=>{featureTable.filterGeometry = this.state.viewExtent;},10)
             }
             if (geometry && filterValue === 2)featureTable.filterGeometry = geometry;
             featureTable.filterBySelection();
@@ -419,9 +404,7 @@ export default class Widget extends React.PureComponent<AllWidgetProps<any>&stat
 
     optionFilterExtentions(){this.props.dispatch(appActions.widgetStatePropChange("value","createTable",true));}
 
-    optionOpenFilter(e){
-
-    }
+    optionOpenFilter(e){}
 
     optionCloseAllTabs(){
         const activeView = this.props.stateValue?.value?.getActiveView();
@@ -444,11 +427,7 @@ export default class Widget extends React.PureComponent<AllWidgetProps<any>&stat
     }
 
     createSymbol(type, color){
-        const typeSymbol =
-            type === 'point'? "simple-marker":
-                type === 'polyline'? "simple-line":
-                    "simple-fill";
-
+        const typeSymbol = type === 'point'? "simple-marker":type === 'polyline'? "simple-line":"simple-fill";
         return {
             type: "simple-marker",
             color,
