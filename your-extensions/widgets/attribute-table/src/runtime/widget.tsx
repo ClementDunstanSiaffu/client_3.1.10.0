@@ -159,7 +159,7 @@ export default class Widget extends React.PureComponent<AllWidgetProps<any>&stat
                         const inputEl = document.createElement("input");
                         inputEl.type = "checkbox";
                         inputEl.className = "select-all-checkbox";
-                        inputEl.checked = true;
+                        if (featureTable.highlightIds.items.length)inputEl.checked = true;
                         inputEl.onchange = (e)=>{
                             if (e.target.checked){
                                 const currentHighlight = this.state.highlightState[id];
@@ -167,6 +167,23 @@ export default class Widget extends React.PureComponent<AllWidgetProps<any>&stat
                                     currentHighlight.forEach(el => {
                                         featureTable.highlightIds.push(el)
                                     });
+                                }else{
+                                    let allIds = [];
+                                    layer.queryObjectIds().then((ids)=> {
+                                        ids.forEach(id => {
+                                            featureTable.highlightIds.push(id);
+                                        });
+                                        // allIds = ids;
+                                        // console.log(ids)
+                                        // featureTable.selectRows(ids)
+                                      });
+                                    // const checkboxEl = document.getElementsByTagName("vaadin-grid-cell-content");
+                                    // if (checkboxEl.length){
+                                    //     for (let i = 0;i < checkboxEl.length;i++){
+                                    //         const titleValue = checkboxEl.item(i)?.title;
+                                    //         console.log(checkboxEl.item(i),"check the item")
+                                    //     }
+                                    // }
                                 }
                             }else{
                                 if (featureTable.highlightIds)featureTable.highlightIds.removeAll()
