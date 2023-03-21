@@ -61,46 +61,58 @@ export default class ButtonGroupComponent extends React.PureComponent<PropsType,
 
     getStoreSingleAttributes(table,attribute){
         let arrayNew = [];
-        const items = table?.highlightIds.items??[];
+        const tableItems = table?.highlightIds.items??[];
+        const checkerKey = ["OBJECTID","objectid","Objectid","FID","Fid","fid"];
         if(table && table.grid && table.grid.store && table.grid.store.itemCache && table.grid.store.itemCache.items?.length){
-            for(let i=0;i<table.grid.store.itemCache.items.length;i++){
-                let attr = table.grid.store.itemCache.items[i].feature.attributes;
-                if (items.includes(attr.OBJECTID)){
+            let currentKey = "OBJECTID";
+            const gridItems = table.grid.store.itemCache.items;
+            const keys = Object.keys(gridItems[0]?.feature.attributes)??[];
+            if (!keys.includes("OBJECTID")){
+                if (keys.length){
+                    for (let i = 0;i < keys.length;i++){
+                        if (checkerKey.includes(keys[i])){
+                            currentKey = keys[i];
+                            break;
+                        }
+                    }
+                }
+            }
+            for(let i=0;i<gridItems.length;i++){
+                let attr = gridItems[i].feature.attributes;
+                if (tableItems.includes(attr[currentKey])){
                     let newAttr = {};
                     newAttr[attribute] = attr[attribute]
                     arrayNew.push(newAttr);
                 }
             }
         }
-        // if(table && table.grid && table.grid.store && table.grid.store.itemCache && table.grid.store.itemCache.items?.length){
-        //     for(let i=0;i<table.grid.store.itemCache.items.length;i++){
-        //         let attr = table.grid.store.itemCache.items[i].feature.attributes;
-        //         let newAttr = {};
-        //         newAttr[attribute] = attr[attribute]
-        //         arrayNew.push(newAttr);
-        //     }
-        // }
         return arrayNew;
     }
 
     
     getStoreClean(table){
         let arrayNew = [];
-        const items = table?.highlightIds.items??[];
+        const tableItems = table?.highlightIds.items??[];
+        const checkerKey = ["OBJECTID","objectid","Objectid","FID","Fid","fid"];
         if(table && table.grid && table.grid.store && table.grid.store.itemCache && table.grid.store.itemCache.items?.length){
-            for(let i=0;i<table.grid.store.itemCache.items.length;i++){
-                let attr = table.grid.store.itemCache.items[i].feature.attributes;
-                if (items.includes(attr.OBJECTID))arrayNew.push(attr);
+            let currentKey = "OBJECTID";
+            const gridItems = table.grid.store.itemCache.items;
+            const keys = Object.keys(gridItems[0]?.feature.attributes)??[];
+            if (!keys.includes("OBJECTID")){
+                if (keys.length){
+                    for (let i = 0;i < keys.length;i++){
+                        if (checkerKey.includes(keys[i])){
+                            currentKey = keys[i];
+                            break;
+                        }
+                    }
+                }
+            }
+            for(let i=0;i<gridItems.length;i++){
+                let attr = gridItems[i].feature.attributes;
+                if (tableItems.includes(attr[currentKey]))arrayNew.push(attr);
             }
         }
-        // if(table && table.grid && table.grid.store && table.grid.store.itemCache && table.grid.store.itemCache.items?.length){
-        //     for(let i=0;i<table.grid.store.itemCache.items.length;i++){
-        //         let attr = table.grid.store.itemCache.items[i].feature.attributes;
-        //         arrayNew.push(attr);
-        //     }
-        // }
-        // console.log(table,"check table",arrayNew,"check array new");
-        // return [];
         return arrayNew;
     }
 
@@ -174,9 +186,6 @@ export default class ButtonGroupComponent extends React.PureComponent<PropsType,
 
     optionFilterRemove(){
         const self = this.props.parent;
-        // delete self.props.stateProps.layerOpen.where;
-        // delete self.props.stateProps.layerOpen.geometry;
-        // delete self.props.stateProps.layerOpen.typeSelected;
         self.createListTable();
 
         //pulisco eventuali graphicLayerSketch
