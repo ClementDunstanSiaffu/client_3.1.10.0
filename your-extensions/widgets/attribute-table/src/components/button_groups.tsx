@@ -61,26 +61,46 @@ export default class ButtonGroupComponent extends React.PureComponent<PropsType,
 
     getStoreSingleAttributes(table,attribute){
         let arrayNew = [];
+        const items = table?.highlightIds.items??[];
         if(table && table.grid && table.grid.store && table.grid.store.itemCache && table.grid.store.itemCache.items?.length){
             for(let i=0;i<table.grid.store.itemCache.items.length;i++){
                 let attr = table.grid.store.itemCache.items[i].feature.attributes;
-                let newAttr = {};
-                newAttr[attribute] = attr[attribute]
-                arrayNew.push(newAttr);
+                if (items.includes(attr.OBJECTID)){
+                    let newAttr = {};
+                    newAttr[attribute] = attr[attribute]
+                    arrayNew.push(newAttr);
+                }
             }
         }
+        // if(table && table.grid && table.grid.store && table.grid.store.itemCache && table.grid.store.itemCache.items?.length){
+        //     for(let i=0;i<table.grid.store.itemCache.items.length;i++){
+        //         let attr = table.grid.store.itemCache.items[i].feature.attributes;
+        //         let newAttr = {};
+        //         newAttr[attribute] = attr[attribute]
+        //         arrayNew.push(newAttr);
+        //     }
+        // }
         return arrayNew;
     }
 
     
     getStoreClean(table){
         let arrayNew = [];
+        const items = table?.highlightIds.items??[];
         if(table && table.grid && table.grid.store && table.grid.store.itemCache && table.grid.store.itemCache.items?.length){
             for(let i=0;i<table.grid.store.itemCache.items.length;i++){
                 let attr = table.grid.store.itemCache.items[i].feature.attributes;
-                arrayNew.push(attr);
+                if (items.includes(attr.OBJECTID))arrayNew.push(attr);
             }
         }
+        // if(table && table.grid && table.grid.store && table.grid.store.itemCache && table.grid.store.itemCache.items?.length){
+        //     for(let i=0;i<table.grid.store.itemCache.items.length;i++){
+        //         let attr = table.grid.store.itemCache.items[i].feature.attributes;
+        //         arrayNew.push(attr);
+        //     }
+        // }
+        // console.log(table,"check table",arrayNew,"check array new");
+        // return [];
         return arrayNew;
     }
 
@@ -93,34 +113,54 @@ export default class ButtonGroupComponent extends React.PureComponent<PropsType,
         switch (selected){
             case "KMZ":
                 if(activeTable){
-                    const cleanArrayStore = this.getStoreSingleAttributes(activeTable,"OBJECTID")
-                    this.getKmzFile(activeTable.layer,cleanArrayStore)
+                    const cleanArrayStore = this.getStoreSingleAttributes(activeTable,"OBJECTID");
+                    if (cleanArrayStore.length){
+                        this.getKmzFile(activeTable.layer,cleanArrayStore)
+                    }else{
+                        this.props.parent.setState({openNoItemModal:true})
+                    }
                 }
                 break;
             case "eCGI_CSV":
                 if(activeTable){
                     const cleanArrayStore = this.getStoreSingleAttributes(activeTable,"eCGI_28bit");
-                    if(cleanArrayStore.length) Download.CSV(cleanArrayStore);
+                    if(cleanArrayStore.length){
+                        Download.CSV(cleanArrayStore);
+                    }else{
+                        this.props.parent.setState({openNoItemModal:true})
+                    }
                 }
                 break;
             case "CGI_CSV":
                 if(activeTable){
                     const cleanArrayStore = this.getStoreSingleAttributes(activeTable,"CGI");
-                    if(cleanArrayStore.length) Download.CSV(cleanArrayStore);
+                    if(cleanArrayStore.length){
+                        Download.CSV(cleanArrayStore);
+                    }else{
+                        this.props.parent.setState({openNoItemModal:true})
+                    }
                 }
                 break;
             case "EXCEL_TABLE":break;
             case "CSV_TABLE":
                 if(activeTable){
                     const cleanArrayStore = this.getStoreClean(activeTable);
-                    if(cleanArrayStore.length) Download.CSV(cleanArrayStore);
+                    if(cleanArrayStore.length){
+                        Download.CSV(cleanArrayStore);
+                    }else{
+                        this.props.parent.setState({openNoItemModal:true})
+                    }
                 }
                 break;
             case "ALL_TABLE":
                 for(let i=0;i<tabs.length;i++){
                     const item = arrayTable[i];
                     const cleanArrayStore = this.getStoreClean(item);
-                    if(cleanArrayStore.length) Download.CSV(cleanArrayStore,item.layer.title+".csv");
+                    if(cleanArrayStore.length){
+                        Download.CSV(cleanArrayStore,item.layer.title+".csv");
+                    }else{
+                        this.props.parent.setState({openNoItemModal:true})
+                    }
                 }
             break;
         }
