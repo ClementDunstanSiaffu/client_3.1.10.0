@@ -17,5 +17,7 @@ export default {
     clearFilter:"Cancella filtro",
     filterByExtention:"Filtra per estenzione mappa",
     filter:"Filtra",
-    closeAllTab:"Chiudi tutti i tab"
+    closeAllTab:"Chiudi tutti i tab",
+    noRowSelected:"Selezionare la riga dalla tabella degli attributi",
+    close:"chiudere"
 }

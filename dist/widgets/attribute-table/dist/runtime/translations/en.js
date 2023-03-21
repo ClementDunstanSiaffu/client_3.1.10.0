@@ -15,6 +15,8 @@ System.register([], function (_export) {return {execute: function () {_export({
     "clearFilter":"Clear filter",
     "filterByExtention":"Filter by map extension",
     "filter":"Filter",
-    "closeAllTab":"Close all tabs"
+    "closeAllTab":"Close all tabs",
+    "noRowSelected":"Select row from the attribute table",
+    "close":"close"
 })}}});
 

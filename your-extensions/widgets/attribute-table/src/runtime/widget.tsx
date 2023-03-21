@@ -19,7 +19,6 @@ export default class Widget extends React.PureComponent<AllWidgetProps<any>&stat
     static initialMapZoom = 0;
     static currentViewExtent = null;
     arrayTable = [];
-    highlightArr = [];
     uniqueValuesInfosSave = [];
     saveOldRenderer = [];
     filterTimeReceiveData = new Date().getTime();
@@ -51,6 +50,7 @@ export default class Widget extends React.PureComponent<AllWidgetProps<any>&stat
         this.createTable = this.createTable.bind(this);
         this.getActiveTable = this.getActiveTable.bind(this);
         this.optionColorCleanSelected = this.optionColorCleanSelected.bind(this);
+        this.closeNoItemSelectedModal = this.closeNoItemSelectedModal.bind(this);
     }
 
     componentDidUpdate(prevProps: Readonly<AllWidgetProps<any>>, prevState: Readonly<any>, snapshot?: any) {
@@ -112,16 +112,12 @@ export default class Widget extends React.PureComponent<AllWidgetProps<any>&stat
 
     replaceCurrentTableWithNewTable = (newFeatureTable:FeatureTable)=>{
         const activeTable = this.getActiveTable();
-        console.log(activeTable.layer.id,"active table");
-        console.log(newFeatureTable.layer.id,"new feature table")
         if (activeTable.layer.id === newFeatureTable.layer.id){
-            console.log(this.arrayTable,"top")
             const index = this.arrayTable.findIndex((item)=>item.layer.id === newFeatureTable.layer.id );
             if (index !== -1){
                 const copiedArrayTable = [...this.arrayTable];
                 copiedArrayTable.splice(index,1,newFeatureTable);
                 this.arrayTable = copiedArrayTable;
-                console.log(copiedArrayTable,"bottom")
             }
         }
     }
@@ -174,26 +170,12 @@ export default class Widget extends React.PureComponent<AllWidgetProps<any>&stat
                         inputEl.type = "checkbox";
                         inputEl.className = "select-all-checkbox";
                         inputEl.id = id
-                        if (featureTable.highlightIds.items.length){
-                            inputEl.checked = true;
-                        }
+                        if (featureTable.highlightIds.items.length)inputEl.checked = true;
                         inputEl.onchange = (e)=>{
                             if (e.target.checked){
                                 const currentHighlight = this.state.highlightState[id];
                                 featureTable.highlightIds.removeAll();
                                 currentHighlight.forEach(el => {featureTable.highlightIds.push(el)});
-                                // if (currentHighlight?.length){
-                                //     featureTable.highlightIds.removeAll();
-                                //     currentHighlight.forEach(el => {featureTable.highlightIds.push(el)});
-                                // }else{
-                                //     const query = new Query();
-                                //     if (geometry)query.geometry = geometry;
-                                //     featureTable.layer.queryObjectIds(query).then((ids)=> {
-                                //         ids.forEach(id => {featureTable.highlightIds.push(id)});
-                                //         const newHighlightState = {...this.state.highlightState,[id]:ids};
-                                //         this.setState({highlightState:newHighlightState})
-                                //     });
-                                // }
                             }else{
                                 if (featureTable.highlightIds)featureTable.highlightIds.removeAll()
                             }
@@ -235,7 +217,6 @@ export default class Widget extends React.PureComponent<AllWidgetProps<any>&stat
                 const checkAllEl = document.getElementById(id);
                 if (checkAllEl)checkAllEl.checked = false;
                 this.replaceCurrentTableWithNewTable(featureTable);
-
             }
         });
 
@@ -251,9 +232,8 @@ export default class Widget extends React.PureComponent<AllWidgetProps<any>&stat
         },{initial:true})
 
         this.arrayTable.push(featureTable);
-        this.highlightArr.push(highlightIds);
         let colorButtonGroupStatus = true;
-        // if (!highlightIds.length)colorButtonGroupStatus = false;
+        // if (!highlightIds.length)colorButtonGroupStatus = false;--- this was used to show color only when there is highlight
         if (this.state.showColorButtonGroup !== colorButtonGroupStatus){
             this.setState({showColorButtonGroup:colorButtonGroupStatus});
         }
@@ -269,7 +249,6 @@ export default class Widget extends React.PureComponent<AllWidgetProps<any>&stat
                 this.setState({highlightState:newHighlightState})
             });
         }
-        
         return featureTable;
     }
 
@@ -283,7 +262,6 @@ export default class Widget extends React.PureComponent<AllWidgetProps<any>&stat
             valueBuffer?:any
         }
     ) {
-        
         const activeView = this.props.stateValue.value.getActiveView();
         const checkedLayers = this.props.stateValue?.value?.checkedLayers??[];
         const filterValue = this.props.stateValue?.value?.filterValue??1;
@@ -308,7 +286,6 @@ export default class Widget extends React.PureComponent<AllWidgetProps<any>&stat
             query.spatialRelationship = pass.typeSelected;
             query.returnGeometry = true;
         }
-
         let layerView = layer;
         try{
             const currentLayerView = await activeView.view.whenLayerView(layer);
@@ -356,7 +333,6 @@ export default class Widget extends React.PureComponent<AllWidgetProps<any>&stat
                 this.props.dispatch(appActions.widgetStatePropChange("value","showAlert",true));
             } 
         }
-
         return featureTable;
     }
 
@@ -420,20 +396,11 @@ export default class Widget extends React.PureComponent<AllWidgetProps<any>&stat
              //@ts-ignore
              if(el?.checkVisibility()){
                 return arrayTable.find((item)=>{
-                    console.log("container"+"-"+item.layer.id.split(" ").join("-")===tabs[i].props.children.props.id)
                     if ("container"+"-"+item.layer.id.split(" ").join("-") === tabs[i].props.children.props.id){
                         return item;
                     }
-                
                 })
             }
-
-
-            // //@ts-ignore
-            // if(el?.checkVisibility()){
-            //     // console.log(arrayTable[i],tabs[i].props.children.props.id);
-            //     return arrayTable[i];
-            // }
         }
         return null;
     }
@@ -459,7 +426,6 @@ export default class Widget extends React.PureComponent<AllWidgetProps<any>&stat
         const sidebar = document.querySelector(".sidebar-controller");
         //@ts-ignore
         if(sidebar) sidebar.click();
-
     }
 
     createSymbol(type, color){
@@ -468,21 +434,8 @@ export default class Widget extends React.PureComponent<AllWidgetProps<any>&stat
             type: typeSymbol,
             style: "solid",
             color,
-            outline:{
-                width:30
-            }
-            // outline: null
+            outline:{width:30}
         };
-        // return {
-        //     // type: "simple-marker",
-        //     type:typeSymbol,
-        //     color,
-        //     outline:{
-        //         width:10,
-        //         // width:0.5,
-        //         color:color
-        //     }
-        // };
     }
 
     optionColorFound(event){
@@ -498,12 +451,8 @@ export default class Widget extends React.PureComponent<AllWidgetProps<any>&stat
                 if (keys.length){
                     keys.forEach((key)=>{
                         if (jimuLayerViews[key].layer.id === activeTable.layer.id){
-                            if (jimuLayerViews[key].layer){
-                                jimuLayerViews[key].layer.opacity = 1;
-                            }
-                            if (jimuLayerViews[key].view){
-                                jimuLayerViews[key].view.fullOpacity = 1;
-                            }
+                            if (jimuLayerViews[key].layer)jimuLayerViews[key].layer.opacity = 1;
+                            if (jimuLayerViews[key].view)jimuLayerViews[key].view.fullOpacity = 1;
                         }
                     })
                 }
@@ -579,29 +528,32 @@ export default class Widget extends React.PureComponent<AllWidgetProps<any>&stat
         const filterValue = this.props.stateValue?.value?.filterValue??1;
         return (
             <React.Fragment>
-                <NoItemSelected isOpen = {this.state.openNoItemModal} onclose = {this.closeNoItemSelectedModal}/>
-            <div className="widget-attribute-table jimu-widget">
-                {/* <NoItemSelected isOpen = {this.state.openNoItemModal} onclose = {this.closeNoItemSelectedModal}/> */}
-                <ButtonGroupComponent 
-                    parent = {this} 
-                    selectedColor = {this.state.selectedColor}
-                    filterValue = {filterValue}
-                    showColorButtonGroup = {this.state.showColorButtonGroup}
+                <NoItemSelected 
+                    isOpen = {this.state.openNoItemModal} 
+                    onclose = {this.closeNoItemSelectedModal}
+                    parent = {this}
                 />
-                {this.state.tabs.length === 0 ?
-                    <div className="text-center container-fluid">
-                        <div className="row">
-                            <div className="col-md-12 mt-2 font-weight-bold">
-                                {this.nls("noTableOpened")}
+                <div className="widget-attribute-table jimu-widget">
+                    <ButtonGroupComponent 
+                        parent = {this} 
+                        selectedColor = {this.state.selectedColor}
+                        filterValue = {filterValue}
+                        showColorButtonGroup = {this.state.showColorButtonGroup}
+                    />
+                    {this.state.tabs.length === 0 ?
+                        <div className="text-center container-fluid">
+                            <div className="row">
+                                <div className="col-md-12 mt-2 font-weight-bold">
+                                    {this.nls("noTableOpened")}
+                                </div>
                             </div>
                         </div>
-                    </div>
-                    :
-                    <Tabs scrollable defaultValue={this.defaultValue} type="tabs" onClose={this.tabsClose}>
-                        {this.state.tabs}
-                    </Tabs>
-                }
-            </div>
+                        :
+                        <Tabs scrollable defaultValue={this.defaultValue} type="tabs" onClose={this.tabsClose}>
+                            {this.state.tabs}
+                        </Tabs>
+                    }
+                </div>
             </React.Fragment>
         )
     }
