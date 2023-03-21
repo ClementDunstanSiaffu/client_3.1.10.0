@@ -11,6 +11,7 @@ import FeatureTable from 'esri/widgets/FeatureTable';
 import defaultMessages from './translations/default';
 import geometryEngine from "esri/geometry/geometryEngine";
 import { stateValueType,spatialRelationshipType} from '../types/type';
+import NoItemSelected from '../components/no_item_selected_modal';
 
 export default class Widget extends React.PureComponent<AllWidgetProps<any>&stateValueType, any> {
 
@@ -36,7 +37,8 @@ export default class Widget extends React.PureComponent<AllWidgetProps<any>&stat
             features:null,
             showColorButtonGroup:true,
             tabChanged:false,
-            highlightState:{}
+            highlightState:{},
+            openNoItemModal:false
         }
 
         this.tabsClose = this.tabsClose.bind(this);
@@ -106,6 +108,22 @@ export default class Widget extends React.PureComponent<AllWidgetProps<any>&stat
             }
         }
         this.setState({geometryFilter: layerOpen.geometry,listServices:checkedLayers,tabs:tabs});
+    }
+
+    replaceCurrentTableWithNewTable = (newFeatureTable:FeatureTable)=>{
+        const activeTable = this.getActiveTable();
+        console.log(activeTable.layer.id,"active table");
+        console.log(newFeatureTable.layer.id,"new feature table")
+        if (activeTable.layer.id === newFeatureTable.layer.id){
+            console.log(this.arrayTable,"top")
+            const index = this.arrayTable.findIndex((item)=>item.layer.id === newFeatureTable.layer.id );
+            if (index !== -1){
+                const copiedArrayTable = [...this.arrayTable];
+                copiedArrayTable.splice(index,1,newFeatureTable);
+                this.arrayTable = copiedArrayTable;
+                console.log(copiedArrayTable,"bottom")
+            }
+        }
     }
     
     createFeatureTable(layer,highlightIds:any,layerView:any,geometry?:any){
@@ -203,6 +221,7 @@ export default class Widget extends React.PureComponent<AllWidgetProps<any>&stat
                             const checkAllEl = document.getElementById(id);
                             if (checkAllEl)checkAllEl.checked = true;
                         }
+                        this.replaceCurrentTableWithNewTable(featureTable);
                     }
                 }catch (e){
                 }
@@ -215,6 +234,8 @@ export default class Widget extends React.PureComponent<AllWidgetProps<any>&stat
                 helper.removeObjectId(layerView,event.removed[0].objectId);
                 const checkAllEl = document.getElementById(id);
                 if (checkAllEl)checkAllEl.checked = false;
+                this.replaceCurrentTableWithNewTable(featureTable);
+
             }
         });
 
@@ -396,10 +417,23 @@ export default class Widget extends React.PureComponent<AllWidgetProps<any>&stat
         const arrayTable = this.arrayTable;
         for(let i=0;i<tabs.length;i++){
             const el = document.querySelector("#"+tabs[i].props.children.props.id);
-            //@ts-ignore
-            if(el?.checkVisibility()){
-                return arrayTable[i];
+             //@ts-ignore
+             if(el?.checkVisibility()){
+                return arrayTable.find((item)=>{
+                    console.log("container"+"-"+item.layer.id.split(" ").join("-")===tabs[i].props.children.props.id)
+                    if ("container"+"-"+item.layer.id.split(" ").join("-") === tabs[i].props.children.props.id){
+                        return item;
+                    }
+                
+                })
             }
+
+
+            // //@ts-ignore
+            // if(el?.checkVisibility()){
+            //     // console.log(arrayTable[i],tabs[i].props.children.props.id);
+            //     return arrayTable[i];
+            // }
         }
         return null;
     }
@@ -435,7 +469,7 @@ export default class Widget extends React.PureComponent<AllWidgetProps<any>&stat
             style: "solid",
             color,
             outline:{
-                width:10
+                width:30
             }
             // outline: null
         };
@@ -518,6 +552,8 @@ export default class Widget extends React.PureComponent<AllWidgetProps<any>&stat
                             uniqueValueInfos:uniqueValuesInfosSave[activeTable.layer.id]
                         };
                     }
+                }else{
+                    this.setState({openNoItemModal:true});
                 }
             }
         }
@@ -537,10 +573,15 @@ export default class Widget extends React.PureComponent<AllWidgetProps<any>&stat
         }
     }
 
+    closeNoItemSelectedModal = ()=>this.setState({openNoItemModal:false});
+
     render () {
         const filterValue = this.props.stateValue?.value?.filterValue??1;
         return (
+            <React.Fragment>
+                <NoItemSelected isOpen = {this.state.openNoItemModal} onclose = {this.closeNoItemSelectedModal}/>
             <div className="widget-attribute-table jimu-widget">
+                {/* <NoItemSelected isOpen = {this.state.openNoItemModal} onclose = {this.closeNoItemSelectedModal}/> */}
                 <ButtonGroupComponent 
                     parent = {this} 
                     selectedColor = {this.state.selectedColor}
@@ -561,6 +602,7 @@ export default class Widget extends React.PureComponent<AllWidgetProps<any>&stat
                     </Tabs>
                 }
             </div>
+            </React.Fragment>
         )
     }
 }
