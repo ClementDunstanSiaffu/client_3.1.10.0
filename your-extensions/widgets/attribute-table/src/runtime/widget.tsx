@@ -112,7 +112,7 @@ export default class Widget extends React.PureComponent<AllWidgetProps<any>&stat
 
     replaceCurrentTableWithNewTable = (newFeatureTable:FeatureTable)=>{
         const activeTable = this.getActiveTable();
-        if (activeTable.layer.id === newFeatureTable.layer.id){
+        if (activeTable?.layer.id === newFeatureTable?.layer.id){
             const index = this.arrayTable.findIndex((item)=>item.layer.id === newFeatureTable.layer.id );
             if (index !== -1){
                 const copiedArrayTable = [...this.arrayTable];
