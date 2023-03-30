@@ -87,7 +87,7 @@ export default class Widget extends React.PureComponent<any,any>{
                           return results.then((data) => {
                             const results = [];
                             let searchResult = {};
-                            let toSearch = params.suggestResult.text;
+                            let toSearch = params.suggestResult.text.split(":")[1];
                             const field = params.suggestResult.key;
                             const sourceIndex = params.suggestResult.sourceIndex;
                             if (!isNaN(parseInt(toSearch)) && typeof parseInt(toSearch) === "number"){
@@ -130,7 +130,8 @@ export default class Widget extends React.PureComponent<any,any>{
                                     }
                                 }
                                 searchResult["key"] = field
-                                searchResult["name"] = params.suggestResult.text;
+                                searchResult["name"] = toSearch;
+                                // searchResult["name"] = params.suggestResult.text;
                                 searchResult["sourceIndex"] = sourceIndex
                             }
                             return [searchResult];
@@ -148,6 +149,10 @@ export default class Widget extends React.PureComponent<any,any>{
                     })
                     searchWidget.on("select-result", (event)=>{
                         if(event && event.result && event.result.feature){
+                            const el = document.getElementById("search-widget-search-value-input");
+                            el.value = `${event?.result.name}`+" ";
+                            el.title = event?.result.name;
+                            console.log(typeof el.value,el,event?.result)
                             if (event.result.feature.geometry){
                                 const arrayGeometry = [];
                                 this.cleared = false;
@@ -167,6 +172,7 @@ export default class Widget extends React.PureComponent<any,any>{
                         }
                     });
                     searchWidget.on("search-clear", (event)=>{
+                        console.log("on clear")
                         if (!this.cleared){
                             jmv.clearSelectedFeatures();
                             jmv.view.popup.visible = false;

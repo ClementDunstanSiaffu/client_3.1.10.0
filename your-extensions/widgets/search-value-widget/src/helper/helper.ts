@@ -18,7 +18,7 @@ class Helper {
                     
                     if (status){
                         obj["key"] = attributes["OBJECTID"],
-                        obj["text"] = `${attributes[keyVal]}`,
+                        obj["text"] = `<b>${keyVal}</b>:${attributes[keyVal]}`,
                         obj["sourceIndex"] = params.sourceIndex
                         newSuggestions.push(obj)
                     }
