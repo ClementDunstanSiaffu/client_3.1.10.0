@@ -150,9 +150,7 @@ export default class Widget extends React.PureComponent<any,any>{
                     searchWidget.on("select-result", (event)=>{
                         if(event && event.result && event.result.feature){
                             const el = document.getElementById("search-widget-search-value-input");
-                            el.value = `${event?.result.name}`+" ";
-                            el.title = event?.result.name;
-                            console.log(typeof el.value,el,event?.result)
+                            setTimeout(()=>{el.value = `${event?.result.name}`})
                             if (event.result.feature.geometry){
                                 const arrayGeometry = [];
                                 this.cleared = false;
@@ -172,7 +170,6 @@ export default class Widget extends React.PureComponent<any,any>{
                         }
                     });
                     searchWidget.on("search-clear", (event)=>{
-                        console.log("on clear")
                         if (!this.cleared){
                             jmv.clearSelectedFeatures();
                             jmv.view.popup.visible = false;
