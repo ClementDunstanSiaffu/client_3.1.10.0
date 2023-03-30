@@ -80,8 +80,7 @@ export default class Widget extends React.PureComponent<any,any>{
                             }
                             return defaultSuggestions;
                           })
-                          .catch((err)=>{
-                          })
+                          .catch((err)=>{})
                         },
                         getResults: (params) => {
                           return results.then((data) => {
@@ -131,14 +130,16 @@ export default class Widget extends React.PureComponent<any,any>{
                                 }
                                 searchResult["key"] = field
                                 searchResult["name"] = toSearch;
-                                // searchResult["name"] = params.suggestResult.text;
                                 searchResult["sourceIndex"] = sourceIndex
                             }
                             return [searchResult];
                           });
                         },
                         popupEnabled:true,
-                        popupTemplate:{title:"Search value widget",content:[{type:"fields",fieldInfos:fieldInfos}]}
+                        popupTemplate:{
+                            title:"Search value widget",
+                            content:[{type:"fields",fieldInfos:fieldInfos}]
+                        }
                     });
                     const searchWidget = new Search({
                         view:jmv.view,
