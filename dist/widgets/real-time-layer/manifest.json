@@ -1,0 +1,21 @@
+{
+  "name": "real-time-layer",
+  "type": "widget",
+  "version": "1.10.0",
+  "dependency": "jimu-arcgis",
+  "exbVersion": "1.10.0",
+  "author": "Clement Dunstan Siaffu",
+  "description": "This is real time layer",
+  "copyright": "",
+  "license": "",
+  "properties": {
+    "hasSettingPage": false
+  },
+  "translatedLocales": [
+    "en"
+  ],
+  "defaultSize": {
+    "width": 800,
+    "height": 500
+  }
+}

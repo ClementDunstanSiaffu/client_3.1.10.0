@@ -6846,38 +6846,32 @@
     "group": 7
   },
   {
-    "name": "query-builder",
+    "name": "real-time-layer",
     "manifest": {
-      "name": "query-builder",
-      "label": "Query Builder",
+      "name": "real-time-layer",
       "type": "widget",
       "version": "1.10.0",
       "dependency": "jimu-arcgis",
       "exbVersion": "1.10.0",
-      "author": "Wheretech - Giulio Mollo",
-      "description": "Il widget Search Advanced raggruppa i vecchi widgets Indirizzi, Comuni, Sito e Ambito) in un unico widget di ricerca.",
+      "author": "Clement Dunstan Siaffu",
+      "description": "This is real time layer",
       "copyright": "",
       "license": "",
-      "properties": {},
+      "properties": {
+        "hasSettingPage": false
+      },
       "translatedLocales": [
-        "it",
         "en"
       ],
       "defaultSize": {
-        "width": 500,
-        "height": 800
+        "width": 800,
+        "height": 500
       }
     },
-    "i18nLabel": {
-      "it": "Costruttore Query",
-      "en": "Query Builder"
-    },
-    "i18nDescription": {
-      "it": null,
-      "en": null
-    },
-    "uri": "widgets/query-builder/",
-    "icon": "widgets/query-builder/icon.svg",
+    "i18nLabel": {},
+    "i18nDescription": {},
+    "uri": "widgets/real-time-layer/",
+    "icon": "widgets/real-time-layer/icon.png",
     "order": 700,
     "group": 7
   },
