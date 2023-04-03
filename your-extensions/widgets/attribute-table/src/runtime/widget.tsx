@@ -192,33 +192,6 @@ export default class Widget extends React.PureComponent<AllWidgetProps<any>&stat
             }
         },1000)
 
-        // const domTimeOut = setTimeout(()=>{
-        //     const checkboxElement = featureTable.domNode.getElementsByTagName("vaadin-grid-cell-content")
-        //     if (checkboxElement.length){
-        //         for (let i = 0;i < checkboxElement.length;i++){
-        //             const el = checkboxElement.item(i);
-        //             if (el?.slot === "vaadin-grid-cell-content-0"){
-        //                 const inputEl = document.createElement("input");
-        //                 inputEl.type = "checkbox";
-        //                 inputEl.className = "select-all-checkbox";
-        //                 inputEl.id = id
-        //                 if (featureTable.highlightIds.items.length)inputEl.checked = true;
-        //                 inputEl.onchange = (e)=>{
-        //                     if (e.target.checked){
-        //                         const currentHighlight = this.state.highlightState[id];
-        //                         featureTable.highlightIds.removeAll();
-        //                         currentHighlight.forEach(el => {featureTable.highlightIds.push(el)});
-        //                     }else{
-        //                         if (featureTable.highlightIds)featureTable.highlightIds.removeAll()
-        //                     }
-        //                 }
-        //                 el.appendChild(inputEl); 
-        //             }
-        //         }          
-        //     }
-        //     clearTimeout(domTimeOut);
-        // },1000)
-
         featureTable.on("selection-change", (event) => {
             if(event.added.length){
                 try{
