@@ -139,11 +139,11 @@ export default class AdvancedSelectionTable extends React.PureComponent<AllWidge
                 this.setState({isMapLoaded:true});
             })
             reactiveUtils.watch(
-                () => view.map.allLayers.map( layer => layer.visible),
+                () => view.map?.allLayers.map( layer => layer.visible),
                 (boolean) => {
                     let checkedLayers = [];
                         //@ts-ignore
-                    view.map.allLayers?.items.map((f)=>{
+                    view.map?.allLayers?.items.map((f)=>{
                         const selected = this.props.stateValue?.value?.checkedLayers;
                         if (selected?.length <= 0 || !selected)helper.activateLayerOnTheMap(f.id,f.visible);    
                     }) 
