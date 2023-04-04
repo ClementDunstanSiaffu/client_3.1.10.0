@@ -145,15 +145,15 @@ class Helper {
         }
     }
 
-    removeObjectId = (layerView:LayerView,objectId:number)=>{
-        if (layerView && objectId){
+    removeObjectId = (layerView:LayerView,objectIdArr:number[])=>{
+        if (layerView && objectIdArr.length){
             //@ts-ignore
             const currentHighligts = layerView?._highlightIds;
             if (currentHighligts.size){
                 //@ts-ignore
                 layerView._highlightIds = new Map();
                 for (const [key,value] of currentHighligts){
-                    if (key !== objectId){
+                    if (!objectIdArr.includes(key)){
                         //@ts-ignore
                         layerView._highlightIds.set(key,value)
                     }
@@ -161,6 +161,23 @@ class Helper {
             }
         }
     }
+
+    // removeObjectId = (layerView:LayerView,objectId:number)=>{
+    //     if (layerView && objectId){
+    //         //@ts-ignore
+    //         const currentHighligts = layerView?._highlightIds;
+    //         if (currentHighligts.size){
+    //             //@ts-ignore
+    //             layerView._highlightIds = new Map();
+    //             for (const [key,value] of currentHighligts){
+    //                 if (key !== objectId){
+    //                     //@ts-ignore
+    //                     layerView._highlightIds.set(key,value)
+    //                 }
+    //             }
+    //         }
+    //     }
+    // }
 }
 
 export default new Helper();

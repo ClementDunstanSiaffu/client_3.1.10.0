@@ -197,11 +197,40 @@ export default class Widget extends React.PureComponent<AllWidgetProps<any>&stat
                 try{
                     const query = layer.createQuery();
                     if (event.added.length > 0){
-                        query.where = layer.objectIdField + " = " + event.added[0]?.objectId;
+                        let ids = [];
+                        let queryOperator = " = ";
+                        let queryValue = null;
+                        event.added.forEach((added)=>{
+                            ids.push(added?.objectId);
+                        })
+                        if (ids.length > 1){
+                            queryOperator = "IN";
+                            queryValue = ids.join(",");
+                            query.where = `${layer.objectIdField}  ${queryOperator}  (${queryValue})`;
+                        }else{
+                            queryValue = ids[0];
+                            query.where = layer.objectIdField + " = " + queryValue;
+                        }
+                        // query.where = `${layer.objectIdField}  ${queryOperator}  (${queryValue})`;
+                        // console.log(query.where,"check where value")
+                        // query.where = layer.objectIdField + " = " + event.added[0]?.objectId;
                         query.returnGeometry = true;
                         layer.queryFeatures(query).then((results)=>{
                             const features = results.features;
-                            if(features.length)activeView.view.goTo(features[0].geometry)
+                            if (features.length){
+                                const arrayGeometry = [];
+                                features.forEach((feature)=>{
+                                    const newGeometry = geometryEngine.buffer(feature.geometry,1,"meters");
+                                    arrayGeometry.push(newGeometry);
+                                })
+                                const unifiedGeomtry = geometryEngine.union(arrayGeometry);
+                                // const newGeometry = geometryEngine.buffer(features[0].geometry,1,"meters");
+                                //@ts-ignore
+                                if(unifiedGeomtry.extent)activeView.view.goTo(unifiedGeomtry.extent)
+                            }
+                            // const newGeometry = geometryEngine.buffer(features[0].geometry,1,"meters");
+                            // if(features.length)activeView.view.goTo(features[0].geometry)
+                            // if(features.length)activeView.view.goTo(features[0].geometry)
                         });
                         const currentHightlight = this.state.highlightState[id];
                         //@ts-ignore
@@ -220,7 +249,12 @@ export default class Widget extends React.PureComponent<AllWidgetProps<any>&stat
                 view.goTo({center: view.center,zoom:initialMapZoom });
             }
             if (event.removed.length){
-                helper.removeObjectId(layerView,event.removed[0].objectId);
+                const objectIdsArr = [];
+                event.removed.forEach((removed)=>{
+                    objectIdsArr.push(removed.objectId);
+                })
+                helper.removeObjectId(layerView,objectIdsArr);
+                // helper.removeObjectId(layerView,event.removed[0].objectId);
                 const checkAllEl = document.getElementById(id);
                 //@ts-ignore
                 if (checkAllEl)checkAllEl.checked = false;
