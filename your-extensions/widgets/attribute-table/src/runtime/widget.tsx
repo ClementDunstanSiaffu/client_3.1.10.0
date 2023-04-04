@@ -244,10 +244,10 @@ export default class Widget extends React.PureComponent<AllWidgetProps<any>&stat
                 }catch (e){
                 }
             }
-            if (event.removed.length > 0 && initialMapZoom){
-                const view = activeView.view;
-                view.goTo({center: view.center,zoom:initialMapZoom });
-            }
+            // if (event.removed.length > 0 && initialMapZoom){
+            //     const view = activeView.view;
+            //     view.goTo({center: view.center,zoom:initialMapZoom });
+            // }
             if (event.removed.length){
                 const objectIdsArr = [];
                 event.removed.forEach((removed)=>{
@@ -259,6 +259,7 @@ export default class Widget extends React.PureComponent<AllWidgetProps<any>&stat
                 //@ts-ignore
                 if (checkAllEl)checkAllEl.checked = false;
                 this.replaceCurrentTableWithNewTable(featureTable);
+                if (initialMapZoom)view.goTo({center:view.center,zoom:initialMapZoom });
             }
         });
 
