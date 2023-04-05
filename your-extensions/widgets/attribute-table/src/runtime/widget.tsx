@@ -56,7 +56,6 @@ export default class Widget extends React.PureComponent<AllWidgetProps<any>&stat
 
     componentDidUpdate(prevProps: Readonly<AllWidgetProps<any>>, prevState: Readonly<any>, snapshot?: any) {
         const callTable = helper.checkingAllRequiredProps(this.props);
-        console.log(callTable,"check call table")
         if(callTable)helper.startCreatingTable(this.props,this)
     }
 
@@ -162,14 +161,14 @@ export default class Widget extends React.PureComponent<AllWidgetProps<any>&stat
             selectionColumn: true,
             columnMenus: true,
         } 
-
-        this.timeInterval = setInterval(()=>{
+        const timeInterval = setInterval(()=>{
             //@ts-ignore
-            const checkboxElement = featureTable.domNode.getElementsByTagName("vaadin-grid-cell-content")
+            const checkboxElement = featureTable.domNode.getElementsByTagName("vaadin-grid-cell-content");
             if (checkboxElement.length){
                 for (let i = 0;i < checkboxElement.length;i++){
                     const el = checkboxElement.item(i);
-                    if (el?.slot === "vaadin-grid-cell-content-0"){
+                    const currentStatus = el.getAttribute("status");
+                    if (el?.slot === "vaadin-grid-cell-content-0" && !currentStatus){
                         const inputEl = document.createElement("input");
                         inputEl.type = "checkbox";
                         inputEl.className = "select-all-checkbox";
@@ -187,9 +186,12 @@ export default class Widget extends React.PureComponent<AllWidgetProps<any>&stat
                             }
                         }
                         el.appendChild(inputEl); 
+                        el.setAttribute("status","1");
+                        break;          
+                        // console.log(el.getAttribute("status"),"check status below")
                     }
                 }
-                clearInterval(this.timeInterval)          
+                clearInterval(timeInterval)          
             }
         },1000)
 

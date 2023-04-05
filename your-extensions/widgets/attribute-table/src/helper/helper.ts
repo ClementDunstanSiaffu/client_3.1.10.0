@@ -27,9 +27,13 @@ class Helper {
             props.stateValue?.value?.numberOfAttribute&&
             props.stateValue?.value?.createTable
         ){
-            const numberOfAttribute = props.stateValue?.value?.numberOfAttribute;
-            if (Object.keys(numberOfAttribute).length)callTable = true;
             // callTable = true;
+            const numberOfAttribute = props.stateValue?.value?.numberOfAttribute;
+            if (Object.keys(numberOfAttribute).length){
+                callTable = true;
+            }else{
+                this.openSideBar([],{});
+            }
         }
         return callTable;
     }
@@ -38,14 +42,18 @@ class Helper {
     checkTableRequiredProps = (val:createTableType):boolean=>{
         let createTable = false;
         const {activeView,allLayers,jimuLayerView,checkedLayers} = val;
-        if (activeView && allLayers?.length > 0 && Object.keys(jimuLayerView).length > 0 && checkedLayers.length > 0){
+        if (
+            activeView && 
+            allLayers?.length > 0 && 
+            Object.keys(jimuLayerView).length > 0 && 
+            checkedLayers.length > 0
+        ){
             createTable = true; 
         }
         return createTable;
     }
 
     startCreatingTable = (props:stateValueType,self:Widget)=>{
-        console.log(props,"check props value")
         const activeView = props.stateValue?.value?.getActiveView();
         const allLayers = props.stateValue?.value?.getAllLayers();
         const jimuLayerView = activeView?.jimuLayerViews
@@ -91,10 +99,16 @@ class Helper {
         if (keys.length > 0){
             keys.forEach((key)=>{
                 if (id === jimuLayerViews[key]?.layer?.id){
-                    if (jimuLayerViews[key].hasOwnProperty("highLightHandle"))jimuLayerViews[key]?.highLightHandle?.remove()
-                    if(jimuLayerViews[key].layer?.hasOwnProperty("visible"))jimuLayerViews[key].layer.visible = false;
+                    if (jimuLayerViews[key].hasOwnProperty("highLightHandle")){
+                        jimuLayerViews[key]?.highLightHandle?.remove();
+                    }
+                    if(jimuLayerViews[key].layer?.hasOwnProperty("visible")){
+                        jimuLayerViews[key].layer.visible = false;
+                    }
                     if (jimuLayerViews[key].hasOwnProperty("view")){
-                        if (jimuLayerViews[key].view?.hasOwnProperty("visible"))jimuLayerViews[key].view.visible = false;
+                        if (jimuLayerViews[key].view?.hasOwnProperty("visible")){
+                            jimuLayerViews[key].view.visible = false;
+                        }
                     }
                 }
             })
@@ -103,7 +117,12 @@ class Helper {
 
     getNewNumberOfAttributes = (currentNumberOfAttribute:{[id:string]:number},id:string)=>{
         let copiedNumberOfAttribute = {...currentNumberOfAttribute};
-        if (Object.keys(copiedNumberOfAttribute).length > 0 && copiedNumberOfAttribute[id])delete copiedNumberOfAttribute[id];
+        if (
+            Object.keys(copiedNumberOfAttribute).length > 0 && 
+            copiedNumberOfAttribute[id]
+        ){
+            delete copiedNumberOfAttribute[id];
+        }
         return copiedNumberOfAttribute;
     }
 
@@ -126,11 +145,12 @@ class Helper {
         const keys = Object.keys(jimuLayerViews);
         if (keys.length > 0){
             keys.forEach((key)=>{
-                    if(jimuLayerViews[key].layer?.hasOwnProperty("visible"))jimuLayerViews[key].layer.visible = false;
+                    if(jimuLayerViews[key].layer?.hasOwnProperty("visible")){
+                        jimuLayerViews[key].layer.visible = false;
+                    }
                     if (jimuLayerViews[key].hasOwnProperty("view")){
                         if (jimuLayerViews[key].view?.hasOwnProperty("visible")){
                             jimuLayerViews[key].view.visible = false;
-                            
                         }
                     }
                 
@@ -163,23 +183,6 @@ class Helper {
             }
         }
     }
-
-    // removeObjectId = (layerView:LayerView,objectId:number)=>{
-    //     if (layerView && objectId){
-    //         //@ts-ignore
-    //         const currentHighligts = layerView?._highlightIds;
-    //         if (currentHighligts.size){
-    //             //@ts-ignore
-    //             layerView._highlightIds = new Map();
-    //             for (const [key,value] of currentHighligts){
-    //                 if (key !== objectId){
-    //                     //@ts-ignore
-    //                     layerView._highlightIds.set(key,value)
-    //                 }
-    //             }
-    //         }
-    //     }
-    // }
 }
 
 export default new Helper();

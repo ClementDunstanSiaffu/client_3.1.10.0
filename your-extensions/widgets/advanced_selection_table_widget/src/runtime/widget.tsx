@@ -100,6 +100,7 @@ export default class AdvancedSelectionTable extends React.PureComponent<AllWidge
 
     getMapLayers = (activeView:JimuMapView)=>{
         if (activeView){
+            activeView.clearSelectedFeatures();
             const newLayersArray = Object.keys(activeView?.jimuLayerViews)?.reduce((newLayerArray,item)=>{
                 if (activeView?.jimuLayerViews[item]?.view && activeView?.jimuLayerViews[item]?.layer?.type === "feature"){
                     let object = {
