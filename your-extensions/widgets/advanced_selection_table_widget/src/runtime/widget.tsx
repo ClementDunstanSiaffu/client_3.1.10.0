@@ -100,6 +100,7 @@ export default class AdvancedSelectionTable extends React.PureComponent<AllWidge
 
     getMapLayers = (activeView:JimuMapView)=>{
         if (activeView){
+            activeView.clearSelectedFeatures();
             const newLayersArray = Object.keys(activeView?.jimuLayerViews)?.reduce((newLayerArray,item)=>{
                 if (activeView?.jimuLayerViews[item]?.view && activeView?.jimuLayerViews[item]?.layer?.type === "feature"){
                     let object = {
@@ -155,7 +156,7 @@ export default class AdvancedSelectionTable extends React.PureComponent<AllWidge
     selectFeatureLayer = (geometry:any)=>{
         const checkedLayers = this.props.stateValue?.value?.checkedLayers??[];
         const activeView = AdvancedSelectionTable.activeView;
-        if (activeView){
+        if (activeView && checkedLayers.length){
             activeView?.selectFeaturesByGraphic(geometry,"contains").then((results)=>{
                 helper.highlightOnlyCheckedLayer(checkedLayers);
                 const selectedLayersContents = helper.getSelectedContentsLayer(results,checkedLayers);
