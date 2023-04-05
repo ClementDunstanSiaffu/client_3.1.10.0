@@ -27,7 +27,9 @@ class Helper {
             props.stateValue?.value?.numberOfAttribute&&
             props.stateValue?.value?.createTable
         ){
-            callTable = true;
+            const numberOfAttribute = props.stateValue?.value?.numberOfAttribute;
+            if (Object.keys(numberOfAttribute).length)callTable = true;
+            // callTable = true;
         }
         return callTable;
     }
@@ -43,7 +45,7 @@ class Helper {
     }
 
     startCreatingTable = (props:stateValueType,self:Widget)=>{
-
+        console.log(props,"check props value")
         const activeView = props.stateValue?.value?.getActiveView();
         const allLayers = props.stateValue?.value?.getAllLayers();
         const jimuLayerView = activeView?.jimuLayerViews

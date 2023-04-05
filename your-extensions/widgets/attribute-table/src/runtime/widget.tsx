@@ -55,7 +55,8 @@ export default class Widget extends React.PureComponent<AllWidgetProps<any>&stat
     }
 
     componentDidUpdate(prevProps: Readonly<AllWidgetProps<any>>, prevState: Readonly<any>, snapshot?: any) {
-        const callTable = helper.checkingAllRequiredProps(this.props)
+        const callTable = helper.checkingAllRequiredProps(this.props);
+        console.log(callTable,"check call table")
         if(callTable)helper.startCreatingTable(this.props,this)
     }
 
