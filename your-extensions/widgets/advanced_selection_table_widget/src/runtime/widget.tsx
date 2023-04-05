@@ -155,7 +155,7 @@ export default class AdvancedSelectionTable extends React.PureComponent<AllWidge
     selectFeatureLayer = (geometry:any)=>{
         const checkedLayers = this.props.stateValue?.value?.checkedLayers??[];
         const activeView = AdvancedSelectionTable.activeView;
-        if (activeView){
+        if (activeView && checkedLayers.length){
             activeView?.selectFeaturesByGraphic(geometry,"contains").then((results)=>{
                 helper.highlightOnlyCheckedLayer(checkedLayers);
                 const selectedLayersContents = helper.getSelectedContentsLayer(results,checkedLayers);
