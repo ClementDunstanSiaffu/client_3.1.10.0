@@ -201,6 +201,25 @@ export default class Widget extends React.PureComponent<AllWidgetProps<IMConfig>
         }
       });
 
+      sketch.on("update",(event)=>{
+        if (event.state === "complete"){
+          this.graphicLayerFound.removeAll();
+          const arrayGeometry = [];
+          if (event.graphics.length){
+            event.graphics.forEach((graphic)=>{
+              arrayGeometry.push(graphic.geometry);
+            })
+            if (arrayGeometry.length){
+              const unifiedGeomtry = geometryEngine.union(arrayGeometry);
+              const polygonGraphic = new Graphic({geometry:unifiedGeomtry,symbol: this.symbolFound});
+              this.graphicLayerFound.add(polygonGraphic);
+              this.selectFeatureLayer(polygonGraphic);
+              this.setState({searchByAddress:false})
+            }
+          }
+        }
+      })
+
       const searchWidget = new Search({
         view: jmv.view,
         container: "search-widget-search-advanced"//TODO migliorare senza id cablato
