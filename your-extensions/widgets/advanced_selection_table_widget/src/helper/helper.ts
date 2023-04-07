@@ -107,6 +107,16 @@ class Helper {
         } 
     }
 
+    unhighlightAllLayer = ()=>{
+        const jimuLayerViews = AdvancedSelectionTable.jimuLayerViews??[];
+        const keys = Object.keys(jimuLayerViews);
+        if (keys.length > 0){
+            keys.forEach((key)=>{
+                jimuLayerViews[key]?.highLightHandle?.remove()
+            })
+        }  
+    }
+
     getClickedLayerStatus = (results:any[],selectedLayer:selectedLayerType[]):boolean=>{
         let status = false;
         let index = -1;

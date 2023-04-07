@@ -100,6 +100,7 @@ export default class AdvancedSelectionTable extends React.PureComponent<AllWidge
 
     getMapLayers = (activeView:JimuMapView)=>{
         if (activeView){
+            helper.unhighlightAllLayer();
             activeView.clearSelectedFeatures();
             const newLayersArray = Object.keys(activeView?.jimuLayerViews)?.reduce((newLayerArray,item)=>{
                 if (activeView?.jimuLayerViews[item]?.view && activeView?.jimuLayerViews[item]?.layer?.type === "feature"){
@@ -294,6 +295,7 @@ export default class AdvancedSelectionTable extends React.PureComponent<AllWidge
     restoreMap = ()=>{
         const activeView = AdvancedSelectionTable.activeView;
         if (activeView){
+            helper.unhighlightAllLayer();
             activeView.clearSelectedFeatures();
             const zoomVal = AdvancedSelectionTable.initialZoomValue
             this.zoomOut(zoomVal);

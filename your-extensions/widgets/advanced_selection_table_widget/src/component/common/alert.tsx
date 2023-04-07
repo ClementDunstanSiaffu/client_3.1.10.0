@@ -5,10 +5,10 @@ import Widget from '../../runtime/widget';
 
 type propsType = {
     open:boolean,
-    type:"success"|"info"|"warning"|"error",
+    type?:"success"|"info"|"warning"|"error",
     text:string,
-    withIcon:boolean,
-    closable:boolean,
+    withIcon?:boolean,
+    closable?:boolean,
     onClose:(val?:any)=>void
 }
 

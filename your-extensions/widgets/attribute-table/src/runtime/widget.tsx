@@ -404,7 +404,7 @@ export default class Widget extends React.PureComponent<AllWidgetProps<any>&stat
             const checkedLayers = this.props.stateValue?.value?.checkedLayers??[];
             if (table && table.layer){
                 const id = table.layer.id;
-                helper.hideLayer(jimuLayerViews,id);
+                // helper.hideLayer(jimuLayerViews,id);
                 const newNumberOfAttribute = helper.getNewNumberOfAttributes(numberOfAttribute,id);
                 const newCheckedLayers = helper.getNewCheckedLayer(checkedLayers,id);
                 this.props.dispatch(appActions.widgetStatePropChange("value","numberOfAttribute",newNumberOfAttribute));
